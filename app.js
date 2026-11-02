@@ -5,7 +5,7 @@ const year = date => date ? date.slice(0, 4) : 'Year unknown';
 
 function card(movie) {
   const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy">` : '<div class="no-poster">No poster</div>';
-  return `<a class="movie-card" href="#movie/${movie.id}">${poster}<div class="card-copy"><h3>${esc(movie.title)}</h3><span>${year(movie.release_date)}</span><strong>★ ${(movie.vote_average || 0).toFixed(1)}</strong></div></a>`;
+  return `<a class="movie-card" href="#movie/${movie.id}">${poster}<div class="card-copy"><h3>${esc(movie.title)}</h3><span>${year(movie.release_date)}</span><strong>★ ${(movie.vote_average || 0).toFixed(1)}</strong></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>`;
 }
 
 function shelf(title, subtitle, movies) {
