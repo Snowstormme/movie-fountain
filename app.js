@@ -17,7 +17,11 @@ function fountain(data) {
   const movies = [...(data.trending || []), ...(data.popular || []), ...(data.now_playing || []), ...(data.top_rated || []), ...(data.upcoming || [])]
     .filter((movie, index, all) => all.findIndex(item => item.id === movie.id) === index);
   const columns = [0, 1, 2].map(column => movies.filter((_, index) => index % 3 === column));
-  return `<section class="fountain-intro"><a class="back" href="#">← Back to home</a><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><p class="hero-copy">A living stream of movies from every shelf. Pick one, or keep watching the fountain flow.</p><div class="fountain-controls" role="group" aria-label="Fountain controls"><span>Flow</span><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">↻ Surprise me</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" aria-label="Movie Fountain">${columns.map((column, columnIndex) => `<div class="fountain-column fountain-column-${columnIndex + 1}">${column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('')}</div>`).join('')}</section>`;
+  const columnMarkup = columns.map((column, columnIndex) => {
+    const items = column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('');
+    return `<div class="fountain-column fountain-column-${columnIndex + 1}"><div class="fountain-track"><div class="fountain-set">${items}</div><div class="fountain-set" aria-hidden="true">${items}</div></div></div>`;
+  }).join('');
+  return `<section class="fountain-intro"><a class="back" href="#">← Back to home</a><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><p class="hero-copy">A living stream of movies from every shelf. Pick one, or keep watching the fountain flow.</p><div class="fountain-controls" role="group" aria-label="Fountain controls"><span>Flow</span><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">↻ Surprise me</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" aria-label="Movie Fountain">${columnMarkup}</section>`;
 }
 
 function bindFountainControls() {
@@ -35,18 +39,19 @@ function bindFountainControls() {
   });
   document.querySelector('.shuffle-control')?.addEventListener('click', () => {
     const columns = [...stream.querySelectorAll('.fountain-column')];
-    const cards = columns.flatMap(column => [...column.querySelectorAll('.fountain-item')].map(item => item.innerHTML));
+    const cards = columns.flatMap(column => [...column.querySelectorAll('.fountain-set:first-child .fountain-item')].map(item => item.innerHTML));
     for (let index = cards.length - 1; index > 0; index -= 1) {
       const randomIndex = Math.floor(Math.random() * (index + 1));
       [cards[index], cards[randomIndex]] = [cards[randomIndex], cards[index]];
     }
-    columns.forEach(column => { column.innerHTML = ''; });
+    columns.forEach(column => { column.innerHTML = '<div class="fountain-track"><div class="fountain-set"></div><div class="fountain-set" aria-hidden="true"></div></div>'; });
     cards.forEach((markup, index) => {
       const item = document.createElement('div');
       item.className = 'fountain-item';
       item.style.setProperty('--delay', `${(index % 14) * 0.18}s`);
       item.innerHTML = markup;
-      columns[index % columns.length].append(item);
+      const sets = columns[index % columns.length].querySelectorAll('.fountain-set');
+      sets.forEach(set => set.append(item.cloneNode(true)));
     });
   });
 }
