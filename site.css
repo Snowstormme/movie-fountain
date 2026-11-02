@@ -10,4 +10,4 @@
 @media(max-width:650px){.fountain-intro{padding:16px 18px 18px}.fountain-intro h1{font-size:32px}.fountain-intro .hero-copy{font-size:14px}.fountain{padding:20px 12px 70px}.fountain-column{height:78vh;min-height:560px}}
 .fountain-intro{padding:14px 22px 15px;border-radius:20px}.fountain-intro h1{margin:5px 0;font-size:clamp(28px,3.5vw,42px)}.fountain-controls{margin-top:10px}.fountain{margin-top:10px}
 @media(max-width:650px){.fountain-intro{padding:12px 16px 13px}.fountain-intro h1{font-size:28px}.fountain-controls{margin-top:8px}}
-.card-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}.card-copy strong{float:none;white-space:nowrap}
+.card-meta{display:grid;width:100%;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}.card-copy strong{float:none;margin-left:auto;white-space:nowrap;text-align:right}
