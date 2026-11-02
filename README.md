@@ -4,6 +4,8 @@
 
 [Open the Cloudflare Pages site](https://movie-finder-b3o.pages.dev/)
 
+Cloudflare Pages reads the frontend from the repository root and runs the API through Pages Functions. Add `TMDB_API_KEY` as a Cloudflare Pages environment variable; it is intentionally never stored in this repository or exposed to the browser.
+
 Небольшой проект на Flask для поиска фильмов через TMDB.
 
 ## Запуск
