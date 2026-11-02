@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://movie-fountain.pages.dev/sitemap.xml
