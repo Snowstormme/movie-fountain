@@ -1,3 +1,4 @@
 {
-  "project_id": "appgprj_6ae8dbfc049c8191aff7653f1f99e6fe"
+  "project_id": "appgprj_6ae8dbfc049c8191aff7653f1f99e6fe",
+  "worker": {"entrypoint": "worker.js"}
 }
