@@ -1,0 +1,32 @@
+# Security policy
+
+## Supported versions
+
+Only the latest commit on `main` is actively maintained. This project does not currently publish long-lived release branches.
+
+## Reporting a vulnerability
+
+Do not open a public issue for a suspected credential leak, authentication bypass, injection, or other security vulnerability. Report it privately through the repository owner’s GitHub security contact or private communication, including:
+
+- a clear description and impact;
+- affected URL, file, or commit;
+- reproducible steps or a minimal proof of concept;
+- any suggested mitigation.
+
+Remove real credentials from the report. If a key may have been exposed, rotate it immediately in TMDB/Cloudflare and then report the incident.
+
+## Security controls
+
+- Provider keys are stored in Cloudflare environment variables or local `.env`, never in client code.
+- `.env` and common local/build artifacts are ignored by Git.
+- Pages Functions return generic public errors and log details server-side.
+- User/provider text is escaped before client-side HTML interpolation.
+- Cloudflare Pages sends restrictive content, framing, referrer, and permissions headers through [`_headers`](./_headers).
+- The frontend does not implement accounts, payments, or user-generated content.
+
+## Development rules
+
+- Never commit API keys, tokens, cookies, dumps, or screenshots containing secrets.
+- Do not add `innerHTML` interpolation without escaping or a reviewed trusted template.
+- Validate provider IDs and query parameters before using them in requests.
+- Keep dependencies and deployment configuration reviewed in pull requests.

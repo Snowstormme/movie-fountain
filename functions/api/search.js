@@ -1,5 +1,9 @@
-import { tmdb, safeError } from '../_lib/tmdb.js';
+import { tmdb, safeError, searchQuery } from '../_lib/tmdb.js';
 export async function onRequestGet({ request, env }) {
-  try { return Response.json(await tmdb('/search/movie', env, { query: new URL(request.url).searchParams.get('q') || '' })); }
+  try {
+    const query = searchQuery(new URL(request.url).searchParams.get('q'));
+    if (!query) return Response.json({ results: [] });
+    return Response.json(await tmdb('/search/movie', env, { query }));
+  }
   catch (error) { return safeError(error); }
 }

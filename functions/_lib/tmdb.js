@@ -9,6 +9,24 @@ export async function tmdb(path, env, params = {}) {
   return response.json();
 }
 
+export function numericId(value) {
+  const id = String(value || '');
+  if (!/^\d{1,10}$/.test(id)) throw new Error('Invalid resource identifier');
+  return id;
+}
+
+export function searchQuery(value) {
+  return String(value || '').trim().slice(0, 120);
+}
+
 export function safeError(error) {
-  return new Response(JSON.stringify({ error: error.message || 'Movie service unavailable' }), { status: 502, headers: { 'content-type': 'application/json' } });
+  console.error('Movie API request failed', error);
+  return new Response(JSON.stringify({ error: 'Movie service temporarily unavailable' }), {
+    status: 502,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      'x-content-type-options': 'nosniff',
+    },
+  });
 }
