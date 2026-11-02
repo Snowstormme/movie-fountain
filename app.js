@@ -13,6 +13,13 @@ function shelf(title, subtitle, movies) {
   return `<section class="shelf"><div class="shelf-heading"><div><h2>${title}</h2><p>${subtitle}</p></div><span>${movies.length} films</span></div><div class="movie-row">${movies.slice(0, 12).map(card).join('')}</div></section>`;
 }
 
+function fountain(data) {
+  const movies = [...(data.trending || []), ...(data.popular || []), ...(data.now_playing || []), ...(data.top_rated || []), ...(data.upcoming || [])]
+    .filter((movie, index, all) => all.findIndex(item => item.id === movie.id) === index);
+  const columns = [0, 1, 2].map(column => movies.filter((_, index) => index % 3 === column));
+  return `<section class="fountain-intro"><a class="back" href="#">← Back to home</a><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><p class="hero-copy">A living stream of movies from every shelf. Pick one, or keep watching the fountain flow.</p></section><section class="fountain" aria-label="Movie Fountain">${columns.map((column, columnIndex) => `<div class="fountain-column fountain-column-${columnIndex + 1}">${column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('')}</div>`).join('')}</section>`;
+}
+
 async function api(path) {
   const response = await fetch(path, { headers: { accept: 'application/json' } });
   const data = await response.json();
@@ -26,6 +33,12 @@ async function home() {
     const data = await api('/api/home');
     app.innerHTML = `<section class="hero"><p class="eyebrow">Your next watch</p><h1>Find something worth watching.</h1><p class="hero-copy">Browse what is trending, playing now, highly rated, and coming soon.</p></section>${shelf('Trending now','What people are watching this week',data.trending)}${shelf('Popular this week','Crowd favorites worth your time',data.popular)}${shelf('Now playing','Fresh releases from cinemas',data.now_playing)}${shelf('Top rated','A reliable place to start',data.top_rated)}${shelf('Coming soon','Keep an eye on what is next',data.upcoming)}`;
   } catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
+}
+
+async function fountainPage() {
+  app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
+  try { app.innerHTML = fountain(await api('/api/home')); }
+  catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
 async function search(query) {
@@ -44,6 +57,6 @@ async function cast(id) { const data=await api(`/api/movie/${id}/cast`); app.inn
 
 async function person(id) { const data=await api(`/api/person/${id}`); app.innerHTML=`<a class="back" href="#">← Back to movies</a><article class="person"><div>${data.person.profile_path?`<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`:''}</div><div><p class="eyebrow">Filmography</p><h1>${esc(data.person.name)}</h1><p class="detail-meta">${esc(data.person.place_of_birth||'')}</p><p class="overview">${esc(data.person.biography||'No biography available.')}</p></div></article>${shelf('Acting','Selected filmography',data.acting_movies)}${shelf('Directed','Directed films',data.directed_movies)}`; }
 
-async function route() { const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
+async function route() { const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
 document.querySelector('#search-form').addEventListener('submit', event => { event.preventDefault(); const q=new FormData(event.currentTarget).get('q').trim(); if(q){ location.hash=`search/${encodeURIComponent(q)}`; search(q); } });
 window.addEventListener('hashchange', route); route();
