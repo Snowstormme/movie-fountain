@@ -1,5 +1,9 @@
 # Movie Finder
 
+## Live site
+
+[Open the Cloudflare Pages site](https://movie-finder-b3o.pages.dev/)
+
 Небольшой проект на Flask для поиска фильмов через TMDB.
 
 ## Запуск
