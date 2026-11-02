@@ -17,7 +17,22 @@ function fountain(data) {
   const movies = [...(data.trending || []), ...(data.popular || []), ...(data.now_playing || []), ...(data.top_rated || []), ...(data.upcoming || [])]
     .filter((movie, index, all) => all.findIndex(item => item.id === movie.id) === index);
   const columns = [0, 1, 2].map(column => movies.filter((_, index) => index % 3 === column));
-  return `<section class="fountain-intro"><a class="back" href="#">← Back to home</a><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><p class="hero-copy">A living stream of movies from every shelf. Pick one, or keep watching the fountain flow.</p></section><section class="fountain" aria-label="Movie Fountain">${columns.map((column, columnIndex) => `<div class="fountain-column fountain-column-${columnIndex + 1}">${column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('')}</div>`).join('')}</section>`;
+  return `<section class="fountain-intro"><a class="back" href="#">← Back to home</a><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><p class="hero-copy">A living stream of movies from every shelf. Pick one, or keep watching the fountain flow.</p><div class="fountain-controls" role="group" aria-label="Fountain controls"><span>Flow</span><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" aria-label="Movie Fountain">${columns.map((column, columnIndex) => `<div class="fountain-column fountain-column-${columnIndex + 1}">${column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('')}</div>`).join('')}</section>`;
+}
+
+function bindFountainControls() {
+  const stream = document.querySelector('#fountain-stream');
+  if (!stream) return;
+  document.querySelectorAll('.fountain-control[data-speed]').forEach(button => button.addEventListener('click', () => {
+    stream.dataset.speed = button.dataset.speed;
+    document.querySelectorAll('.fountain-control[data-speed]').forEach(control => control.classList.toggle('is-active', control === button));
+  }));
+  const pause = document.querySelector('.pause-control');
+  pause?.addEventListener('click', () => {
+    const paused = stream.classList.toggle('is-paused');
+    pause.textContent = paused ? 'Play' : 'Pause';
+    pause.setAttribute('aria-pressed', String(paused));
+  });
 }
 
 async function api(path) {
@@ -37,7 +52,7 @@ async function home() {
 
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
-  try { app.innerHTML = fountain(await api('/api/home')); }
+  try { app.innerHTML = fountain(await api('/api/home')); bindFountainControls(); }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
