@@ -1,5 +1,11 @@
 # Movie Finder
 
+## Live preview
+
+Cloudflare preview: https://movie-finder.buenokotpanda.chatgpt.site
+
+The new homepage is designed as a movie fountain: a scrollable discovery feed with trending, popular, now playing, top-rated, and upcoming films. The interface uses a dark liquid-glass visual language and keeps TMDB requests server-side through a Cloudflare Worker.
+
 Небольшой проект на Flask для поиска фильмов через TMDB.
 
 ## Запуск
