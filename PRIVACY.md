@@ -11,7 +11,9 @@ Movie Fountain is a public movie-discovery site and does not currently provide a
 - The browser may receive standard operational data from Cloudflare, such as request metadata, for security and delivery.
 - Posters and movie metadata are loaded from TMDB’s image and API services. Those services may process request metadata under their own policies.
 
-Movie Fountain does not intentionally collect names, email addresses, passwords, payment data, watch history, or precise location.
+Watched movie IDs are also stored locally under `movie-fountain.watched.v1`. These marks are not uploaded. Genre, year and runtime filters are sent to the same-origin discovery API and TMDB. Sharing sends a public movie URL through your chosen app or clipboard. Imported JSON files are processed locally; exported files reveal your saved movie selections to anyone you share them with.
+
+Movie Fountain does not intentionally collect names, email addresses, passwords, payment data, or precise location. See the visitor-facing [privacy page](https://movie-fountain.pages.dev/privacy.html).
 
 ## Third parties
 

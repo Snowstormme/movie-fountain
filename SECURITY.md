@@ -26,6 +26,10 @@ Remove real credentials from the report. If a key may have been exposed, rotate 
 
 ## Development rules
 
+- Watchlist imports accept at most 2 MB and 2,000 records. Records are normalized, identifiers validated, poster paths restricted, and text escaped before rendering. Imports are never evaluated as code or uploaded.
+- Local movie selections are not encrypted and can be read by scripts running on this origin. Exported backups should be treated as personal viewing preferences.
+- Discovery accepts only bounded year, runtime and genre parameters; arbitrary upstream URLs are not accepted.
+
 - Never commit API keys, tokens, cookies, dumps, or screenshots containing secrets.
 - Do not add `innerHTML` interpolation without escaping or a reviewed trusted template.
 - Validate provider IDs and query parameters before using them in requests.

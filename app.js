@@ -9,7 +9,7 @@ const watchlistKey = 'movie-fountain.watchlist.v1';
 function readWatchlist() {
   try {
     const value = JSON.parse(localStorage.getItem(watchlistKey) || '[]');
-    return Array.isArray(value) ? value.filter(m => m && Number.isSafeInteger(m.id) && typeof m.title === 'string') : [];
+    return normalizeMovies(value);
   } catch { return []; }
 }
 let savedMovies = readWatchlist();
@@ -19,6 +19,7 @@ function saveButton(movie) {
 }
 function watchlist() {
   app.innerHTML = `<div class="page-heading"><p class="eyebrow">Your collection</p><h1>Watchlist</h1><p>Saved on this browser. Clearing site data removes your list; it does not sync between devices.</p></div><div class="movie-grid">${savedMovies.map(card).join('') || '<p class="message">Tap ♡ on a movie to save it here.</p>'}</div>`;
+  app.insertAdjacentHTML('afterbegin',libraryTools());
 }
 app.addEventListener('click', event => {
   const button = event.target.closest('[data-save]');
@@ -36,13 +37,15 @@ app.addEventListener('click', event => {
 });
 window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#watchlist') watchlist(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
 document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#watchlist">♡ Watchlist</a>');
+document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#tonight">Tonight</a>');
+document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>');
 document.body.insertAdjacentHTML('beforeend', '<p id="save-status" class="visually-hidden" role="status"></p>');
 document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('page-hidden', document.hidden));
 
 function card(movie) {
   movieCache.set(String(movie.id), movie);
   const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy">` : '<div class="no-poster">No poster</div>';
-  return `<div class="movie-tile"><a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>${saveButton(movie)}</div>`;
+  return `<div class="movie-tile"><a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>${saveButton(movie)}${extraActions(movie)}</div>`;
 }
 
 function shelf(title, subtitle, movies) {
@@ -79,6 +82,7 @@ function fountain(data) {
 }
 
 function bindFountainControls(movies) {
+  fountainAbort?.abort();
   const stream = document.querySelector('#fountain-stream');
   if (!stream) return;
   document.querySelectorAll('.fountain-control[data-speed]').forEach(button => button.addEventListener('click', () => {
@@ -133,7 +137,7 @@ async function home() {
 
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
-  try { const data = await api('/api/home'); app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); }
+  try { const data = await api('/api/home'); if(location.hash!=='#fountain')return; app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); enhanceFountain(fountainMovies(data)); }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
@@ -153,6 +157,6 @@ async function cast(id) { const data=await api(`/api/movie/${id}/cast`); app.inn
 
 async function person(id) { const data=await api(`/api/person/${id}`); app.innerHTML=`<a class="back" href="#">← Back to movies</a><article class="person"><div>${data.person.profile_path?`<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`:''}</div><div><p class="eyebrow">Filmography</p><h1>${esc(data.person.name)}</h1><p class="detail-meta">${esc(data.person.place_of_birth||'')}</p><p class="overview">${esc(data.person.biography||'No biography available.')}</p></div></article>${shelf('Acting','Selected filmography',data.acting_movies)}${shelf('Directed','Directed films',data.directed_movies)}`; }
 
-async function route() { const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
+async function route() { fountainAbort?.abort(); const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='tonight') return tonight(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
 document.querySelector('#search-form').addEventListener('submit', event => { event.preventDefault(); const q=new FormData(event.currentTarget).get('q').trim(); if(q){ location.hash=`search/${encodeURIComponent(q)}`; search(q); } });
 window.addEventListener('hashchange', route); route();

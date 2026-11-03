@@ -49,7 +49,7 @@ Cloudflare Pages  --->  Pages Functions (/api/*)  --->  TMDB API
 - TMDB owns movie metadata, images, and provider-side rate limiting.
 - Cloudflare owns static delivery, TLS, deployment, and secret storage.
 
-No application database is currently used. The client does not persist personal profiles, watch history, or account data.
+No application database is used. The browser persists watchlist metadata and watched IDs in localStorage. `features.js` handles validated import/export, sharing, watched marks, and Tonight. `/api/discover` validates year/runtime/genre parameters and requests one page of released movies from TMDB. Credentials remain in Pages Functions. Privacy details are available in `privacy.html` and `PRIVACY.md`.
 
 ## Key decisions
 
