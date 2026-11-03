@@ -2,6 +2,8 @@ const app = document.querySelector('#app');
 const image = path => path ? `https://image.tmdb.org/t/p/w500${path}` : '';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const year = date => date ? date.slice(0, 4) : 'Year unknown';
+const genreIds = { action: 28, comedy: 35, drama: 18, horror: 27, scifi: 878, animation: 16 };
+const moodFilters = { exciting: [28, 12, 53, 878], dark: [27, 80, 9648, 53], feelgood: [35, 10751, 16, 10402], romantic: [10749, 18, 35] };
 
 function card(movie) {
   const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy">` : '<div class="no-poster">No poster</div>';
@@ -13,18 +15,35 @@ function shelf(title, subtitle, movies) {
   return `<section class="shelf"><div class="shelf-heading"><div><h2>${title}</h2><p>${subtitle}</p></div><span>${movies.length} films</span></div><div class="movie-row">${movies.slice(0, 12).map(card).join('')}</div></section>`;
 }
 
-function fountain(data) {
-  const movies = [...(data.trending || []), ...(data.popular || []), ...(data.now_playing || []), ...(data.top_rated || []), ...(data.upcoming || [])]
+function fountainMovies(data) {
+  return [...(data.trending || []), ...(data.popular || []), ...(data.now_playing || []), ...(data.top_rated || []), ...(data.upcoming || [])]
     .filter((movie, index, all) => all.findIndex(item => item.id === movie.id) === index);
+}
+
+function movieGenres(movie) { return movie.genre_ids || (movie.genres || []).map(genre => genre.id); }
+
+function filteredMovies(movies, filter) {
+  if (filter === 'all') return movies;
+  const ids = genreIds[filter] ? [genreIds[filter]] : moodFilters[filter] || [];
+  return movies.filter(movie => movieGenres(movie).some(id => ids.includes(id)));
+}
+
+function fountainColumns(movies) {
+  if (!movies.length) return '<div class="fountain-empty">No movies found for this filter.</div>';
   const columns = [0, 1, 2].map(column => movies.filter((_, index) => index % 3 === column));
   const columnMarkup = columns.map((column, columnIndex) => {
     const items = column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('');
     return `<div class="fountain-column fountain-column-${columnIndex + 1}"><div class="fountain-track"><div class="fountain-set">${items}</div><div class="fountain-set" aria-hidden="true">${items}</div></div></div>`;
   }).join('');
-  return `<section class="fountain-intro"><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">↻ Surprise me</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" aria-label="Movie Fountain">${columnMarkup}</section>`;
+  return columnMarkup;
 }
 
-function bindFountainControls() {
+function fountain(data) {
+  const movies = fountainMovies(data);
+  return `<section class="fountain-intro"><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">↻ Surprise me</button></div><div class="fountain-filters" role="group" aria-label="Filter the Fountain"><span>Browse</span><button class="fountain-filter is-active" type="button" data-filter="all">All movies</button><button class="fountain-filter" type="button" data-filter="action">Action</button><button class="fountain-filter" type="button" data-filter="comedy">Comedy</button><button class="fountain-filter" type="button" data-filter="drama">Drama</button><button class="fountain-filter" type="button" data-filter="horror">Horror</button><button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button><button class="fountain-filter" type="button" data-filter="animation">Animation</button><button class="fountain-filter" type="button" data-filter="exciting">Exciting</button><button class="fountain-filter" type="button" data-filter="dark">Dark</button><button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button><button class="fountain-filter" type="button" data-filter="romantic">Romantic</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain">${fountainColumns(movies)}</section>`;
+}
+
+function bindFountainControls(movies) {
   const stream = document.querySelector('#fountain-stream');
   if (!stream) return;
   document.querySelectorAll('.fountain-control[data-speed]').forEach(button => button.addEventListener('click', () => {
@@ -54,6 +73,12 @@ function bindFountainControls() {
       sets.forEach(set => set.append(item.cloneNode(true)));
     });
   });
+  document.querySelectorAll('.fountain-filter').forEach(button => button.addEventListener('click', () => {
+    const filter = button.dataset.filter;
+    stream.dataset.filter = filter;
+    stream.innerHTML = fountainColumns(filteredMovies(movies, filter));
+    document.querySelectorAll('.fountain-filter').forEach(control => control.classList.toggle('is-active', control === button));
+  }));
 }
 
 async function api(path) {
@@ -73,7 +98,7 @@ async function home() {
 
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
-  try { app.innerHTML = fountain(await api('/api/home')); bindFountainControls(); }
+  try { const data = await api('/api/home'); app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
