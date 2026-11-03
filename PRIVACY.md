@@ -4,6 +4,8 @@ Movie Fountain is a public movie-discovery site and does not currently provide a
 
 ## Data handled
 
+- Watchlist selections are stored in localStorage on your browser, including movie titles, identifiers, poster paths and summaries. They are not uploaded or synchronized. Remove individual movies with the heart button, or clear site data to remove the entire list.
+
 - Search terms are sent to the site’s same-origin API endpoint so the site can query TMDB. They are not stored by the application.
 - Movie and person identifiers in the URL hash are used to load the requested page.
 - The browser may receive standard operational data from Cloudflare, such as request metadata, for security and delivery.

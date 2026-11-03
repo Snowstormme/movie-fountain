@@ -4,10 +4,45 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const year = date => date ? date.slice(0, 4) : 'Year unknown';
 const genreIds = { action: 28, comedy: 35, drama: 18, horror: 27, scifi: 878, animation: 16 };
 const moodFilters = { exciting: [28, 12, 53, 878], dark: [27, 80, 9648, 53], feelgood: [35, 10751, 16, 10402], romantic: [10749, 18, 35] };
+const movieCache = new Map();
+const watchlistKey = 'movie-fountain.watchlist.v1';
+function readWatchlist() {
+  try {
+    const value = JSON.parse(localStorage.getItem(watchlistKey) || '[]');
+    return Array.isArray(value) ? value.filter(m => m && Number.isSafeInteger(m.id) && typeof m.title === 'string') : [];
+  } catch { return []; }
+}
+let savedMovies = readWatchlist();
+function saveButton(movie) {
+  const saved = savedMovies.some(m => m.id === movie.id);
+  return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(movie.title)} ${saved ? 'from' : 'to'} watchlist">${saved ? '♥' : '♡'}</button>`;
+}
+function watchlist() {
+  app.innerHTML = `<div class="page-heading"><p class="eyebrow">Your collection</p><h1>Watchlist</h1><p>Saved on this browser. Clearing site data removes your list; it does not sync between devices.</p></div><div class="movie-grid">${savedMovies.map(card).join('') || '<p class="message">Tap ♡ on a movie to save it here.</p>'}</div>`;
+}
+app.addEventListener('click', event => {
+  const button = event.target.closest('[data-save]');
+  if (!button) return;
+  const item = movieCache.get(button.dataset.save);
+  if (!item) return;
+  const exists = savedMovies.some(m => m.id === item.id);
+  const next = exists ? savedMovies.filter(m => m.id !== item.id) : [...savedMovies, {id:item.id,title:item.title,poster_path:item.poster_path,release_date:item.release_date,vote_average:item.vote_average,overview:item.overview}];
+  try { localStorage.setItem(watchlistKey, JSON.stringify(next)); }
+  catch { document.querySelector('#save-status').textContent = 'Could not save. Browser storage is unavailable or full.'; return; }
+  savedMovies = next;
+  document.querySelector('#save-status').textContent = exists ? 'Removed from watchlist.' : 'Saved to watchlist.';
+  if (location.hash === '#watchlist') watchlist();
+  else app.querySelectorAll(`[data-save="${item.id}"]`).forEach(control => { control.outerHTML = saveButton(item); });
+});
+window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#watchlist') watchlist(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
+document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#watchlist">♡ Watchlist</a>');
+document.body.insertAdjacentHTML('beforeend', '<p id="save-status" class="visually-hidden" role="status"></p>');
+document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('page-hidden', document.hidden));
 
 function card(movie) {
+  movieCache.set(String(movie.id), movie);
   const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy">` : '<div class="no-poster">No poster</div>';
-  return `<a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>`;
+  return `<div class="movie-tile"><a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>${saveButton(movie)}</div>`;
 }
 
 function shelf(title, subtitle, movies) {
@@ -118,6 +153,6 @@ async function cast(id) { const data=await api(`/api/movie/${id}/cast`); app.inn
 
 async function person(id) { const data=await api(`/api/person/${id}`); app.innerHTML=`<a class="back" href="#">← Back to movies</a><article class="person"><div>${data.person.profile_path?`<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`:''}</div><div><p class="eyebrow">Filmography</p><h1>${esc(data.person.name)}</h1><p class="detail-meta">${esc(data.person.place_of_birth||'')}</p><p class="overview">${esc(data.person.biography||'No biography available.')}</p></div></article>${shelf('Acting','Selected filmography',data.acting_movies)}${shelf('Directed','Directed films',data.directed_movies)}`; }
 
-async function route() { const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
+async function route() { const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
 document.querySelector('#search-form').addEventListener('submit', event => { event.preventDefault(); const q=new FormData(event.currentTarget).get('q').trim(); if(q){ location.hash=`search/${encodeURIComponent(q)}`; search(q); } });
 window.addEventListener('hashchange', route); route();
