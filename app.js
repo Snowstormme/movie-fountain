@@ -51,7 +51,7 @@ function card(movie) {
 
 function shelf(title, subtitle, movies) {
   if (!movies?.length) return '';
-  return `<section class="shelf"><div class="shelf-heading"><div><h2>${title}</h2><p>${subtitle}</p></div><span>${movies.length} films</span></div><div class="movie-row">${movies.slice(0, 12).map(card).join('')}</div></section>`;
+  return `<section class="shelf"><div class="shelf-heading"><div><h2>${title}</h2><p>${subtitle}</p></div></div><div class="movie-row">${movies.slice(0, 12).map(card).join('')}</div></section>`;
 }
 
 function fountainMovies(data) {
