@@ -4,6 +4,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const year = date => date ? date.slice(0, 4) : 'Year unknown';
 const genreIds = { action: 28, comedy: 35, drama: 18, horror: 27, scifi: 878, animation: 16 };
 const moodFilters = { exciting: [28, 12, 53, 878], dark: [27, 80, 9648, 53], feelgood: [35, 10751, 16, 10402], romantic: [10749, 18, 35] };
+const fountainMovieLimit = 42;
 const movieCache = new Map();
 const watchlistKey = 'movie-fountain.watchlist.v1';
 function readWatchlist() {
@@ -44,7 +45,7 @@ document.addEventListener('visibilitychange', () => document.documentElement.cla
 
 function card(movie) {
   movieCache.set(String(movie.id), movie);
-  const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy">` : '<div class="no-poster">No poster</div>';
+  const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy" decoding="async">` : '<div class="no-poster">No poster</div>';
   return `<div class="movie-tile"><a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details →</span></div></a>${saveButton(movie)}${extraActions(movie)}</div>`;
 }
 
@@ -77,7 +78,7 @@ function fountainColumns(movies) {
 }
 
 function fountain(data) {
-  const movies = fountainMovies(data);
+  const movies = fountainMovies(data).slice(0, fountainMovieLimit);
   return `<section class="fountain-intro"><p class="eyebrow">A different way to browse</p><h1>Let the next movie find you.</h1><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">↻ Surprise me</button></div><div class="fountain-filters" role="group" aria-label="Filter the Fountain"><span>Browse</span><button class="fountain-filter is-active" type="button" data-filter="all">All movies</button><button class="fountain-filter" type="button" data-filter="action">Action</button><button class="fountain-filter" type="button" data-filter="comedy">Comedy</button><button class="fountain-filter" type="button" data-filter="drama">Drama</button><button class="fountain-filter" type="button" data-filter="horror">Horror</button><button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button><button class="fountain-filter" type="button" data-filter="animation">Animation</button><button class="fountain-filter" type="button" data-filter="exciting">Exciting</button><button class="fountain-filter" type="button" data-filter="dark">Dark</button><button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button><button class="fountain-filter" type="button" data-filter="romantic">Romantic</button></div></section><section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain">${fountainColumns(movies)}</section>`;
 }
 
