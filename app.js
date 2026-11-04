@@ -69,7 +69,7 @@ function filteredMovies(movies, filter) {
 
 function fountainColumns(movies) {
   if (!movies.length) return '<div class="fountain-empty">No movies found for this filter.</div>';
-  const columns = [0, 1, 2].map(column => movies.filter((_, index) => index % 3 === column));
+  const columns = [0, 1, 2, 3, 4].map(column => movies.filter((_, index) => index % 5 === column));
   const columnMarkup = columns.map((column, columnIndex) => {
     const items = column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('');
     return `<div class="fountain-column fountain-column-${columnIndex + 1}"><div class="fountain-track"><div class="fountain-set">${items}</div><div class="fountain-set" aria-hidden="true">${items}</div></div></div>`;

@@ -40,6 +40,8 @@ html[data-theme="liquid"] .save-movie{border-radius:50%;background:linear-gradie
 html[data-theme="liquid"] .chips span,html[data-theme="liquid"] .site-settings-panel,html[data-theme="liquid"] .fountain-settings-panel{background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#00000020);border-color:#ffffff38;box-shadow:inset 0 1px #ffffff42,0 18px 45px #02050a66;backdrop-filter:blur(24px) saturate(175%)}
 .save-movie{min-width:0;padding:8px 12px;border-radius:999px;font-size:12px}
 html[data-theme="liquid"] .save-movie{border-radius:999px}
+.fountain{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.fountain-column-4{padding-top:52px}.fountain-column-5{padding-top:14px}
+@media(max-width:650px){.fountain{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fountain-column-3,.fountain-column-4,.fountain-column-5{display:block;padding-top:0}}
 .card-meta{position:relative;display:block;width:100%;padding-right:42px}.card-copy strong{position:absolute;top:0;right:0;float:none;margin:0;white-space:nowrap;text-align:right}
 .movie-card .rating-badge{position:absolute;right:12px;bottom:12px;z-index:1;color:#f4c970;font-size:11px;white-space:nowrap}.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{opacity:0}
 @media(max-width:650px){.movie-card .rating-badge,.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{z-index:3;opacity:1}}
