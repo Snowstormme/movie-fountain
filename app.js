@@ -156,7 +156,7 @@ async function home() {
   app.innerHTML = '<div class="loading">Loading movies…</div>';
   try {
     const data = await api('/api/home');
-    app.innerHTML = `<section class="hero"><p class="eyebrow">Your next watch</p><h1>Find something worth watching.</h1><p class="hero-copy">Browse what is trending, playing now, highly rated, and coming soon.</p></section>${shelf('Trending now','What people are watching this week',data.trending)}${shelf('Popular this week','Crowd favorites worth your time',data.popular)}${shelf('Now playing','Fresh releases from cinemas',data.now_playing)}${shelf('Top rated','A reliable place to start',data.top_rated)}${shelf('Coming soon','Keep an eye on what is next',data.upcoming)}`;
+    app.innerHTML = `${shelf('Trending now','What people are watching this week',data.trending)}${shelf('Popular this week','Crowd favorites worth your time',data.popular)}${shelf('Now playing','Fresh releases from cinemas',data.now_playing)}${shelf('Top rated','A reliable place to start',data.top_rated)}${shelf('Coming soon','Keep an eye on what is next',data.upcoming)}`;
   } catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
