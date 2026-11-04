@@ -8,6 +8,7 @@ All notable changes to Movie Fountain are recorded here.
 - Add local watchlist, watched marks, public movie sharing and validated JSON import/export.
 - Add mobile-friendly filters, reduced-motion browsing and hidden-tab animation pause.
 - Add visitor privacy page and refresh repository presentation and architecture.
+- Add public testing guidance, feedback link, and GitHub issue templates.
 
 - Repository standards and security/privacy documentation.
 - Safer public error responses for Pages Functions.

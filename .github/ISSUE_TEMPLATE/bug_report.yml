@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible problem in Movie Fountain
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Please do not include API keys, cookies, private files, or personal data.
+  - type: input
+    id: page
+    attributes:
+      label: Page or feature
+      placeholder: Fountain, Tonight, Watchlist, search...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you do, and what happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Device and browser
+      placeholder: iPhone 15, Safari 18
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      placeholder: https://movie-fountain.pages.dev/
