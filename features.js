@@ -39,8 +39,7 @@ function tonight() {
   });
 }
 function enhanceFountain(movies) {
-  const intro=document.querySelector('.fountain-intro');
-  intro.insertAdjacentHTML('beforeend',`<details class="more-filters"><summary>Year, length & watched</summary><form class="discovery-form" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p></details>`);
+  document.querySelector('#fountain-settings-panel').insertAdjacentHTML('beforeend',`<form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p>`);
   const form=document.querySelector('#advanced-filters'),stream=document.querySelector('#fountain-stream');
   let sequence=0, current=movies;
   const render=()=>{stream.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);};
