@@ -39,10 +39,12 @@ function tonight() {
   });
 }
 function enhanceFountain(movies) {
-  document.querySelector('#fountain-settings-panel').insertAdjacentHTML('beforeend',`<form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p>`);
-  const form=document.querySelector('#advanced-filters'),stream=document.querySelector('#fountain-stream');
+  const panel=document.querySelector('#fountain-settings-panel'),stream=document.querySelector('#fountain-stream'),grid=document.querySelector('#fountain-grid');
+  if(!panel || !stream || !grid) return;
+  panel.insertAdjacentHTML('beforeend',`<form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p>`);
+  const form=document.querySelector('#advanced-filters');
   let sequence=0, current=movies;
-  const render=()=>{const grid=document.querySelector('#fountain-grid')||stream;grid.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);};
+  const render=()=>{grid.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);};
   const update=async()=>{
     const token=++sequence; const status=document.querySelector('#filter-status');
     const genre=stream.dataset.filter;
