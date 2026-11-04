@@ -16,7 +16,7 @@
     </header>
 
     <main class="container cast-page">
-        <a class="back-link" href="{{ url_for('movie_details', movie_id=movie.id) }}">← Back to {{ movie.title }}</a>
+        <a class="back-link" href="{{ url_for('movie_details', movie_id=movie.id) }}">Back to {{ movie.title }}</a>
         <div class="section-heading cast-heading">
             <h1>Cast of {{ movie.title }}</h1>
             <span>{{ cast|length }} people</span>
@@ -35,7 +35,6 @@
                                 <strong>{{ person.name }}</strong>
                                 {% if person.character %}<small>{{ person.character }}</small>{% endif %}
                             </span>
-                            <span aria-hidden="true">↗</span>
                         </a>
                     </li>
                 {% endfor %}
