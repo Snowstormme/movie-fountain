@@ -38,7 +38,6 @@ app.addEventListener('click', event => {
 });
 window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#watchlist') watchlist(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
 document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#watchlist">Watchlist</a>');
-document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#tonight">Tonight</a>');
 document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>');
 document.body.insertAdjacentHTML('beforeend', '<p id="save-status" class="visually-hidden" role="status"></p>');
 document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('page-hidden', document.hidden));
@@ -182,6 +181,6 @@ async function cast(id) { const data=await api(`/api/movie/${id}/cast`); app.inn
 
 async function person(id) { const data=await api(`/api/person/${id}`); app.innerHTML=`<a class="back" href="#">Back to movies</a><article class="person"><div>${data.person.profile_path?`<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`:''}</div><div><p class="eyebrow">Filmography</p><h1>${esc(data.person.name)}</h1><p class="detail-meta">${esc(data.person.place_of_birth||'')}</p><p class="overview">${esc(data.person.biography||'No biography available.')}</p></div></article>${shelf('Acting','Selected filmography',data.acting_movies)}${shelf('Directed','Directed films',data.directed_movies)}`; }
 
-async function route() { fountainAbort?.abort(); const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='tonight') return tonight(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
+async function route() { fountainAbort?.abort(); const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
 document.querySelector('#search-form').addEventListener('submit', event => { event.preventDefault(); const q=new FormData(event.currentTarget).get('q').trim(); if(q){ location.hash=`search/${encodeURIComponent(q)}`; search(q); } });
 window.addEventListener('hashchange', route); route();

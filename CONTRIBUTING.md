@@ -37,7 +37,7 @@ Before opening a pull request:
 - Confirm no `.env`, token, or generated artifact is staged: `git status --short`.
 - Review the final diff for accidental secrets or unrelated changes.
 
-Run `node --test tests/*.cjs`, `node --check app.js`, `node --check features.js`, and `git diff --check`. Also exercise Tonight filters, watched exclusion, share/copy fallback, watchlist export/import, invalid JSON, and storage failure. The tests use Node built-ins without package installation.
+Run `node --test tests/*.cjs`, `node --check app.js`, `node --check features.js`, and `git diff --check`. Also exercise Fountain filters, watched exclusion, share/copy fallback, watchlist export/import, invalid JSON, and storage failure. The tests use Node built-ins without package installation.
 
 ## Pull requests
 

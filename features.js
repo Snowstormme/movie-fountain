@@ -41,15 +41,6 @@ async function discoverMovies(form, genre='all') {
   if(ids.length) q.set('genres',ids.join('|'));
   return (await api('/api/discover?'+q)).results || [];
 }
-function tonight() {
-  app.innerHTML=`<section class="page-heading"><p class="eyebrow">Make tonight a movie night</p><h1>What should I watch?</h1><p>Choose a mood and your available time. We’ll pick one released movie from the matching results.</p></section><form id="tonight-form" class="discovery-form"><label>Genre or mood <select name="genre"><option value="all">Anything</option>${Object.keys({...genreIds,...moodFilters}).map(g=>`<option value="${g}">${g}</option>`).join('')}</select></label>${filterFields()}<button>Pick a movie</button></form><div id="tonight-result" aria-live="polite"></div>`;
-  const form=document.querySelector('#tonight-form');
-  form.addEventListener('submit',async event=>{
-    event.preventDefault(); const result=document.querySelector('#tonight-result'); const button=form.querySelector('button'); button.disabled=true; result.textContent='Finding your movie…';
-    try { const movies=(await discoverMovies(form,form.elements.genre.value)).filter(m=>!watched.has(m.id)); result.innerHTML=movies.length?`<div class="tonight-pick">${card(movies[Math.floor(Math.random()*movies.length)])}</div>`:'No unwatched matches. Try a different year, mood or length.'; }
-    catch { result.textContent='Could not find a movie right now. Please try again.'; } finally {button.disabled=false;}
-  });
-}
 function enhanceFountain(movies) {
   const panel=document.querySelector('#fountain-settings-panel'),stream=document.querySelector('#fountain-stream'),grid=document.querySelector('#fountain-grid');
   if(!panel || !stream || !grid) return;
