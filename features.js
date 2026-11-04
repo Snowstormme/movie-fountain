@@ -1,9 +1,15 @@
 const watchedKey = 'movie-fountain.watched.v1';
+const themeKey = 'movie-fountain.theme.v1';
+function applyTheme(theme) { if (document.documentElement?.dataset) document.documentElement.dataset.theme = theme === 'liquid' ? 'liquid' : 'current'; }
+try { applyTheme(localStorage.getItem(themeKey) || 'current'); } catch { applyTheme('current'); }
 function readWatched() {
   try { const data=JSON.parse(localStorage.getItem(watchedKey)||'[]'); return new Set(Array.isArray(data)?data.filter(Number.isSafeInteger):[]); } catch { return new Set(); }
 }
 let watched = readWatched();
 function announce(text) { document.querySelector('#save-status').textContent=text; }
+const themeToggle=document.querySelector('#site-settings-toggle'), themePanel=document.querySelector('#site-settings-panel');
+themeToggle?.addEventListener('click',()=>{const open=themePanel.hidden;themePanel.hidden=!open;themeToggle.setAttribute('aria-expanded',String(open));});
+document.querySelectorAll?.('input[name="theme"]')?.forEach(input=>input.addEventListener('change',()=>{applyTheme(input.value);try{localStorage.setItem(themeKey,input.value);}catch{}}));
 function normalizeMovies(data) {
   if(!Array.isArray(data) || data.length>2000) throw new Error('Choose a list of up to 2,000 movies.');
   const unique=new Map();
