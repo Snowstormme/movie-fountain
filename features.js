@@ -56,7 +56,7 @@ function enhanceFountain(movies) {
   panel.insertAdjacentHTML('beforeend',`<form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p>`);
   const form=document.querySelector('#advanced-filters');
   let sequence=0, current=movies;
-  const render=()=>{grid.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);};
+  const render=()=>{grid.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);syncFountainFlow(stream,true);};
   const update=async()=>{
     const token=++sequence; const status=document.querySelector('#filter-status');
     const genre=stream.dataset.filter;

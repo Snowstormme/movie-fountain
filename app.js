@@ -77,6 +77,18 @@ function fountainColumns(movies) {
   return columnMarkup;
 }
 
+function syncFountainFlow(stream, reset = false) {
+  const pixelsPerSecond = { slow: 24, normal: 38, fast: 68 }[stream?.dataset.speed] || 38;
+  stream?.querySelectorAll('.fountain-track').forEach(track => {
+    track.style.animationDuration = `${Math.max(1, track.scrollHeight / 2 / pixelsPerSecond)}s`;
+    if (reset) {
+      track.style.animation = 'none';
+      track.offsetHeight;
+      track.style.animation = '';
+    }
+  });
+}
+
 function fountain(data) {
   const movies = fountainMovies(data).slice(0, fountainMovieLimit);
   return `<section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain"><div class="fountain-toolbar"><button class="fountain-settings" type="button" aria-expanded="false" aria-controls="fountain-settings-panel">Settings</button></div><div class="fountain-settings-panel" id="fountain-settings-panel" hidden><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">Surprise me</button></div><div class="fountain-filters" role="group" aria-label="Filter the Fountain"><span>Browse</span><button class="fountain-filter is-active" type="button" data-filter="all">All movies</button><button class="fountain-filter" type="button" data-filter="action">Action</button><button class="fountain-filter" type="button" data-filter="comedy">Comedy</button><button class="fountain-filter" type="button" data-filter="drama">Drama</button><button class="fountain-filter" type="button" data-filter="horror">Horror</button><button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button><button class="fountain-filter" type="button" data-filter="animation">Animation</button><button class="fountain-filter" type="button" data-filter="exciting">Exciting</button><button class="fountain-filter" type="button" data-filter="dark">Dark</button><button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button><button class="fountain-filter" type="button" data-filter="romantic">Romantic</button></div></div><div class="fountain-grid">${fountainColumns(movies)}</div></section>`;
@@ -96,6 +108,7 @@ function bindFountainControls(movies) {
   document.querySelectorAll('.fountain-control[data-speed]').forEach(button => button.addEventListener('click', () => {
     stream.dataset.speed = button.dataset.speed;
     document.querySelectorAll('.fountain-control[data-speed]').forEach(control => control.classList.toggle('is-active', control === button));
+    syncFountainFlow(stream, true);
   }));
   const pause = document.querySelector('.pause-control');
   pause?.addEventListener('click', () => {
@@ -119,14 +132,17 @@ function bindFountainControls(movies) {
       const sets = columns[index % columns.length].querySelectorAll('.fountain-set');
       sets.forEach(set => set.append(item.cloneNode(true)));
     });
+    syncFountainFlow(stream, true);
   });
   document.querySelectorAll('.fountain-filter').forEach(button => button.addEventListener('click', () => {
     const filter = button.dataset.filter;
     stream.dataset.filter = filter;
-    const grid = document.querySelector('#fountain-grid') || stream;
+    const grid = document.querySelector('.fountain-grid') || stream;
     grid.innerHTML = fountainColumns(filteredMovies(movies, filter));
     document.querySelectorAll('.fountain-filter').forEach(control => control.classList.toggle('is-active', control === button));
+    syncFountainFlow(stream, true);
   }));
+  syncFountainFlow(stream, true);
 }
 
 async function api(path) {
