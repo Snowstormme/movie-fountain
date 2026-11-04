@@ -78,7 +78,7 @@ function fountainColumns(movies) {
 }
 
 function syncFountainFlow(stream, reset = false) {
-  const pixelsPerSecond = { slow: 28, normal: 44, fast: 76 }[stream?.dataset.speed] || 44;
+  const pixelsPerSecond = { slow: 40, normal: 60, fast: 100 }[stream?.dataset.speed] || 60;
   stream?.querySelectorAll('.fountain-track').forEach(track => {
     if (reset) {
       track.style.animation = 'none';
