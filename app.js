@@ -123,7 +123,8 @@ function bindFountainControls(movies) {
   document.querySelectorAll('.fountain-filter').forEach(button => button.addEventListener('click', () => {
     const filter = button.dataset.filter;
     stream.dataset.filter = filter;
-    document.querySelector('#fountain-grid').innerHTML = fountainColumns(filteredMovies(movies, filter));
+    const grid = document.querySelector('#fountain-grid') || stream;
+    grid.innerHTML = fountainColumns(filteredMovies(movies, filter));
     document.querySelectorAll('.fountain-filter').forEach(control => control.classList.toggle('is-active', control === button));
   }));
 }
