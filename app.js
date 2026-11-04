@@ -80,12 +80,12 @@ function fountainColumns(movies) {
 function syncFountainFlow(stream, reset = false) {
   const pixelsPerSecond = { slow: 24, normal: 38, fast: 68 }[stream?.dataset.speed] || 38;
   stream?.querySelectorAll('.fountain-track').forEach(track => {
-    track.style.animationDuration = `${Math.max(1, track.scrollHeight / 2 / pixelsPerSecond)}s`;
     if (reset) {
       track.style.animation = 'none';
       track.offsetHeight;
       track.style.animation = '';
     }
+    track.style.animationDuration = `${Math.max(1, track.scrollHeight / 2 / pixelsPerSecond)}s`;
   });
 }
 
