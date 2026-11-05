@@ -23,12 +23,16 @@ function saveButton(movie) {
 function account() {
   const watchedCount = savedMovies.filter(movie => watched.has(movie.id)).length;
   const average = savedMovies.length ? (savedMovies.reduce((sum, movie) => sum + (movie.vote_average || 0), 0) / savedMovies.length).toFixed(1) : '—';
-  app.innerHTML = `<section class="account-page"><div class="page-heading"><p class="eyebrow">Personal library</p><h1>Account</h1><p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p></div><div class="account-stats" aria-label="Watchlist summary"><div><strong>${savedMovies.length}</strong><span>Saved</span></div><div><strong>${watchedCount}</strong><span>Watched</span></div><div><strong>${savedMovies.length - watchedCount}</strong><span>To watch</span></div><div><strong>${average}</strong><span>Avg. rating</span></div></div>${libraryTools()}<section class="account-section" aria-labelledby="watchlist-heading"><div class="account-section-heading"><div><p class="eyebrow">Saved movies</p><h2 id="watchlist-heading">Watchlist</h2></div><strong>${savedMovies.length} ${savedMovies.length === 1 ? 'movie' : 'movies'}</strong></div><div class="account-library-tools"><div class="account-filters" role="group" aria-label="Filter watchlist"><button type="button" data-account-filter="all" class="is-active">All</button><button type="button" data-account-filter="unwatched">Unwatched</button><button type="button" data-account-filter="watched">Watched</button></div><label class="account-sort">Sort<select data-account-sort><option value="saved">Recently saved</option><option value="rating">Highest rated</option><option value="release">Release date</option><option value="title">Title A–Z</option></select></label></div><div class="movie-grid" id="account-movie-grid">${accountMovieMarkup()}</div></section></section>`;
+  app.innerHTML = `<section class="account-page"><div class="page-heading"><p class="eyebrow">Personal library</p><h1>Account</h1><p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p></div><div class="account-stats" aria-label="Watchlist summary"><div><strong>${savedMovies.length}</strong><span>Saved</span></div><div><strong>${watchedCount}</strong><span>Watched</span></div><div><strong>${savedMovies.length - watchedCount}</strong><span>To watch</span></div><div><strong>${average}</strong><span>Avg. rating</span></div></div>${accountPreferencesMarkup()}${libraryTools()}<section class="account-section" aria-labelledby="watchlist-heading"><div class="account-section-heading"><div><p class="eyebrow">Saved movies</p><h2 id="watchlist-heading">Watchlist</h2></div><strong>${savedMovies.length} ${savedMovies.length === 1 ? 'movie' : 'movies'}</strong></div><div class="account-library-tools"><div class="account-filters" role="group" aria-label="Filter watchlist"><button type="button" data-account-filter="all" class="is-active">All</button><button type="button" data-account-filter="unwatched">Unwatched</button><button type="button" data-account-filter="watched">Watched</button></div><label class="account-sort">Sort<select data-account-sort><option value="saved">Recently saved</option><option value="rating">Highest rated</option><option value="release">Release date</option><option value="title">Title A–Z</option></select></label></div><div class="movie-grid" id="account-movie-grid">${accountMovieMarkup()}</div></section></section>`;
   app.querySelector?.(`[data-account-filter="${accountFilter}"]`)?.classList.add('is-active');
   const sortControl = app.querySelector?.('[data-account-sort]');
   if (sortControl) sortControl.value = accountSort;
 }
 function watchlist() { account(); }
+function accountPreferencesMarkup() {
+  const theme = typeof savedTheme === 'string' && savedTheme === 'liquid' ? 'Liquid Glass' : 'Classic';
+  return `<section class="account-preferences" aria-labelledby="account-preferences-heading"><div><p class="eyebrow">Preferences & privacy</p><h2 id="account-preferences-heading">Your settings</h2><p>Current appearance: <strong>${theme}</strong>. Your watchlist and watched status stay in this browser.</p></div><div class="account-preference-actions"><button type="button" data-open-style>Change style</button><a href="/privacy.html">Privacy</a></div></section>`;
+}
 function accountMovieMarkup() {
   let movies = savedMovies.filter(movie => accountFilter === 'all' || (accountFilter === 'watched' ? watched.has(movie.id) : !watched.has(movie.id)));
   if (accountSort === 'rating') movies = [...movies].sort((a,b) => (b.vote_average || 0) - (a.vote_average || 0));
@@ -43,6 +47,8 @@ function refreshAccountMovies() {
   document.querySelectorAll?.('[data-account-filter]').forEach(button => button.classList.toggle('is-active', button.dataset.accountFilter === accountFilter));
 }
 app.addEventListener('click', event => {
+  const styleLink = event.target.closest('[data-open-style]');
+  if (styleLink?.dataset?.openStyle !== undefined) { document.querySelector('#site-settings-toggle')?.click(); return; }
   const filter = event.target.closest('[data-account-filter]');
   if (filter?.dataset?.accountFilter) { accountFilter = filter.dataset.accountFilter; refreshAccountMovies(); return; }
   const button = event.target.closest('[data-save]');
