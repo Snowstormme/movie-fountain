@@ -12,7 +12,7 @@ Watch posters flow through the Fountain, narrow the selection by genre or mood, 
 
 | Explore | Make it yours |
 | --- | --- |
-| Animated Fountain with speed and pause controls | Local watchlist and watched marks |
+| Animated Fountain with speed and pause controls | Account area with local watchlist and watched marks |
 | Search, cast, details and recommendations | Import/export your watchlist as JSON |
 | Mobile-friendly controls and reduced motion | Share a public movie link |
 
@@ -21,7 +21,7 @@ Watch posters flow through the Fountain, narrow the selection by genre or mood, 
 1. Open **Fountain**, then choose a genre or mood.
 2. Expand **Year, length & watched** to narrow your selection.
 3. Tap **♡** to save a movie, or **Mark watched** to hide it from discovery.
-4. Open **Watchlist** for your saved collection and backup tools.
+4. Open **Account** for your saved collection and backup tools.
 
 Lists stay in the current browser; export before clearing site data or moving devices. Import merges without deleting existing selections. Mood labels are genre-based approximations. Discovery currently uses the first page of matching TMDB results, not the full catalog. Unknown runtimes are excluded when a time limit is selected. Movie Fountain helps discover movies; it does not stream them.
 
@@ -31,7 +31,7 @@ Try these flows and report what felt confusing or broken through [GitHub feedbac
 
 1. On a phone, open Fountain and change speed, pause, genre, year, and length.
 2. Mark one movie watched, reload, and confirm it stays hidden when requested.
-3. Save a movie, export the Watchlist, and import it again.
+3. Save a movie, open **Account**, and export/import your Watchlist.
 4. Share a movie link and open it in a new browser tab.
 
 Please include the device, browser, page URL, and steps to reproduce. Never include API keys, cookies, or private files.

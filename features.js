@@ -90,6 +90,6 @@ document.addEventListener('change',async event=>{
     if(file.size>2_000_000)throw new Error('File is too large (maximum 2 MB).');
     const data=JSON.parse(await file.text());if(data.version!==1)throw new Error('Unsupported watchlist format.');
     const imported=normalizeMovies(data.movies), merged=normalizeMovies([...savedMovies,...imported]);
-    localStorage.setItem(watchlistKey,JSON.stringify(merged));savedMovies=merged;watchlist();announce(`Imported ${imported.length} movies.`);
+    localStorage.setItem(watchlistKey,JSON.stringify(merged));savedMovies=merged;account();announce(`Imported ${imported.length} movies.`);
   }catch(error){announce(error instanceof SyntaxError?'This file is not valid JSON.':error.message);}
 });

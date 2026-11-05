@@ -18,10 +18,10 @@ function saveButton(movie) {
   const saved = savedMovies.some(m => m.id === movie.id);
   return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(movie.title)} ${saved ? 'from' : 'to'} watchlist">${saved ? 'Saved' : 'Save'}</button>`;
 }
-function watchlist() {
-  app.innerHTML = `<div class="page-heading"><p class="eyebrow">Your collection</p><h1>Watchlist</h1><p>Saved on this browser. Clearing site data removes your list; it does not sync between devices.</p></div><div class="movie-grid">${savedMovies.map(card).join('') || '<p class="message">Use Save on a movie to add it here.</p>'}</div>`;
-  app.insertAdjacentHTML('afterbegin',libraryTools());
+function account() {
+  app.innerHTML = `<section class="account-page"><div class="page-heading"><p class="eyebrow">Personal library</p><h1>Account</h1><p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p></div>${libraryTools()}<section class="account-section" aria-labelledby="watchlist-heading"><div class="account-section-heading"><div><p class="eyebrow">Saved movies</p><h2 id="watchlist-heading">Watchlist</h2></div><strong>${savedMovies.length} ${savedMovies.length === 1 ? 'movie' : 'movies'}</strong></div><div class="movie-grid">${savedMovies.map(card).join('') || '<p class="message">Use Save on a movie to add it here.</p>'}</div></section></section>`;
 }
+function watchlist() { account(); }
 app.addEventListener('click', event => {
   const button = event.target.closest('[data-save]');
   if (!button) return;
@@ -33,11 +33,11 @@ app.addEventListener('click', event => {
   catch { document.querySelector('#save-status').textContent = 'Could not save. Browser storage is unavailable or full.'; return; }
   savedMovies = next;
   document.querySelector('#save-status').textContent = exists ? 'Removed from watchlist.' : 'Saved to watchlist.';
-  if (location.hash === '#watchlist') watchlist();
+  if (location.hash === '#account' || location.hash === '#watchlist') account();
   else app.querySelectorAll(`[data-save="${item.id}"]`).forEach(control => { control.outerHTML = saveButton(item); });
 });
-window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#watchlist') watchlist(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
-document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#watchlist">Watchlist</a>');
+window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#account' || location.hash === '#watchlist') account(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
+document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#account">Account</a>');
 document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>');
 document.body.insertAdjacentHTML('beforeend', '<p id="save-status" class="visually-hidden" role="status"></p>');
 document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('page-hidden', document.hidden));
@@ -181,6 +181,6 @@ async function cast(id) { const data=await api(`/api/movie/${id}/cast`); app.inn
 
 async function person(id) { const data=await api(`/api/person/${id}`); app.innerHTML=`<a class="back" href="#">Back to movies</a><article class="person"><div>${data.person.profile_path?`<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`:''}</div><div><p class="eyebrow">Filmography</p><h1>${esc(data.person.name)}</h1><p class="detail-meta">${esc(data.person.place_of_birth||'')}</p><p class="overview">${esc(data.person.biography||'No biography available.')}</p></div></article>${shelf('Acting','Selected filmography',data.acting_movies)}${shelf('Directed','Directed films',data.directed_movies)}`; }
 
-async function route() { fountainAbort?.abort(); const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='watchlist') return watchlist(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
+async function route() { fountainAbort?.abort(); const [kind,id] = location.hash.slice(1).split('/'); if(!kind) return home(); if(kind==='account' || kind==='watchlist') return account(); if(kind==='search') return search(decodeURIComponent(id || '')); if(kind==='fountain') return fountainPage(); if(kind==='movie') return movie(id); if(kind==='cast') return cast(id); if(kind==='person') return person(id); return home(); }
 document.querySelector('#search-form').addEventListener('submit', event => { event.preventDefault(); const q=new FormData(event.currentTarget).get('q').trim(); if(q){ location.hash=`search/${encodeURIComponent(q)}`; search(q); } });
 window.addEventListener('hashchange', route); route();
