@@ -45,3 +45,28 @@ html[data-theme="liquid"] .save-movie{border-radius:999px}
 .card-meta{position:relative;display:block;width:100%;padding-right:42px}.card-copy strong{position:absolute;top:0;right:0;float:none;margin:0;white-space:nowrap;text-align:right}
 .movie-card .rating-badge{position:absolute;right:12px;bottom:12px;z-index:1;color:#f4c970;font-size:11px;white-space:nowrap}.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{opacity:0}
 @media(max-width:650px){.movie-card .rating-badge,.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{z-index:3;opacity:1}}
+
+/* Classic theme: restrained cinema palette. Liquid Glass overrides stay isolated above. */
+html[data-theme="current"] body{background:#111216;color:#f4f4f5}
+html[data-theme="current"] .topbar{background:#111216ee;border-color:#30333a}
+html[data-theme="current"] input,html[data-theme="current"] .discovery-form select{border-color:#30333a;background:#1a1c21;color:#f4f4f5}
+html[data-theme="current"] button{background:#d94b55;color:#fff}
+html[data-theme="current"] button:hover{background:#c83f49}
+html[data-theme="current"] .eyebrow{color:#d94b55}
+html[data-theme="current"] .fountain-nav,html[data-theme="current"] .site-settings-toggle{border-color:#30333a;background:transparent;color:#f4f4f5;box-shadow:none}
+html[data-theme="current"] .fountain-nav:hover,html[data-theme="current"] .site-settings-toggle:hover,html[data-theme="current"] .site-settings-toggle[aria-expanded="true"]{border-color:#d94b55;background:#1a1c21;color:#fff}
+html[data-theme="current"] .movie-card,html[data-theme="current"] .cast-card{border-color:#30333a;background:#1a1c21}
+html[data-theme="current"] .movie-card:hover,html[data-theme="current"] .cast-card:hover{border-color:#d94b55}
+html[data-theme="current"] .card-copy{background:linear-gradient(transparent,#111216f5)}
+html[data-theme="current"] .card-copy strong,html[data-theme="current"] .movie-card .rating-badge{color:#d6ae61}
+html[data-theme="current"] .text-link,html[data-theme="current"] .back,html[data-theme="current"] .footer a{color:#d99491}
+html[data-theme="current"] .chips span{border-color:#454a53;color:#d6ae61}
+html[data-theme="current"] .fountain-settings{border-color:#30333a;background:#1a1c21;color:#f4f4f5}
+html[data-theme="current"] .fountain-settings:hover,html[data-theme="current"] .fountain-settings[aria-expanded="true"]{border-color:#d94b55;background:#24272d}
+html[data-theme="current"] .site-settings-panel,html[data-theme="current"] .fountain-settings-panel{border-color:#30333a;background:#1a1c21;box-shadow:0 18px 45px #0008}
+html[data-theme="current"] .fountain-control,html[data-theme="current"] .fountain-filter,html[data-theme="current"] .movie-actions button,html[data-theme="current"] .library-tools button,html[data-theme="current"] .import-label{border-color:#3b4048;background:#202329;color:#d7d9de}
+html[data-theme="current"] .fountain-control:hover,html[data-theme="current"] .fountain-control.is-active,html[data-theme="current"] .fountain-filter:hover,html[data-theme="current"] .fountain-filter.is-active{border-color:#d94b55;background:#2b2023;color:#fff}
+html[data-theme="current"] .shuffle-control{border-color:#59616b;color:#d7d9de}
+html[data-theme="current"] .movie-actions button[aria-pressed="true"]{color:#d6ae61}
+html[data-theme="current"] .save-movie{border-color:#454a53;background:#111216e8;color:#f4f4f5}
+html[data-theme="current"] .save-movie[aria-pressed="true"]{color:#d99491}
