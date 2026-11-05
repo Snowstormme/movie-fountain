@@ -48,7 +48,7 @@ function refreshAccountMovies() {
 }
 app.addEventListener('click', event => {
   const styleLink = event.target.closest('[data-open-style]');
-  if (styleLink?.dataset?.openStyle !== undefined) { document.querySelector('#site-settings-toggle')?.click(); return; }
+  if (styleLink?.dataset?.openStyle !== undefined) { event.stopPropagation(); document.querySelector('#site-settings-toggle')?.click(); return; }
   const filter = event.target.closest('[data-account-filter]');
   if (filter?.dataset?.accountFilter) { accountFilter = filter.dataset.accountFilter; refreshAccountMovies(); return; }
   const button = event.target.closest('[data-save]');
