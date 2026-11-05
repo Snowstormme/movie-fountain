@@ -9,13 +9,7 @@ function readWatched() {
 }
 let watched = readWatched();
 function announce(text) { document.querySelector('#save-status').textContent=text; }
-const themeToggle=document.querySelector('#site-settings-toggle'), themePanel=document.querySelector('#site-settings-panel');
-function closeThemePanel() { if (!themePanel || themePanel.hidden) return; themePanel.hidden=true; themeToggle?.setAttribute('aria-expanded','false'); }
-themeToggle?.addEventListener('click',()=>{const open=themePanel.hidden;themePanel.hidden=!open;themeToggle.setAttribute('aria-expanded',String(open));});
-document.addEventListener('click',event=>{ if (!event.target.closest('.site-settings')) closeThemePanel(); });
-document.addEventListener('keydown',event=>{ if (event.key==='Escape') closeThemePanel(); });
-window.addEventListener('hashchange',closeThemePanel);
-document.querySelectorAll?.('input[name="theme"]')?.forEach(input=>{input.checked=input.value===savedTheme;input.addEventListener('change',()=>{savedTheme=input.value;applyTheme(savedTheme);try{localStorage.setItem(themeKey,savedTheme);}catch{} closeThemePanel();document.dispatchEvent(new Event('themechange'));});});
+function setTheme(theme) { savedTheme = theme === 'liquid' ? 'liquid' : 'classic'; applyTheme(savedTheme); try { localStorage.setItem(themeKey, savedTheme); } catch {} document.dispatchEvent(new Event('themechange')); }
 function normalizeMovies(data) {
   if(!Array.isArray(data) || data.length>2000) throw new Error('Choose a list of up to 2,000 movies.');
   const unique=new Map();

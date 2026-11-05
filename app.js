@@ -49,7 +49,7 @@ function refreshAccountMovies() {
 }
 app.addEventListener('click', event => {
   const styleLink = event.target.closest('[data-open-style]');
-  if (styleLink?.dataset?.openStyle !== undefined) { event.stopPropagation(); const nextTheme = savedTheme === 'liquid' ? 'classic' : 'liquid'; document.querySelector(`input[name="theme"][value="${nextTheme}"]`)?.click(); return; }
+  if (styleLink?.dataset?.openStyle !== undefined) { event.stopPropagation(); setTheme(savedTheme === 'liquid' ? 'classic' : 'liquid'); return; }
   const filter = event.target.closest('[data-account-filter]');
   if (filter?.dataset?.accountFilter) { accountFilter = filter.dataset.accountFilter; refreshAccountMovies(); return; }
   const button = event.target.closest('[data-save]');
