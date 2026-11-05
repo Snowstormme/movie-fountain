@@ -31,7 +31,8 @@ function account() {
 function watchlist() { account(); }
 function accountPreferencesMarkup() {
   const theme = typeof savedTheme === 'string' && savedTheme === 'liquid' ? 'Liquid Glass' : 'Classic';
-  return `<section class="account-preferences" aria-labelledby="account-preferences-heading"><div><p class="eyebrow">Preferences & privacy</p><h2 id="account-preferences-heading">Your settings</h2><p>Current appearance: <strong>${theme}</strong>. Your watchlist and watched status stay in this browser.</p></div><div class="account-preference-actions"><button type="button" data-open-style>Change style</button><a href="/privacy.html">Privacy</a></div></section>`;
+  const nextTheme = theme === 'Classic' ? 'Liquid Glass' : 'Classic';
+  return `<section class="account-preferences" aria-labelledby="account-preferences-heading"><div><p class="eyebrow">Preferences & privacy</p><h2 id="account-preferences-heading">Your settings</h2><p>Current appearance: <strong>${theme}</strong>. Your watchlist and watched status stay in this browser.</p></div><div class="account-preference-actions"><button type="button" data-open-style>Switch to ${nextTheme}</button><a href="/privacy.html">Privacy</a></div></section>`;
 }
 function accountMovieMarkup() {
   let movies = savedMovies.filter(movie => accountFilter === 'all' || (accountFilter === 'watched' ? watched.has(movie.id) : !watched.has(movie.id)));
@@ -48,7 +49,7 @@ function refreshAccountMovies() {
 }
 app.addEventListener('click', event => {
   const styleLink = event.target.closest('[data-open-style]');
-  if (styleLink?.dataset?.openStyle !== undefined) { event.stopPropagation(); document.querySelector('#site-settings-toggle')?.click(); return; }
+  if (styleLink?.dataset?.openStyle !== undefined) { event.stopPropagation(); const nextTheme = savedTheme === 'liquid' ? 'classic' : 'liquid'; document.querySelector(`input[name="theme"][value="${nextTheme}"]`)?.click(); return; }
   const filter = event.target.closest('[data-account-filter]');
   if (filter?.dataset?.accountFilter) { accountFilter = filter.dataset.accountFilter; refreshAccountMovies(); return; }
   const button = event.target.closest('[data-save]');
