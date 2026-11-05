@@ -14,15 +14,35 @@ function readWatchlist() {
   } catch { return []; }
 }
 let savedMovies = readWatchlist();
+let accountFilter = 'all';
+let accountSort = 'saved';
 function saveButton(movie) {
   const saved = savedMovies.some(m => m.id === movie.id);
   return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(movie.title)} ${saved ? 'from' : 'to'} watchlist">${saved ? 'Saved' : 'Save'}</button>`;
 }
 function account() {
-  app.innerHTML = `<section class="account-page"><div class="page-heading"><p class="eyebrow">Personal library</p><h1>Account</h1><p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p></div>${libraryTools()}<section class="account-section" aria-labelledby="watchlist-heading"><div class="account-section-heading"><div><p class="eyebrow">Saved movies</p><h2 id="watchlist-heading">Watchlist</h2></div><strong>${savedMovies.length} ${savedMovies.length === 1 ? 'movie' : 'movies'}</strong></div><div class="movie-grid">${savedMovies.map(card).join('') || '<p class="message">Use Save on a movie to add it here.</p>'}</div></section></section>`;
+  app.innerHTML = `<section class="account-page"><div class="page-heading"><p class="eyebrow">Personal library</p><h1>Account</h1><p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p></div>${libraryTools()}<section class="account-section" aria-labelledby="watchlist-heading"><div class="account-section-heading"><div><p class="eyebrow">Saved movies</p><h2 id="watchlist-heading">Watchlist</h2></div><strong>${savedMovies.length} ${savedMovies.length === 1 ? 'movie' : 'movies'}</strong></div><div class="account-library-tools"><div class="account-filters" role="group" aria-label="Filter watchlist"><button type="button" data-account-filter="all" class="is-active">All</button><button type="button" data-account-filter="unwatched">Unwatched</button><button type="button" data-account-filter="watched">Watched</button></div><label class="account-sort">Sort<select data-account-sort><option value="saved">Recently saved</option><option value="rating">Highest rated</option><option value="release">Release date</option><option value="title">Title A–Z</option></select></label></div><div class="movie-grid" id="account-movie-grid">${accountMovieMarkup()}</div></section></section>`;
+  app.querySelector?.(`[data-account-filter="${accountFilter}"]`)?.classList.add('is-active');
+  const sortControl = app.querySelector?.('[data-account-sort]');
+  if (sortControl) sortControl.value = accountSort;
 }
 function watchlist() { account(); }
+function accountMovieMarkup() {
+  let movies = savedMovies.filter(movie => accountFilter === 'all' || (accountFilter === 'watched' ? watched.has(movie.id) : !watched.has(movie.id)));
+  if (accountSort === 'rating') movies = [...movies].sort((a,b) => (b.vote_average || 0) - (a.vote_average || 0));
+  if (accountSort === 'release') movies = [...movies].sort((a,b) => String(b.release_date || '').localeCompare(String(a.release_date || '')));
+  if (accountSort === 'title') movies = [...movies].sort((a,b) => a.title.localeCompare(b.title));
+  return movies.map(card).join('') || '<p class="message">No movies match this view.</p>';
+}
+function refreshAccountMovies() {
+  const grid = document.querySelector?.('#account-movie-grid');
+  if (!grid) return;
+  grid.innerHTML = accountMovieMarkup();
+  document.querySelectorAll?.('[data-account-filter]').forEach(button => button.classList.toggle('is-active', button.dataset.accountFilter === accountFilter));
+}
 app.addEventListener('click', event => {
+  const filter = event.target.closest('[data-account-filter]');
+  if (filter?.dataset?.accountFilter) { accountFilter = filter.dataset.accountFilter; refreshAccountMovies(); return; }
   const button = event.target.closest('[data-save]');
   if (!button) return;
   const item = movieCache.get(button.dataset.save);
@@ -36,6 +56,7 @@ app.addEventListener('click', event => {
   if (location.hash === '#account' || location.hash === '#watchlist') account();
   else app.querySelectorAll(`[data-save="${item.id}"]`).forEach(control => { control.outerHTML = saveButton(item); });
 });
+app.addEventListener('change', event => { if (event.target.matches('[data-account-sort]')) { accountSort = event.target.value; refreshAccountMovies(); } });
 window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#account' || location.hash === '#watchlist') account(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
 document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#account">Account</a>');
 document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>');
