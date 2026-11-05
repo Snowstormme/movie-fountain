@@ -15,7 +15,7 @@ themeToggle?.addEventListener('click',()=>{const open=themePanel.hidden;themePan
 document.addEventListener('click',event=>{ if (!event.target.closest('.site-settings')) closeThemePanel(); });
 document.addEventListener('keydown',event=>{ if (event.key==='Escape') closeThemePanel(); });
 window.addEventListener('hashchange',closeThemePanel);
-document.querySelectorAll?.('input[name="theme"]')?.forEach(input=>{input.checked=input.value===savedTheme;input.addEventListener('change',()=>{savedTheme=input.value;applyTheme(savedTheme);try{localStorage.setItem(themeKey,savedTheme);}catch{} closeThemePanel();});});
+document.querySelectorAll?.('input[name="theme"]')?.forEach(input=>{input.checked=input.value===savedTheme;input.addEventListener('change',()=>{savedTheme=input.value;applyTheme(savedTheme);try{localStorage.setItem(themeKey,savedTheme);}catch{} closeThemePanel();document.dispatchEvent(new Event('themechange'));});});
 function normalizeMovies(data) {
   if(!Array.isArray(data) || data.length>2000) throw new Error('Choose a list of up to 2,000 movies.');
   const unique=new Map();

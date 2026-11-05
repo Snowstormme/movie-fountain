@@ -65,6 +65,8 @@ app.addEventListener('click', event => {
   else app.querySelectorAll(`[data-save="${item.id}"]`).forEach(control => { control.outerHTML = saveButton(item); });
 });
 app.addEventListener('change', event => { if (event.target.matches('[data-account-sort]')) { accountSort = event.target.value; refreshAccountMovies(); } });
+app.addEventListener('watchedchange', () => { if (location.hash === '#account' || location.hash === '#watchlist') account(); });
+document.addEventListener('themechange', () => { if (location.hash === '#account' || location.hash === '#watchlist') account(); });
 window.addEventListener('storage', event => { if (event.key === watchlistKey || event.key === null) { savedMovies = readWatchlist(); if(location.hash === '#account' || location.hash === '#watchlist') account(); else app.querySelectorAll('[data-save]').forEach(control => { const item = movieCache.get(control.dataset.save); if(item) control.outerHTML = saveButton(item); }); } });
 document.querySelector('.topbar-left').insertAdjacentHTML('beforeend', '<a class="fountain-nav" href="#account">Account</a>');
 document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>');
