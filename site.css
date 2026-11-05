@@ -77,3 +77,7 @@ html[data-theme="liquid"] .account-filters button:hover,html[data-theme="liquid"
 html[data-theme="liquid"] .account-section-heading,html[data-theme="liquid"] .account-page .library-tools{border-color:#ffffff24}
 @media(max-width:650px){.account-section-heading{align-items:start;flex-direction:column;gap:5px}.account-page .library-tools{margin-bottom:20px}}
 @media(max-width:650px){.account-library-tools{align-items:stretch;flex-direction:column}.account-sort{justify-content:space-between}.account-sort select{flex:1}}
+.account-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 24px}.account-stats>div{display:grid;gap:4px;padding:14px 16px;border:1px solid #30333a;border-radius:12px;background:#1a1c21}.account-stats strong{font-size:24px;letter-spacing:-.04em}.account-stats span{color:#9298a5;font-size:11px}.account-empty{display:grid;justify-items:center;gap:8px;grid-column:1 / -1;padding:56px 20px;border:1px dashed #3b4048;border-radius:14px;text-align:center;color:#9298a5}.account-empty strong{color:#f4f4f5;font-size:16px}.account-empty .text-link{margin-top:8px}
+html[data-theme="liquid"] .account-stats>div{border-color:#ffffff38;background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#0000001c);box-shadow:inset 0 1px #ffffff42,0 12px 28px #02050a44;backdrop-filter:blur(18px) saturate(165%)}
+html[data-theme="liquid"] .account-empty{border-color:#ffffff38;background:#ffffff08}
+@media(max-width:650px){.account-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
