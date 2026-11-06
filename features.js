@@ -38,7 +38,7 @@ async function discoverMovies(form, genre='all') {
 function enhanceFountain(movies) {
   const panel=document.querySelector('#fountain-settings-panel'),stream=document.querySelector('#fountain-stream'),grid=document.querySelector('#fountain-grid');
   if(!panel || !stream || !grid) return;
-  panel.insertAdjacentHTML('beforeend',`<section class="fountain-settings-group fountain-settings-group--refine"><div class="fountain-settings-label"><span>Refine</span><small>Optional filters</small></div><form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p></section>`);
+  panel.insertAdjacentHTML('beforeend',`<section class="fountain-settings-group fountain-settings-group--refine"><div class="fountain-settings-label"><span>Refine</span></div><form class="discovery-form fountain-advanced-filters" id="advanced-filters">${filterFields()}<label><input name="hide" type="checkbox" checked> Hide watched</label><button>Apply filters</button><button type="button" id="reset-filters">Reset</button></form><p id="filter-status" role="status"></p></section>`);
   const form=document.querySelector('#advanced-filters');
   let sequence=0, current=movies;
   const render=()=>{grid.innerHTML=fountainColumns(form.elements.hide.checked?current.filter(m=>!watched.has(m.id)):current);syncFountainFlow(stream,true);};

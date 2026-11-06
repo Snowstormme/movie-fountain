@@ -4,7 +4,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const year = date => date ? date.slice(0, 4) : 'Year unknown';
 const genreIds = { action: 28, comedy: 35, drama: 18, horror: 27, scifi: 878, animation: 16 };
 const moodFilters = { exciting: [28, 12, 53, 878], dark: [27, 80, 9648, 53], feelgood: [35, 10751, 16, 10402], romantic: [10749, 18, 35] };
-const fountainMovieLimit = 42;
+const fountainMovieLimit = 100;
 const movieCache = new Map();
 const watchlistKey = 'movie-fountain.watchlist.v1';
 function readWatchlist() {
@@ -122,7 +122,7 @@ function syncFountainFlow(stream, reset = false) {
 
 function fountain(data) {
   const movies = fountainMovies(data).slice(0, fountainMovieLimit);
-  return `<section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain"><div class="fountain-toolbar"><button class="fountain-settings" type="button" aria-expanded="false" aria-controls="fountain-settings-panel">Settings</button></div><div class="fountain-settings-panel" id="fountain-settings-panel" hidden><div class="fountain-settings-head"><div><p class="fountain-settings-kicker">Make it yours</p><h2>Fountain settings</h2></div><span class="fountain-settings-hint">Tune the way movies arrive</span></div><section class="fountain-settings-group"><div class="fountain-settings-label"><span>Playback</span><small>Control the motion</small></div><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button><button class="fountain-control shuffle-control" type="button" data-action="shuffle">Surprise me</button></div></section><section class="fountain-settings-group"><div class="fountain-settings-label"><span>Browse</span><small>Choose a mood or genre</small></div><div class="fountain-filters" role="group" aria-label="Filter the Fountain"><button class="fountain-filter is-active" type="button" data-filter="all">All movies</button><button class="fountain-filter" type="button" data-filter="action">Action</button><button class="fountain-filter" type="button" data-filter="comedy">Comedy</button><button class="fountain-filter" type="button" data-filter="drama">Drama</button><button class="fountain-filter" type="button" data-filter="horror">Horror</button><button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button><button class="fountain-filter" type="button" data-filter="animation">Animation</button><button class="fountain-filter" type="button" data-filter="exciting">Exciting</button><button class="fountain-filter" type="button" data-filter="dark">Dark</button><button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button><button class="fountain-filter" type="button" data-filter="romantic">Romantic</button></div></section></div><div id="fountain-grid" class="fountain-grid">${fountainColumns(movies)}</div></section>`;
+  return `<section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain"><div class="fountain-toolbar"><button class="fountain-settings" type="button" aria-expanded="false" aria-controls="fountain-settings-panel">Settings</button></div><div class="fountain-settings-panel" id="fountain-settings-panel" hidden><section class="fountain-settings-group"><div class="fountain-settings-label"><span>Playback</span></div><div class="fountain-controls" role="group" aria-label="Fountain controls"><button class="fountain-control" type="button" data-speed="slow">Slow</button><button class="fountain-control is-active" type="button" data-speed="normal">Normal</button><button class="fountain-control" type="button" data-speed="fast">Fast</button><button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button></div></section><section class="fountain-settings-group"><div class="fountain-settings-label"><span>Browse</span></div><div class="fountain-filters" role="group" aria-label="Filter the Fountain"><button class="fountain-filter is-active" type="button" data-filter="all">All movies</button><button class="fountain-filter" type="button" data-filter="action">Action</button><button class="fountain-filter" type="button" data-filter="comedy">Comedy</button><button class="fountain-filter" type="button" data-filter="drama">Drama</button><button class="fountain-filter" type="button" data-filter="horror">Horror</button><button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button><button class="fountain-filter" type="button" data-filter="animation">Animation</button><button class="fountain-filter" type="button" data-filter="exciting">Exciting</button><button class="fountain-filter" type="button" data-filter="dark">Dark</button><button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button><button class="fountain-filter" type="button" data-filter="romantic">Romantic</button></div></section></div><div id="fountain-grid" class="fountain-grid">${fountainColumns(movies)}</div></section>`;
 }
 
 function bindFountainControls(movies) {
@@ -146,24 +146,6 @@ function bindFountainControls(movies) {
     const paused = stream.classList.toggle('is-paused');
     pause.textContent = paused ? 'Play' : 'Pause';
     pause.setAttribute('aria-pressed', String(paused));
-  });
-  document.querySelector('.shuffle-control')?.addEventListener('click', () => {
-    const columns = [...stream.querySelectorAll('.fountain-column')];
-    const cards = columns.flatMap(column => [...column.querySelectorAll('.fountain-set:first-child .fountain-item')].map(item => item.innerHTML));
-    for (let index = cards.length - 1; index > 0; index -= 1) {
-      const randomIndex = Math.floor(Math.random() * (index + 1));
-      [cards[index], cards[randomIndex]] = [cards[randomIndex], cards[index]];
-    }
-    columns.forEach(column => { column.innerHTML = '<div class="fountain-track"><div class="fountain-set"></div><div class="fountain-set" aria-hidden="true"></div></div>'; });
-    cards.forEach((markup, index) => {
-      const item = document.createElement('div');
-      item.className = 'fountain-item';
-      item.style.setProperty('--delay', `${(index % 14) * 0.18}s`);
-      item.innerHTML = markup;
-      const sets = columns[index % columns.length].querySelectorAll('.fountain-set');
-      sets.forEach(set => set.append(item.cloneNode(true)));
-    });
-    syncFountainFlow(stream, true);
   });
   document.querySelectorAll('.fountain-filter').forEach(button => button.addEventListener('click', () => {
     const filter = button.dataset.filter;
