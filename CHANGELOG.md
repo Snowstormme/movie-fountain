@@ -2,6 +2,12 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [Unreleased]
+
+- Port multi-source external ratings (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience via What's on? API with optional OMDb fallback) to Cloudflare Pages Functions (`/api/movie/[id]/ratings`) and the SPA movie details view.
+- Remove the legacy Flask server (`app.py`, `templates/`, `static/`) so the repository is a single unified Cloudflare Pages application.
+- Format `app.js`, `features.js`, `functions/`, and `tests/features.cjs` for readability and add GitHub Actions CI (`node --test tests/features.cjs`).
+
 ## [0.2.0] - 2026-11-03
 
 - Add Tonight movie selection with genre/mood, year and runtime filters.

@@ -6,7 +6,6 @@
 
 - [ ] Frontend
 - [ ] Pages Functions/API
-- [ ] Flask/local development
 - [ ] Documentation/configuration
 
 ## Verification

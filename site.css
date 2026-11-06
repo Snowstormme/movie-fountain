@@ -99,3 +99,27 @@ html[data-theme="liquid"] .account-preference-actions button,html[data-theme="li
 .fountain-settings-group #filter-status{margin:8px 0 0;color:#9298a5;font-size:12px}
 html[data-theme="liquid"] .fountain-settings-group{border-color:#ffffff1f}
 @media(max-width:650px){.fountain-settings-label{align-items:flex-start;flex-direction:column;gap:3px}.fountain-settings-group{padding:14px 0}}
+
+/* Multi-source external ratings on movie detail view */
+.ratings-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.score-card{display:flex;flex-direction:column;min-height:150px;padding:20px 22px;border:1px solid #30333a;border-top:3px solid #d46f72;border-radius:12px;background:#1a1c21}
+.imdb-score{border-top-color:#e1ba61}
+.letterboxd-score{border-top-color:#8eb0c6}
+.rotten-score{border-top-color:#92bb93}
+.score-source{color:#aeb3be;font-size:13px;font-weight:700}
+.score-card .score-value{margin-top:16px;font-size:34px;line-height:1;letter-spacing:-.04em}
+.score-card .score-value small{margin-left:3px;color:#aeb3be;font-size:14px;font-weight:400}
+.score-extra{margin-top:9px;color:#bfd2bd;font-size:13px;font-weight:650}
+.score-note{margin-top:auto;padding-top:12px;color:#8f96a2;font-size:12px}
+.score-note a{color:#dfb69f;text-underline-offset:3px}
+.score-note a:hover{color:#ffe0ca}
+.score-unavailable{margin-top:18px;color:#e9c99c;font-size:16px;font-weight:700}
+.rating-attribution{margin:12px 0 0;color:#8f96a2;font-size:12px}
+.rating-attribution a{color:#dfb69f;text-underline-offset:3px}
+html[data-theme="liquid"] .score-card{border-color:#ffffff38;border-top-width:3px;background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#0000001c);box-shadow:inset 0 1px #ffffff42,0 12px 28px #02050a44;backdrop-filter:blur(18px) saturate(165%)}
+html[data-theme="liquid"] .imdb-score{border-top-color:#e1ba61}
+html[data-theme="liquid"] .letterboxd-score{border-top-color:#8eb0c6}
+html[data-theme="liquid"] .rotten-score{border-top-color:#92bb93}
+@media(max-width:900px){.ratings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.score-card{min-height:130px;padding:18px}}
+@media(max-width:420px){.ratings-grid{grid-template-columns:1fr}}

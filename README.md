@@ -43,44 +43,36 @@ Live site: [movie-fountain.pages.dev](https://movie-fountain.pages.dev/)
 ## What is included
 
 - Cloudflare Pages single-page application for the production site.
-- Cloudflare Pages Functions that proxy TMDB requests without exposing the API key to the browser.
-- Fountain mode with speed controls, pause/play, shuffle, keyboard focus states, and reduced-motion support.
-- Movie, cast, person, search, recommendation, and rating views.
-- A legacy Flask implementation for local/server-rendered development.
+- Cloudflare Pages Functions that proxy TMDB and external ratings requests without exposing API keys to the browser.
+- Fountain mode with speed controls, pause/play, genre/mood filters, year/runtime refinement, keyboard focus states, and reduced-motion support.
+- Movie, cast, person, search, recommendation, and multi-source rating views (TMDB, IMDb, Letterboxd, and Rotten Tomatoes).
 
 ## Quick start
 
 ### Cloudflare Pages deployment
 
-The production deployment is connected to the `main` branch. Configure `TMDB_API_KEY` as a Cloudflare Pages environment variable for the project; keep it in the Cloudflare dashboard, never in Git or client-side JavaScript.
+The production deployment is connected to the `main` branch. Configure `TMDB_API_KEY` (and optionally `OMDB_API_KEY`) as Cloudflare Pages environment variables for the project; keep them in the Cloudflare dashboard, never in Git or client-side JavaScript.
 
 The site is static at the repository root. Pages Functions are discovered from [`functions/`](./functions/).
 
-### Local Flask development
+### Local development & testing
+
+The root frontend expects `/api/*` routes supplied by Cloudflare Pages Functions. Run the unit and syntax checks with Node built-ins:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install flask requests python-dotenv
-cp .env.example .env
-# Edit .env and add a real TMDB_API_KEY locally.
-python3 app.py
+node --test tests/features.cjs
 ```
 
-Open <http://127.0.0.1:5000>.
-
-### Local frontend preview
-
-The root frontend expects `/api/*` routes supplied by Cloudflare Pages Functions. Use Cloudflare’s local Pages tooling when testing the deployed architecture, or use the Flask server for the server-rendered path. Do not put a TMDB key in browser code.
+To preview the full stack locally with Cloudflare Pages Functions, copy `.env.example` to `.dev.vars` with your `TMDB_API_KEY` and run `npx wrangler pages dev .`. Do not put a TMDB key in browser code.
 
 ## Configuration
 
 | Variable | Required | Used by | Description |
 | --- | --- | --- | --- |
-| `TMDB_API_KEY` | Yes | Pages Functions and Flask | Server-side TMDB credential |
-| `OMDB_API_KEY` | No | Flask fallback | Optional ratings fallback for the legacy server |
+| `TMDB_API_KEY` | Yes | Pages Functions | Server-side TMDB credential |
+| `OMDB_API_KEY` | No | Pages Functions (`/api/movie/[id]/ratings`) | Optional fallback for IMDb and Rotten Tomatoes ratings |
 
-See [`.env.example`](./.env.example) for safe placeholders. The real `.env` file is ignored by Git.
+See [`.env.example`](./.env.example) for safe placeholders. Real credential files (`.env`, `.dev.vars`) are ignored by Git.
 
 ## Documentation
 

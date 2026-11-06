@@ -9,18 +9,22 @@ Read the [README](./README.md), [architecture](./docs/ARCHITECTURE.md), and [sec
 ## Local setup
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install flask requests python-dotenv
-cp .env.example .env
-python3 app.py
+cp .env.example .dev.vars
+# Add your TMDB_API_KEY in .dev.vars for local Cloudflare Pages Functions preview:
+npx wrangler pages dev .
+```
+
+Run the test suite with Node built-ins (no package installation required):
+
+```bash
+node --test tests/features.cjs
 ```
 
 Keep credentials local. Never paste a real key into an issue, pull request, browser URL, or commit.
 
 ## Change standards
 
-- Keep the production Pages Functions path and the local Flask path understandable when touching shared behavior.
+- Keep the SPA (`app.js`, `features.js`) and Cloudflare Pages Functions (`functions/`) clean, readable, and well-tested.
 - Escape untrusted text before inserting it into HTML.
 - Keep API keys server-side.
 - Preserve keyboard access, visible focus, responsive layout, and `prefers-reduced-motion` behavior.
