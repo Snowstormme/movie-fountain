@@ -168,14 +168,14 @@ async function api(path) {
 async function home() {
   app.innerHTML = '<div class="loading">Loading movies…</div>';
   try {
-    const data = await api('/api/home');
+    const data = await api('/api/home?v=fountain-100');
     app.innerHTML = `${shelf('Trending now','What people are watching this week',data.trending)}${shelf('Popular this week','Crowd favorites worth your time',data.popular)}${shelf('Now playing','Fresh releases from cinemas',data.now_playing)}${shelf('Top rated','A reliable place to start',data.top_rated)}${shelf('Coming soon','Keep an eye on what is next',data.upcoming)}`;
   } catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
-  try { const data = await api('/api/home'); if(location.hash!=='#fountain')return; app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); enhanceFountain(fountainMovies(data)); }
+  try { const data = await api('/api/home?v=fountain-100'); if(location.hash!=='#fountain')return; app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); enhanceFountain(fountainMovies(data)); }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
