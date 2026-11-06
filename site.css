@@ -85,3 +85,22 @@ html[data-theme="liquid"] .account-empty{border-color:#ffffff38;background:#ffff
 html[data-theme="liquid"] .account-preferences{border-color:#ffffff38;background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#0000001c);box-shadow:inset 0 1px #ffffff42,0 12px 28px #02050a44;backdrop-filter:blur(18px) saturate(165%)}
 html[data-theme="liquid"] .account-preference-actions button,html[data-theme="liquid"] .account-preference-actions a{border-color:#ffffff38;background:linear-gradient(145deg,#ffffff20,#ffffff0a 48%,#0000001c);color:#f5f1f8}
 @media(max-width:650px){.account-preferences{align-items:stretch;flex-direction:column}.account-preference-actions{justify-content:stretch}.account-preference-actions button,.account-preference-actions a{flex:1;text-align:center}}
+
+/* Fountain settings: a calmer control surface with clear groups. */
+.fountain-settings-panel{padding:18px 0 4px}
+.fountain-settings-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 2px 4px}
+.fountain-settings-kicker{margin:0 0 5px;color:#d94b55;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.fountain-settings-head h2{margin:0;font-size:clamp(20px,2.4vw,27px);letter-spacing:-.04em}
+.fountain-settings-hint{padding-bottom:3px;color:#9298a5;font-size:12px}
+.fountain-settings-group{padding:16px 0;border-top:1px solid #30333a}
+.fountain-settings-group:first-of-type{border-top:0}
+.fountain-settings-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.fountain-settings-label span{font-size:13px;font-weight:750;letter-spacing:.01em}
+.fountain-settings-label small{color:#9298a5;font-size:11px}
+.fountain-settings-group .fountain-controls,.fountain-settings-group .fountain-filters{margin-top:0}
+.fountain-settings-group .fountain-filters{padding-bottom:3px}
+.fountain-settings-group .discovery-form{margin:0}
+.fountain-settings-group #filter-status{margin:8px 0 0;color:#9298a5;font-size:12px}
+html[data-theme="liquid"] .fountain-settings-group{border-color:#ffffff1f}
+html[data-theme="liquid"] .fountain-settings-kicker{color:#a8e7ee}
+@media(max-width:650px){.fountain-settings-head{align-items:flex-start;flex-direction:column;gap:3px;margin-bottom:2px}.fountain-settings-hint{padding:0}.fountain-settings-label{align-items:flex-start;flex-direction:column;gap:3px}.fountain-settings-group{padding:14px 0}}
