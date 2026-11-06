@@ -74,9 +74,10 @@ document.querySelector('footer').insertAdjacentHTML('beforeend', ' · <a href="/
 document.body.insertAdjacentHTML('beforeend', '<p id="save-status" class="visually-hidden" role="status"></p>');
 document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('page-hidden', document.hidden));
 
-function card(movie) {
+function card(movie, decorative = false) {
   movieCache.set(String(movie.id), movie);
   const poster = movie.poster_path ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy" decoding="async">` : '<div class="no-poster">No poster</div>';
+  if (decorative) return `<a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div></a>`;
   return `<div class="movie-tile"><a class="movie-card" href="#movie/${movie.id}">${poster}<strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong><div class="card-copy"><h3>${esc(movie.title)}</h3><div class="card-meta"><span>${year(movie.release_date)}</span></div></div><div class="card-preview"><p>${esc(movie.overview || 'Open the details to learn more about this movie.')}</p><span>View details</span></div></a>${saveButton(movie)}${extraActions(movie)}</div>`;
 }
 
@@ -103,7 +104,8 @@ function fountainColumns(movies) {
   const columns = [0, 1, 2, 3, 4].map(column => movies.filter((_, index) => index % 5 === column));
   const columnMarkup = columns.map((column, columnIndex) => {
     const items = column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie)}</div>`).join('');
-    return `<div class="fountain-column fountain-column-${columnIndex + 1}"><div class="fountain-track"><div class="fountain-set">${items}</div><div class="fountain-set" aria-hidden="true">${items}</div></div></div>`;
+    const decorativeItems = column.map((movie, index) => `<div class="fountain-item" style="--delay:${(index * 0.35) + columnIndex * 0.2}s">${card(movie, true)}</div>`).join('');
+    return `<div class="fountain-column fountain-column-${columnIndex + 1}"><div class="fountain-track"><div class="fountain-set">${items}</div><div class="fountain-set" aria-hidden="true" inert>${decorativeItems}</div></div></div>`;
   }).join('');
   return columnMarkup;
 }
@@ -187,7 +189,7 @@ async function search(query) {
 
 async function movie(id) {
   app.innerHTML = '<div class="loading">Loading movie…</div>';
-  try { const data = await api(`/api/movie/${id}`); const m=data.movie; const poster=m.poster_path?`<img class="detail-poster" src="${image(m.poster_path)}" alt="Poster for ${esc(m.title)}">`:''; app.innerHTML=`<a class="back" href="#">Back to movies</a><article class="detail"><div>${poster}</div><div><p class="eyebrow">Movie details</p><h1>${esc(m.title)}</h1><p class="detail-meta">${year(m.release_date)} · ${m.runtime ? `${Math.floor(m.runtime/60)}h ${m.runtime%60}m` : 'Runtime unknown'} · ★ ${(m.vote_average||0).toFixed(1)}</p><p class="overview">${esc(m.overview || 'No overview available.')}</p><div class="chips">${(m.genres||[]).map(g=>`<span>${esc(g.name)}</span>`).join('')}</div><p class="detail-meta">Directed by ${data.director ? `<a href="#person/${data.director.id}">${esc(data.director.name)}</a>` : 'Unknown'}</p><a class="text-link" href="#cast/${m.id}">View full cast</a></div></article>${shelf('Cast','People in this film',data.cast)}${shelf('You may also like','More movies to explore',data.recommendations)}`; }
+  try { const target = `#movie/${id}`; const data = await api(`/api/movie/${id}`); if (location.hash !== target) return; const m=data?.movie; if (!m?.id) throw new Error('Movie details are unavailable right now.'); const poster=m.poster_path?`<img class="detail-poster" src="${image(m.poster_path)}" alt="Poster for ${esc(m.title)}">`:''; app.innerHTML=`<a class="back" href="#">Back to movies</a><article class="detail"><div>${poster}</div><div><p class="eyebrow">Movie details</p><h1>${esc(m.title)}</h1><p class="detail-meta">${year(m.release_date)} · ${m.runtime ? `${Math.floor(m.runtime/60)}h ${m.runtime%60}m` : 'Runtime unknown'} · ★ ${(m.vote_average||0).toFixed(1)}</p><p class="overview">${esc(m.overview || 'No overview available.')}</p><div class="chips">${(m.genres||[]).map(g=>`<span>${esc(g.name)}</span>`).join('')}</div><p class="detail-meta">Directed by ${data.director ? `<a href="#person/${data.director.id}">${esc(data.director.name)}</a>` : 'Unknown'}</p><a class="text-link" href="#cast/${m.id}">View full cast</a></div></article>${shelf('Cast','People in this film',data.cast)}${shelf('You may also like','More movies to explore',data.recommendations)}`; }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
