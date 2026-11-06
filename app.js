@@ -175,7 +175,7 @@ async function home() {
 
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
-  try { const data = await api('/api/home?v=fountain-100'); if(location.hash!=='#fountain')return; app.innerHTML = fountain(data); bindFountainControls(fountainMovies(data)); enhanceFountain(fountainMovies(data)); }
+  try { const data = await api('/api/home?v=fountain-100'); if(location.hash!=='#fountain')return; const movies = fountainMovies(data).slice(0, fountainMovieLimit); app.innerHTML = fountain(data); bindFountainControls(movies); enhanceFountain(movies); }
   catch (error) { app.innerHTML = `<div class="message error">${esc(error.message)}</div>`; }
 }
 
