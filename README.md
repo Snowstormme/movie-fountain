@@ -82,6 +82,7 @@ See [`.env.example`](./.env.example) for safe placeholders. Real credential file
 - [Security](./SECURITY.md) — reporting vulnerabilities and security controls.
 - [Privacy](./PRIVACY.md) — data handling and third-party services.
 - [Contributing](./CONTRIBUTING.md) — local workflow, standards, and pull requests.
+- [Code of Conduct](./CODE_OF_CONDUCT.md) — community participation standards.
 - [Changelog](./CHANGELOG.md) — notable project changes.
 
 ## Third-party data

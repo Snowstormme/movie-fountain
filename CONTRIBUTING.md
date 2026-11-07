@@ -4,7 +4,7 @@ Thanks for helping improve Movie Fountain.
 
 ## Before you start
 
-Read the [README](./README.md), [architecture](./docs/ARCHITECTURE.md), and [security policy](./SECURITY.md). For substantial behavior or architecture changes, open an issue or discussion first so the approach can be agreed before implementation.
+Read the [README](./README.md), [architecture](./docs/ARCHITECTURE.md), [code of conduct](./CODE_OF_CONDUCT.md), and [security policy](./SECURITY.md). For substantial behavior or architecture changes, open an issue or discussion first so the approach can be agreed before implementation.
 
 ## Local setup
 
