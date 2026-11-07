@@ -202,7 +202,9 @@ function enhanceFountain(movies) {
   document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', update));
   fountainAbort = new AbortController();
   app.addEventListener('watchedchange', render, { signal: fountainAbort.signal });
-  render();
+  if (watched.size > 0) {
+    render();
+  }
 }
 
 document.addEventListener('click', async event => {
