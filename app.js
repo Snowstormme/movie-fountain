@@ -521,16 +521,18 @@ function bindFountainControls(movies, letterboxdMovies = []) {
     button.addEventListener("click", () => {
       const filter = button.dataset.filter;
       stream.dataset.filter = filter;
-      const grid = document.querySelector(".fountain-grid") || stream;
-      grid.innerHTML = fountainColumns(
-        filteredMovies(movies, filter, letterboxdMovies),
-      );
       document
         .querySelectorAll(".fountain-filter")
         .forEach((control) =>
           control.classList.toggle("is-active", control === button),
         );
-      syncFountainFlow(stream, true);
+      if (!document.querySelector("#advanced-filters")) {
+        const grid = document.querySelector(".fountain-grid") || stream;
+        grid.innerHTML = fountainColumns(
+          filteredMovies(movies, filter, letterboxdMovies),
+        );
+        syncFountainFlow(stream, true);
+      }
     }),
   );
 

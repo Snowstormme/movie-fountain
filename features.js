@@ -216,11 +216,11 @@ function enhanceFountain(movies, letterboxdMovies = []) {
 
   document.querySelector("#reset-filters").addEventListener("click", () => {
     form.reset();
-    document.querySelector('[data-filter="all"]').click();
+    document.querySelector('.fountain-filter[data-filter="all"]')?.click();
   });
 
   document
-    .querySelectorAll("[data-filter]")
+    .querySelectorAll(".fountain-filter")
     .forEach((b) => b.addEventListener("click", update));
   fountainAbort = new AbortController();
   app.addEventListener("watchedchange", render, {
