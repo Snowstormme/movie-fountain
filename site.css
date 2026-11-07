@@ -70,7 +70,7 @@ html[data-theme="current"] .card-copy span{color:#b5b0a6}
 html[data-theme="current"] .card-preview{background:linear-gradient(transparent 22%,#0a0a0cf5 68%)}
 html[data-theme="current"] .card-preview p{color:#e6e2da}
 html[data-theme="current"] .card-preview span{color:#ff6b2c}
-html[data-theme="current"] .card-copy strong,html[data-theme="current"] .movie-card .rating-badge{color:#ff6b2c}
+html[data-theme="current"] .card-copy strong,html[data-theme="current"] .movie-card .rating-badge{color:#d6ae61}
 html[data-theme="current"] .text-link,html[data-theme="current"] .back,html[data-theme="current"] .footer a{color:#ff6b2c}
 html[data-theme="current"] .chips span{border-color:#ff5a1f55;background:#ff5a1f12;color:#ff6b2c}
 html[data-theme="current"] .fountain{border-color:#242429;background:#0e0e11}
