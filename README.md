@@ -4,7 +4,7 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.4.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2)
+![Version](https://img.shields.io/badge/version-0.4.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
 
 ## A movie night, without the endless scrolling
 
@@ -92,4 +92,4 @@ Movie metadata, posters, ratings, and links come from TMDB and other clearly ide
 
 ## License
 
-No license has been selected for this repository yet. Until a license is added, the code should be treated as all rights reserved. Dependencies and third-party content remain subject to their own licenses and terms.
+Licensed under the [Apache License 2.0](./LICENSE). Third-party dependencies and movie metadata remain subject to their respective licenses and terms.
