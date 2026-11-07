@@ -287,6 +287,58 @@ document.addEventListener("visibilitychange", () =>
   document.documentElement.classList.toggle("page-hidden", document.hidden),
 );
 
+let rowDragState = null;
+app.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "touch" || event.button !== 0) return;
+  if (event.target.closest?.("button")) return;
+  const row = event.target.closest?.(".movie-row");
+  if (!row) return;
+  rowDragState = {
+    row,
+    startX: event.clientX,
+    scrollLeft: row.scrollLeft,
+    moved: false,
+  };
+});
+
+window.addEventListener("pointermove", (event) => {
+  if (!rowDragState) return;
+  const delta = event.clientX - rowDragState.startX;
+  if (!rowDragState.moved && Math.abs(delta) > 6) {
+    rowDragState.moved = true;
+    rowDragState.row.classList.add("is-dragging");
+  }
+  if (rowDragState.moved) {
+    event.preventDefault();
+    rowDragState.row.scrollLeft = rowDragState.scrollLeft - delta;
+  }
+});
+
+window.addEventListener("pointerup", () => {
+  if (!rowDragState) return;
+  const { row, moved } = rowDragState;
+  row.classList.remove("is-dragging");
+  if (moved) {
+    row.dataset.justDragged = "1";
+    setTimeout(() => {
+      delete row.dataset.justDragged;
+    }, 80);
+  }
+  rowDragState = null;
+});
+
+document.addEventListener(
+  "click",
+  (event) => {
+    const row = event.target.closest?.(".movie-row");
+    if (row?.dataset?.justDragged) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  },
+  true,
+);
+
 function card(movie, decorative = false, eagerPoster = false) {
   movieCache.set(String(movie.id), movie);
   const loadingAttr = eagerPoster ? "" : ' loading="lazy"';
