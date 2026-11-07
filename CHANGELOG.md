@@ -2,9 +2,13 @@
 
 All notable changes to Movie Fountain are recorded here.
 
-## [Unreleased]
+## [0.3.0] - 2026-11-07
 
-- Port multi-source external ratings (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience via What's on? API with optional OMDb fallback) to Cloudflare Pages Functions (`/api/movie/[id]/ratings`) and the SPA movie details view.
+- Port multi-source external ratings (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience via What's on? API with optional OMDb fallback and 1-hour edge cache) to Cloudflare Pages Functions (`/api/movie/[id]/ratings`) and the SPA movie details view.
+- Add director and actor search (`/search/person`) alongside movie search, and enrich director/person pages with birth metadata, film counts, and full directed/acting grids.
+- Replace the duplicate Cast shelf on movie detail pages with other films by the movie's director (`More from [Director]`), ordered after recommendations.
+- Streamline the homepage to three deduplicated shelves (`Trending now`, `Top rated`, `Coming soon`) and fix card action buttons (`Save`, `Mark watched`, `Share`) across all items in a row.
+- Optimize Fountain settings toggle responsiveness with CSS containment (`contain: strict`) and batched reflow calculations.
 - Remove the legacy Flask server (`app.py`, `templates/`, `static/`) so the repository is a single unified Cloudflare Pages application.
 - Format `app.js`, `features.js`, `functions/`, and `tests/features.cjs` for readability and add GitHub Actions CI (`node --test tests/features.cjs`).
 

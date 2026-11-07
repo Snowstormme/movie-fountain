@@ -11,7 +11,7 @@ body:
     id: page
     attributes:
       label: Page or feature
-      placeholder: Fountain, Tonight, Watchlist, search...
+      placeholder: Fountain, Account / Watchlist, Movie details, Search...
     validations:
       required: true
   - type: textarea

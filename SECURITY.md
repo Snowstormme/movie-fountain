@@ -17,8 +17,8 @@ Remove real credentials from the report. If a key may have been exposed, rotate 
 
 ## Security controls
 
-- Provider keys are stored in Cloudflare environment variables or local `.env`, never in client code.
-- `.env` and common local/build artifacts are ignored by Git.
+- Provider keys are stored in Cloudflare environment variables or local `.dev.vars` / `.env`, never in client code.
+- `.dev.vars`, `.env`, and common local/build artifacts are ignored by Git.
 - Pages Functions return generic public errors and log details server-side.
 - User/provider text is escaped before client-side HTML interpolation.
 - Cloudflare Pages sends restrictive content, framing, referrer, and permissions headers through [`_headers`](./_headers).

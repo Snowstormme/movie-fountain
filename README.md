@@ -4,7 +4,7 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.2.0-c9a6d0) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2)
+![Version](https://img.shields.io/badge/version-0.3.0-c9a6d0) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2)
 
 ## A movie night, without the endless scrolling
 
@@ -12,16 +12,16 @@ Watch posters flow through the Fountain, narrow the selection by genre or mood, 
 
 | Explore | Make it yours |
 | --- | --- |
-| Animated Fountain with speed and pause controls | Account area with local watchlist and watched marks |
-| Search, cast, details and recommendations | Import/export your watchlist as JSON |
-| Mobile-friendly controls and reduced motion | Share a public movie link |
+| Animated Fountain with speed and pause controls | Account area with local watchlist, filters, sort, and stats |
+| Search movies, directors, and actors with full filmographies | Classic & Liquid Glass themes |
+| Multi-source ratings (TMDB, IMDb, Letterboxd, Rotten Tomatoes) | Import/export your watchlist as JSON & share movie links |
 
 ### How to use it
 
-1. Open **Fountain**, then choose a genre or mood.
-2. Expand **Year, length & watched** to narrow your selection.
-3. Tap **♡** to save a movie, or **Mark watched** to hide it from discovery.
-4. Open **Account** for your saved collection and backup tools.
+1. Open **Fountain**, then open **Settings** to choose playback speed, genre/mood, year, length, or hide watched films.
+2. Tap **Save** on any card to add a movie to your watchlist, or **Mark watched** to track what you have seen.
+3. Search for any **movie, director, or actor** in the top bar to explore ratings, recommendations, other films by the director, and full biographies/filmographies.
+4. Open **Account** to filter/sort your saved movies, switch between **Classic** and **Liquid Glass** appearance, or export/import your backup JSON.
 
 Lists stay in the current browser; export before clearing site data or moving devices. Import merges without deleting existing selections. Mood labels are genre-based approximations. Discovery currently uses the first page of matching TMDB results, not the full catalog. Unknown runtimes are excluded when a time limit is selected. Movie Fountain helps discover movies; it does not stream them.
 
