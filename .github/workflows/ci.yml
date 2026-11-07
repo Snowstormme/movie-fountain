@@ -26,6 +26,7 @@ jobs:
           node --check app.js
           node --check features.js
           node --check functions/_lib/tmdb.js
+          node --check functions/_lib/letterboxd500.js
           node --check functions/api/discover.js
           node --check functions/api/home.js
           node --check functions/api/search.js

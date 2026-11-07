@@ -480,6 +480,15 @@ async function api(path) {
   return data;
 }
 
+function shuffleList(list) {
+  const copy = [...(list || [])];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 function homeShelves(data) {
   const seen = new Set();
   const takeUnique = list => {
@@ -489,6 +498,11 @@ function homeShelves(data) {
   };
   return [
     shelf('Trending now', 'What people are watching this week', takeUnique(data.trending)),
+    shelf(
+      'Letterboxd Top 500',
+      'Rotating selection from the 500 highest-rated narrative films on Letterboxd',
+      takeUnique(shuffleList(data.letterboxd_top))
+    ),
     shelf('Top rated', 'A reliable place to start', takeUnique(data.top_rated)),
     shelf('Coming soon', 'Keep an eye on what is next', takeUnique(data.upcoming)),
   ].join('');
@@ -497,7 +511,7 @@ function homeShelves(data) {
 async function home() {
   app.innerHTML = '<div class="loading">Loading movies…</div>';
   try {
-    const data = await api('/api/home?v=fountain-100');
+    const data = await api('/api/home?v=fountain-lb500');
     app.innerHTML = homeShelves(data);
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
@@ -507,7 +521,7 @@ async function home() {
 async function fountainPage() {
   app.innerHTML = '<div class="loading">Pouring the fountain…</div>';
   try {
-    const data = await api('/api/home?v=fountain-100');
+    const data = await api('/api/home?v=fountain-lb500');
     if (location.hash !== '#fountain') return;
     const movies = fountainMovies(data).slice(0, fountainMovieLimit);
     app.innerHTML = fountain(data);

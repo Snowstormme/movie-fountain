@@ -1,4 +1,14 @@
 import { tmdb, safeError } from '../_lib/tmdb.js';
+import { LETTERBOXD_TOP_500 } from '../_lib/letterboxd500.js';
+
+function sampleLetterboxdTop(count = 100) {
+  const pool = [...LETTERBOXD_TOP_500];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
 
 export async function onRequestGet({ env }) {
   try {
@@ -18,6 +28,8 @@ export async function onRequestGet({ env }) {
         ];
       })
     );
+    lists.letterboxd_top = sampleLetterboxdTop(100);
+
     return Response.json(lists, {
       headers: {
         'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
