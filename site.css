@@ -87,20 +87,24 @@ html[data-theme="liquid"] .account-preference-actions button,html[data-theme="li
 @media(max-width:650px){.account-preferences{align-items:stretch;flex-direction:column}.account-preference-actions{justify-content:stretch}.account-preference-actions button,.account-preference-actions a{flex:1;text-align:center}}
 
 /* Fountain settings: a calmer control surface with clear groups. */
-.fountain-settings-panel{padding:18px 0 4px;contain:layout style}
+.fountain-settings-panel{margin:0 0 10px;padding:6px 14px;border-radius:14px;contain:layout style}
 .fountain-grid .fountain-column,.fountain .movie-tile,.fountain .movie-card{contain:layout style}
 html[data-theme="liquid"] .fountain,html[data-theme="liquid"] .fountain .movie-card,html[data-theme="liquid"] .fountain .movie-actions button,html[data-theme="liquid"] .fountain .save-movie{backdrop-filter:none;-webkit-backdrop-filter:none}
-.fountain-settings-group{padding:16px 0;border-top:1px solid #30333a}
+.fountain-settings-group{display:flex;align-items:center;gap:12px;padding:7px 0;border-top:1px solid #30333a}
 .fountain-settings-group:first-of-type{border-top:0}
-.fountain-settings-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
-.fountain-settings-label span{font-size:13px;font-weight:750;letter-spacing:.01em}
-.fountain-settings-label small{color:#9298a5;font-size:11px}
-.fountain-settings-group .fountain-controls,.fountain-settings-group .fountain-filters{margin-top:0}
-.fountain-settings-group .fountain-filters{padding-bottom:3px}
-.fountain-settings-group .discovery-form{margin:0}
-.fountain-settings-group #filter-status{margin:8px 0 0;color:#9298a5;font-size:12px}
+.fountain-settings-label{flex:0 0 64px;margin:0}
+.fountain-settings-label span{color:#9298a5;font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.fountain-settings-label small{display:none}
+.fountain-settings-group .fountain-controls,.fountain-settings-group .fountain-filters{flex:1;min-width:0;margin-top:0;gap:6px}
+.fountain-settings-group .fountain-filters{padding-bottom:2px}
+.fountain-settings-group .fountain-control,.fountain-settings-group .fountain-filter{min-height:28px;padding:4px 10px;font-size:11px}
+.fountain-settings-group .discovery-form{flex:1;align-items:center;gap:10px;margin:0}
+.fountain-settings-group .discovery-form label{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.fountain-settings-group .discovery-form select{padding:4px 8px;border-radius:8px;font-size:12px}
+.fountain-settings-group .discovery-form button{min-height:28px;padding:4px 10px;border-radius:8px;font-size:11px}
+.fountain-settings-group #filter-status{margin:0;color:#9298a5;font-size:11px;white-space:nowrap}
 html[data-theme="liquid"] .fountain-settings-group{border-color:#ffffff1f}
-@media(max-width:650px){.fountain-settings-label{align-items:flex-start;flex-direction:column;gap:3px}.fountain-settings-group{padding:14px 0}}
+@media(max-width:650px){.fountain-settings-group{align-items:flex-start;flex-direction:column;gap:6px;padding:8px 0}.fountain-settings-label{flex:none}}
 
 /* Multi-source external ratings on movie detail view */
 .ratings-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
