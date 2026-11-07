@@ -2,6 +2,14 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.4.0] - 2026-11-07
+
+- Add curated **Letterboxd Top 500** dataset (`functions/_lib/letterboxd500.js`) with a rotating homepage shelf and a dedicated **Letterboxd Top 500** browse mode in the Fountain (including year refinement via `/api/discover?source=letterboxd`).
+- Redesign the **Classic** theme with a **Jet Black (`#0a0a0c`), Soft White (`#f2efe9`), and Flame Orange (`#ff5a1f`)** cinema palette and gold rating badges (`#d6ae61`).
+- Update Fountain playback speeds to `50` / `100` / `150` px/s (`Slow` / `Normal` / `Fast`) with smooth in-place `playbackRate` transitions.
+- Redesign the Fountain settings panel into a compact horizontal layout and fix stream reset and poster loading issues during continuous scrolling.
+- Remove redundant `View details` label from movie card hover previews to show more of the synopsis.
+
 ## [0.3.0] - 2026-11-07
 
 - Port multi-source external ratings (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience via What's on? API with optional OMDb fallback and 1-hour edge cache) to Cloudflare Pages Functions (`/api/movie/[id]/ratings`) and the SPA movie details view.

@@ -4,7 +4,7 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.3.0-c9a6d0) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2)
+![Version](https://img.shields.io/badge/version-0.4.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2)
 
 ## A movie night, without the endless scrolling
 
@@ -13,8 +13,9 @@ Watch posters flow through the Fountain, narrow the selection by genre or mood, 
 | Explore | Make it yours |
 | --- | --- |
 | Animated Fountain with speed and pause controls | Account area with local watchlist, filters, sort, and stats |
-| Search movies, directors, and actors with full filmographies | Classic & Liquid Glass themes |
-| Multi-source ratings (TMDB, IMDb, Letterboxd, Rotten Tomatoes) | Import/export your watchlist as JSON & share movie links |
+| Rotating Letterboxd Top 500 shelf and Fountain filter mode | Classic (Jet Black & Flame Orange) and Liquid Glass themes |
+| Search movies, directors, and actors with full filmographies | Import/export your watchlist as JSON & share movie links |
+| Multi-source ratings (TMDB, IMDb, Letterboxd, Rotten Tomatoes) | Privacy-first local browser storage with zero tracking |
 
 ### How to use it
 
