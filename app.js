@@ -287,21 +287,30 @@ document.addEventListener("visibilitychange", () =>
   document.documentElement.classList.toggle("page-hidden", document.hidden),
 );
 
-function card(movie, decorative = false) {
+function card(movie, decorative = false, eagerPoster = false) {
   movieCache.set(String(movie.id), movie);
+  const loadingAttr = eagerPoster ? "" : ' loading="lazy"';
   const poster = movie.poster_path
-    ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy" decoding="async">`
+    ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}"${loadingAttr} decoding="async">`
     : '<div class="no-poster">No poster</div>';
 
   if (decorative === true) {
-    return `<a class="movie-card" href="#movie/${movie.id}">
-      ${poster}
-      <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
-      <div class="card-copy">
-        <h3>${esc(movie.title)}</h3>
-        <div class="card-meta"><span>${year(movie.release_date)}</span></div>
+    const saved = savedMovies.some((m) => m.id === movie.id);
+    return `<div class="movie-tile">
+      <a class="movie-card" href="#movie/${movie.id}" tabindex="-1">
+        ${poster}
+        <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
+        <div class="card-copy">
+          <h3>${esc(movie.title)}</h3>
+          <div class="card-meta"><span>${year(movie.release_date)}</span></div>
+        </div>
+      </a>
+      <span class="save-movie" aria-hidden="true">${saved ? "Saved" : "Save"}</span>
+      <div class="movie-actions" aria-hidden="true">
+        <button type="button" tabindex="-1">${watched.has(movie.id) ? "✓ Watched" : "Mark watched"}</button>
+        <button type="button" tabindex="-1">Share</button>
       </div>
-    </a>`;
+    </div>`;
   }
 
   return `<div class="movie-tile">
@@ -380,13 +389,13 @@ function fountainColumns(movies) {
       const items = column
         .map(
           (movie, index) =>
-            `<div class="fountain-item" style="--delay:${index * 0.35 + columnIndex * 0.2}s">${card(movie)}</div>`,
+            `<div class="fountain-item" style="--delay:${index * 0.35 + columnIndex * 0.2}s">${card(movie, false, true)}</div>`,
         )
         .join("");
       const decorativeItems = column
         .map(
           (movie, index) =>
-            `<div class="fountain-item" style="--delay:${index * 0.35 + columnIndex * 0.2}s">${card(movie, true)}</div>`,
+            `<div class="fountain-item" style="--delay:${index * 0.35 + columnIndex * 0.2}s">${card(movie, true, true)}</div>`,
         )
         .join("");
       return `<div class="fountain-column fountain-column-${columnIndex + 1}">

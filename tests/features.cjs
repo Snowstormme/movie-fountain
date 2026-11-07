@@ -121,9 +121,14 @@ test("corrupt storage fails safely; filters select genres", () => {
     14537,
   );
   assert.match(
-    run(`fountain({trending:[{id:1,title:'Movie 1'}]})`),
+    run(`fountain({trending:[{id:1,title:'Movie 1',poster_path:'/abc.jpg'}]})`),
     /data-filter="letterboxd">Letterboxd Top 500<\/button>/,
   );
+  const fountainHtml = run(
+    `fountainColumns([{id:1,title:'Movie 1',poster_path:'/abc.jpg'}])`,
+  );
+  assert.doesNotMatch(fountainHtml, /loading="lazy"/);
+  assert.equal((fountainHtml.match(/class="movie-tile"/g) || []).length, 2);
   const homeMarkup = run(
     `homeShelves({
       trending: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 6, title: 'Second Trending', vote_average: 7.5}],
