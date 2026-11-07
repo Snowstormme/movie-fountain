@@ -323,7 +323,6 @@ function card(movie, decorative = false, eagerPoster = false) {
       </div>
       <div class="card-preview">
         <p>${esc(movie.overview || "Open the details to learn more about this movie.")}</p>
-        <span>View details</span>
       </div>
     </a>
     ${saveButton(movie)}
