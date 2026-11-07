@@ -101,18 +101,18 @@ test('corrupt storage fails safely; filters select genres', () => {
   const homeMarkup = run(
     `homeShelves({
       trending: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 6, title: 'Second Trending', vote_average: 7.5}],
-      popular: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 2, title: 'Unique Popular', vote_average: 7}],
+      popular: [{id: 2, title: 'Unique Popular', vote_average: 7}],
       now_playing: [{id: 3, title: 'In Cinemas', vote_average: 7}],
-      top_rated: [{id: 4, title: 'Top Film', vote_average: 9}],
+      top_rated: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 4, title: 'Top Film', vote_average: 9}],
       upcoming: [{id: 5, title: 'Next Up', vote_average: 6}]
     })`
   );
   assert.doesNotMatch(homeMarkup, /Now playing/);
+  assert.doesNotMatch(homeMarkup, /Popular this week/);
   assert.equal((homeMarkup.match(/<h3>Shared Movie<\/h3>/g) || []).length, 1);
-  assert.match(homeMarkup, /<h3>Unique Popular<\/h3>/);
-  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 5);
-  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 5);
-  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 5);
+  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 4);
+  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 4);
+  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 4);
 });
 
 test('renderRatingsSection renders multi-source ratings, OMDb fallback, and escapes unsafe strings', () => {

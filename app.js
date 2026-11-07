@@ -489,7 +489,6 @@ function homeShelves(data) {
   };
   return [
     shelf('Trending now', 'What people are watching this week', takeUnique(data.trending)),
-    shelf('Popular this week', 'Crowd favorites worth your time', takeUnique(data.popular)),
     shelf('Top rated', 'A reliable place to start', takeUnique(data.top_rated)),
     shelf('Coming soon', 'Keep an eye on what is next', takeUnique(data.upcoming)),
   ].join('');
