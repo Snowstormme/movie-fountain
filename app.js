@@ -519,17 +519,75 @@ async function fountainPage() {
   }
 }
 
+function personCard(person) {
+  const photo = person.profile_path
+    ? `<img src="${image(person.profile_path)}" alt="" loading="lazy" decoding="async">`
+    : '<div class="cast-photo">?</div>';
+  const role =
+    person.known_for_department === 'Directing'
+      ? 'Director'
+      : person.known_for_department === 'Acting'
+        ? 'Actor'
+        : person.known_for_department || 'Film';
+  const knownFor = (person.known_for || [])
+    .map(item => item.title || item.name)
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(', ');
+  const subtitle = knownFor ? `${role} · ${knownFor}` : role;
+
+  return `<a class="cast-card" href="#person/${person.id}">
+    ${photo}
+    <span>
+      <strong>${esc(person.name)}</strong>
+      <small>${esc(subtitle)}</small>
+    </span>
+  </a>`;
+}
+
 async function search(query) {
   app.innerHTML = '<div class="loading">Searching…</div>';
   try {
     const data = await api(`/api/search?q=${encodeURIComponent(query)}`);
-    const resultsMarkup =
-      (data.results || []).map(card).join('') || '<div class="message">No movies found.</div>';
+    const people = data.people || [];
+    const movies = data.results || [];
+
+    const peopleSection = people.length
+      ? `<section class="shelf">
+          <div class="shelf-heading">
+            <div>
+              <h2>Directors & Actors</h2>
+              <p>Open a person to view their biography and full filmography</p>
+            </div>
+          </div>
+          <div class="cast-grid">${people.map(personCard).join('')}</div>
+        </section>`
+      : '';
+
+    const moviesSection = movies.length
+      ? `<section class="shelf">
+          <div class="shelf-heading">
+            <div>
+              <h2>Movies</h2>
+              <p>${movies.length} ${movies.length === 1 ? 'result' : 'results'}</p>
+            </div>
+          </div>
+          <div class="movie-grid">${movies.map(m => card(m)).join('')}</div>
+        </section>`
+      : '';
+
+    const emptyMessage =
+      !people.length && !movies.length
+        ? '<div class="message">No movies, directors, or actors found.</div>'
+        : '';
+
     app.innerHTML = `<div class="page-heading">
       <p class="eyebrow">Search results</p>
-      <h1>Movies for “${esc(query)}”</h1>
+      <h1>Results for “${esc(query)}”</h1>
     </div>
-    <div class="movie-grid">${resultsMarkup}</div>`;
+    ${peopleSection}
+    ${moviesSection}
+    ${emptyMessage}`;
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -714,27 +772,78 @@ async function cast(id) {
   <div class="cast-grid">${castMarkup}</div>`;
 }
 
-async function person(id) {
-  const data = await api(`/api/person/${id}`);
-  const photo = data.person.profile_path
-    ? `<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`
-    : '';
-  const backMarkup = lastMovieId
-    ? `<a class="back" href="#movie/${esc(lastMovieId)}">Back to movie</a>`
-    : '';
-
-  app.innerHTML = `${backMarkup}
-  <article class="person">
-    <div>${photo}</div>
-    <div>
-      <p class="eyebrow">Filmography</p>
-      <h1>${esc(data.person.name)}</h1>
-      <p class="detail-meta">${esc(data.person.place_of_birth || '')}</p>
-      <p class="overview">${esc(data.person.biography || 'No biography available.')}</p>
+function filmographySection(title, subtitle, movies) {
+  if (!movies?.length) return '';
+  return `<section class="shelf">
+    <div class="shelf-heading">
+      <div>
+        <h2>${title}</h2>
+        <p>${subtitle} · ${movies.length} ${movies.length === 1 ? 'film' : 'films'}</p>
+      </div>
     </div>
-  </article>
-  ${shelf('Acting', 'Selected filmography', data.acting_movies)}
-  ${shelf('Directed', 'Directed films', data.directed_movies)}`;
+    <div class="movie-grid">${movies.map(m => card(m)).join('')}</div>
+  </section>`;
+}
+
+async function person(id) {
+  app.innerHTML = '<div class="loading">Loading biography & filmography…</div>';
+  try {
+    const data = await api(`/api/person/${id}`);
+    const p = data.person;
+    const directedMovies = data.directed_movies || [];
+    const actingMovies = data.acting_movies || [];
+    const isDirector =
+      p.known_for_department === 'Directing' || directedMovies.length >= actingMovies.length;
+
+    const photo = p.profile_path
+      ? `<img class="person-photo" src="${image(p.profile_path)}" alt="Photo of ${esc(p.name)}">`
+      : '<div class="person-photo no-poster">No photo</div>';
+    const backMarkup = lastMovieId
+      ? `<a class="back" href="#movie/${esc(lastMovieId)}">Back to movie</a>`
+      : '';
+
+    const metaParts = [];
+    if (isDirector && directedMovies.length) {
+      metaParts.push('Director');
+    } else if (actingMovies.length) {
+      metaParts.push('Actor');
+    }
+    if (p.birthday) {
+      metaParts.push(p.deathday ? `${p.birthday} – ${p.deathday}` : `Born ${p.birthday}`);
+    }
+    if (p.place_of_birth) {
+      metaParts.push(p.place_of_birth);
+    }
+    const counts = [];
+    if (directedMovies.length) counts.push(`${directedMovies.length} directed`);
+    if (actingMovies.length) counts.push(`${actingMovies.length} acting`);
+    if (counts.length) metaParts.push(counts.join(' · '));
+
+    const directedMarkup = filmographySection(
+      'Directed',
+      'Films directed by ' + esc(p.name),
+      directedMovies
+    );
+    const actingMarkup = filmographySection(
+      'Acting',
+      'Acting appearances by ' + esc(p.name),
+      actingMovies
+    );
+
+    app.innerHTML = `${backMarkup}
+    <article class="person">
+      <div>${photo}</div>
+      <div>
+        <p class="eyebrow">${isDirector ? 'Director & Filmography' : 'Biography & Filmography'}</p>
+        <h1>${esc(p.name)}</h1>
+        <p class="detail-meta">${esc(metaParts.join(' · '))}</p>
+        <p class="overview">${esc(p.biography || 'No biography available.')}</p>
+      </div>
+    </article>
+    ${isDirector ? directedMarkup + actingMarkup : actingMarkup + directedMarkup}`;
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
 }
 
 async function route() {
