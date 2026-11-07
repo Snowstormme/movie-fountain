@@ -275,7 +275,7 @@ function card(movie, decorative = false) {
     ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}" loading="lazy" decoding="async">`
     : '<div class="no-poster">No poster</div>';
 
-  if (decorative) {
+  if (decorative === true) {
     return `<a class="movie-card" href="#movie/${movie.id}">
       ${poster}
       <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
@@ -313,7 +313,7 @@ function shelf(title, subtitle, movies) {
         <p>${subtitle}</p>
       </div>
     </div>
-    <div class="movie-row">${movies.slice(0, 12).map(card).join('')}</div>
+    <div class="movie-row">${movies.slice(0, 12).map(movie => card(movie)).join('')}</div>
   </section>`;
 }
 
