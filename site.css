@@ -87,7 +87,9 @@ html[data-theme="liquid"] .account-preference-actions button,html[data-theme="li
 @media(max-width:650px){.account-preferences{align-items:stretch;flex-direction:column}.account-preference-actions{justify-content:stretch}.account-preference-actions button,.account-preference-actions a{flex:1;text-align:center}}
 
 /* Fountain settings: a calmer control surface with clear groups. */
-.fountain-settings-panel{padding:18px 0 4px;contain:layout style}
+.fountain-settings-panel{position:absolute;top:58px;right:18px;left:18px;z-index:5;margin:0;padding:18px 22px 10px;border:1px solid #30333a;border-radius:20px;background:#1a1c21f5;box-shadow:0 22px 55px #000a;contain:layout style}
+.fountain-settings-panel[hidden]{display:none}
+@media(max-width:650px){.fountain-settings-panel{top:54px;right:12px;left:12px;padding:14px 16px 8px}}
 .fountain-grid .fountain-column,.fountain .movie-tile,.fountain .movie-card{contain:layout style}
 html[data-theme="liquid"] .fountain,html[data-theme="liquid"] .fountain .movie-card,html[data-theme="liquid"] .fountain .movie-actions button,html[data-theme="liquid"] .fountain .save-movie{backdrop-filter:none;-webkit-backdrop-filter:none}
 .fountain-settings-group{padding:16px 0;border-top:1px solid #30333a}

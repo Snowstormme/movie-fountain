@@ -411,6 +411,7 @@ function fountainColumns(movies) {
 function syncFountainFlow(stream, reset = false) {
   const pixelsPerSecond =
     { slow: 40, normal: 60, fast: 100 }[stream?.dataset.speed] || 60;
+  const rate = pixelsPerSecond / 60;
   const tracks = [...(stream?.querySelectorAll(".fountain-track") || [])];
   if (!tracks.length) return;
 
@@ -422,11 +423,26 @@ function syncFountainFlow(stream, reset = false) {
     tracks.forEach((track) => {
       track.style.animation = "";
     });
+    const heights = tracks.map((track) => track.scrollHeight);
+    tracks.forEach((track, i) => {
+      track.style.animationDuration = `${Math.max(1, heights[i] / 2 / 60)}s`;
+    });
   }
 
-  const heights = tracks.map((track) => track.scrollHeight);
-  tracks.forEach((track, i) => {
-    track.style.animationDuration = `${Math.max(1, heights[i] / 2 / pixelsPerSecond)}s`;
+  tracks.forEach((track) => {
+    const animations =
+      typeof track.getAnimations === "function" ? track.getAnimations() : [];
+    if (animations.length) {
+      animations.forEach((anim) => {
+        if (typeof anim.updatePlaybackRate === "function") {
+          anim.updatePlaybackRate(rate);
+        } else {
+          anim.playbackRate = rate;
+        }
+      });
+    } else if (!reset) {
+      track.style.animationDuration = `${Math.max(1, track.scrollHeight / 2 / pixelsPerSecond)}s`;
+    }
   });
 }
 
@@ -483,13 +499,14 @@ function bindFountainControls(movies, letterboxdMovies = []) {
 
   document.querySelectorAll(".fountain-control[data-speed]").forEach((button) =>
     button.addEventListener("click", () => {
+      if (stream.dataset.speed === button.dataset.speed) return;
       stream.dataset.speed = button.dataset.speed;
       document
         .querySelectorAll(".fountain-control[data-speed]")
         .forEach((control) =>
           control.classList.toggle("is-active", control === button),
         );
-      syncFountainFlow(stream, true);
+      syncFountainFlow(stream, false);
     }),
   );
 
