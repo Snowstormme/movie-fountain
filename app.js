@@ -636,7 +636,6 @@ function homeShelves(data) {
       takeUnique(shuffleList(data.letterboxd_top)),
       "#letterboxd",
     ),
-    shelf("Top rated", "A reliable place to start", takeUnique(data.top_rated)),
     shelf(
       "Coming soon",
       "Keep an eye on what is next",

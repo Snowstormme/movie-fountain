@@ -141,13 +141,14 @@ test("corrupt storage fails safely; filters select genres", () => {
   );
   assert.doesNotMatch(homeMarkup, /Now playing/);
   assert.doesNotMatch(homeMarkup, /Popular this week/);
+  assert.doesNotMatch(homeMarkup, /Top rated/);
   assert.match(homeMarkup, /Letterboxd Top 500/);
   assert.match(homeMarkup, /href="#letterboxd"/);
   assert.match(homeMarkup, /<h3>Harakiri<\/h3>/);
   assert.equal((homeMarkup.match(/<h3>Shared Movie<\/h3>/g) || []).length, 1);
-  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 5);
-  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 5);
-  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 5);
+  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 4);
+  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 4);
+  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 4);
 });
 
 test("renderRatingsSection renders multi-source ratings, OMDb fallback, and escapes unsafe strings", () => {
