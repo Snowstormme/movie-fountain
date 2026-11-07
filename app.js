@@ -656,8 +656,8 @@ async function movie(id) {
     <section class="shelf" id="movie-ratings" aria-label="Ratings">
       ${renderRatingsSection(m, null)}
     </section>
-    ${shelf('Cast', 'People in this film', data.cast)}
-    ${shelf('You may also like', 'More movies to explore', data.recommendations)}`;
+    ${shelf('You may also like', 'More movies to explore', data.recommendations)}
+    ${shelf(data.director ? `More from ${esc(data.director.name)}` : 'More from this director', 'Other films by this director', data.director_movies)}`;
 
     const imdbParam = m.imdb_id ? `?imdb_id=${encodeURIComponent(m.imdb_id)}` : '';
     api(`/api/movie/${encodeURIComponent(m.id)}/ratings${imdbParam}`)
