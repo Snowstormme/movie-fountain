@@ -409,8 +409,8 @@ function fountainColumns(movies) {
 
 function syncFountainFlow(stream, reset = false) {
   const pixelsPerSecond =
-    { slow: 40, normal: 60, fast: 100 }[stream?.dataset.speed] || 60;
-  const rate = pixelsPerSecond / 60;
+    { slow: 50, normal: 100, fast: 150 }[stream?.dataset.speed] || 100;
+  const rate = pixelsPerSecond / 100;
   const tracks = [...(stream?.querySelectorAll(".fountain-track") || [])];
   if (!tracks.length) return;
 
@@ -424,7 +424,7 @@ function syncFountainFlow(stream, reset = false) {
     });
     const heights = tracks.map((track) => track.scrollHeight);
     tracks.forEach((track, i) => {
-      track.style.animationDuration = `${Math.max(1, heights[i] / 2 / 60)}s`;
+      track.style.animationDuration = `${Math.max(1, heights[i] / 2 / 100)}s`;
     });
   }
 
