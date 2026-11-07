@@ -56,7 +56,7 @@ API calls go through Pages Functions so `TMDB_API_KEY` and `OMDB_API_KEY` are ne
 
 ### Non-blocking external ratings
 
-Movie details (`/api/movie/[id]`) render immediately from TMDB, while external ratings (`/api/movie/[id]/ratings`) load asynchronously and cache at the edge for 6 hours (`Cache-Control: public, max-age=21600, s-maxage=21600`). This ensures slow upstream responses never block movie detail navigation.
+Movie details (`/api/movie/[id]`) render immediately from TMDB, while external ratings (`/api/movie/[id]/ratings`) load asynchronously and cache at the edge for 1 hour (`Cache-Control: public, max-age=3600, s-maxage=3600`). This ensures slow upstream responses never block movie detail navigation.
 
 ### Hash-based navigation
 

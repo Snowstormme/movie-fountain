@@ -3,7 +3,7 @@ import { numericId, safeError } from '../../../_lib/tmdb.js';
 const RATINGS_API_URL = 'https://whatson-api.onrender.com';
 const OMDB_API_URL = 'https://www.omdbapi.com/';
 const RATINGS_CACHE = new Map();
-const RATINGS_CACHE_MS = 6 * 60 * 60 * 1000;
+const RATINGS_CACHE_MS = 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 256;
 
 const SCORE_SOURCES = {
@@ -164,7 +164,7 @@ export async function onRequestGet({ request, params, env }) {
       {
         headers: {
           'Cache-Control': hasScores
-            ? 'public, max-age=21600, s-maxage=21600, stale-while-revalidate=3600'
+            ? 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600'
             : 'public, max-age=300, s-maxage=300',
         },
       }
