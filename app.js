@@ -382,21 +382,17 @@ function card(movie, decorative = false, eagerPoster = false) {
   </div>`;
 }
 
-function shelf(title, subtitle, movies, href = "", moreLabel = "View all →") {
+function shelf(title, subtitle, movies, href = "") {
   if (!movies?.length) return "";
   const headingTitle = href
-    ? `<h2><a class="shelf-title-link" href="${href}">${title} →</a></h2>`
+    ? `<h2><a class="shelf-title-link" href="${href}">${title}</a></h2>`
     : `<h2>${title}</h2>`;
-  const actionLink = href
-    ? `<a class="text-link shelf-more-link" href="${href}">${moreLabel}</a>`
-    : "";
   return `<section class="shelf">
     <div class="shelf-heading">
       <div>
         ${headingTitle}
         <p>${subtitle}</p>
       </div>
-      ${actionLink}
     </div>
     <div class="movie-row">${movies
       .slice(0, 12)
@@ -630,21 +626,18 @@ function homeShelves(data) {
       "What people are watching this week",
       takeUnique(data.trending),
       "#trending",
-      "View top 100 →",
     ),
     shelf(
       "Letterboxd Top 500",
       "Rotating selection from the 500 highest-rated narrative films on Letterboxd",
       takeUnique(shuffleList(data.letterboxd_top)),
       "#letterboxd",
-      "View all 500 →",
     ),
     shelf(
       "Coming soon",
       "Keep an eye on what is next",
       takeUnique(data.upcoming),
       "#upcoming",
-      "View all 60 →",
     ),
   ].join("");
 }
