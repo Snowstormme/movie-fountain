@@ -46,6 +46,7 @@ function readWatchlist() {
 let savedMovies = readWatchlist();
 let accountFilter = 'all';
 let accountSort = 'saved';
+let lastMovieId = '';
 
 function saveButton(movie) {
   const saved = savedMovies.some(m => m.id === movie.id);
@@ -637,6 +638,7 @@ async function movie(id) {
     if (location.hash !== target) return;
     const m = data?.movie;
     if (!m?.id) throw new Error('Movie details are unavailable right now.');
+    lastMovieId = String(m.id);
     movieCache.set(String(m.id), m);
     const poster = m.poster_path
       ? `<img class="detail-poster" src="${image(m.poster_path)}" alt="Poster for ${esc(m.title)}">`
@@ -649,8 +651,7 @@ async function movie(id) {
       ? `<a href="#person/${data.director.id}">${esc(data.director.name)}</a>`
       : 'Unknown';
 
-    app.innerHTML = `<a class="back" href="#">Back to movies</a>
-    <article class="detail">
+    app.innerHTML = `<article class="detail">
       <div>${poster}</div>
       <div>
         <p class="eyebrow">Movie details</p>
@@ -688,6 +689,7 @@ async function movie(id) {
 }
 
 async function cast(id) {
+  lastMovieId = String(id);
   const data = await api(`/api/movie/${id}/cast`);
   const castMarkup = data.cast
     .map(person => {
@@ -717,8 +719,11 @@ async function person(id) {
   const photo = data.person.profile_path
     ? `<img class="person-photo" src="${image(data.person.profile_path)}" alt="">`
     : '';
+  const backMarkup = lastMovieId
+    ? `<a class="back" href="#movie/${esc(lastMovieId)}">Back to movie</a>`
+    : '';
 
-  app.innerHTML = `<a class="back" href="#">Back to movies</a>
+  app.innerHTML = `${backMarkup}
   <article class="person">
     <div>${photo}</div>
     <div>
