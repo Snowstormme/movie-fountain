@@ -1,1 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420"><defs><linearGradient id="bg"><stop stop-color="#191725"/><stop offset="1" stop-color="#102c35"/></linearGradient><linearGradient id="card" x2="1" y2="1"><stop stop-color="#ac6d9e"/><stop offset="1" stop-color="#344b6c"/></linearGradient></defs><rect width="1280" height="420" rx="28" fill="url(#bg)"/><circle cx="1120" cy="60" r="220" fill="#bc79a5" opacity=".1"/><g fill="url(#card)" stroke="#ffffff" stroke-opacity=".2"><rect x="850" y="-50" width="140" height="205" rx="18"/><rect x="850" y="175" width="140" height="205" rx="18"/><rect x="1010" y="65" width="140" height="205" rx="18"/><rect x="1010" y="290" width="140" height="205" rx="18"/></g><g font-family="system-ui,sans-serif"><text x="65" y="105" fill="#c9a6d0" font-size="16" letter-spacing="5">DISCOVER • SAVE • PRESS PLAY</text><text x="60" y="195" fill="#fff" font-size="72" font-weight="800">Movie Fountain</text><text x="65" y="250" fill="#c0c4d1" font-size="25">Let the next movie find you.</text><rect x="65" y="300" width="285" height="48" rx="24" fill="#a7d6d2"/><text x="89" y="331" fill="#132d31" font-size="18">movie-fountain.pages.dev ↗</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="0.6" stop-color="#111115"/>
+      <stop offset="1" stop-color="#181210"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="1020" cy="180" r="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff5a1f" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7847"/>
+      <stop offset="1" stop-color="#ff5a1f"/>
+    </linearGradient>
+    <linearGradient id="card-dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d1d22"/>
+      <stop offset="1" stop-color="#121215"/>
+    </linearGradient>
+    <linearGradient id="card-flame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff5a1f" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#181414"/>
+    </linearGradient>
+    <clipPath id="banner-clip">
+      <rect width="1280" height="420" rx="28"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#banner-clip)">
+    <rect width="1280" height="420" rx="28" fill="url(#bg)"/>
+    <circle cx="1020" cy="180" r="360" fill="url(#glow)"/>
+
+    <!-- Flowing Fountain columns on the right -->
+    <g>
+      <!-- Column 1 -->
+      <rect x="760" y="-40" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="760" y="174" width="136" height="198" rx="16" fill="url(#card-flame)" stroke="#ff5a1f" stroke-opacity="0.65" stroke-width="1.5"/>
+      <text x="862" y="352" fill="#d6ae61" font-family="Inter,system-ui,-apple-system,sans-serif" font-size="13" font-weight="700">★ 8.6</text>
+      <rect x="776" y="330" width="66" height="8" rx="4" fill="#f2efe9" fill-opacity="0.85"/>
+      <rect x="776" y="344" width="42" height="6" rx="3" fill="#9e9b95" fill-opacity="0.6"/>
+      <rect x="760" y="388" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+
+      <!-- Column 2 -->
+      <rect x="914" y="25" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+      <text x="1016" y="203" fill="#d6ae61" font-family="Inter,system-ui,-apple-system,sans-serif" font-size="13" font-weight="700">★ 8.4</text>
+      <rect x="930" y="181" width="72" height="8" rx="4" fill="#f2efe9" fill-opacity="0.85"/>
+      <rect x="930" y="195" width="38" height="6" rx="3" fill="#9e9b95" fill-opacity="0.6"/>
+      <rect x="914" y="239" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+
+      <!-- Column 3 -->
+      <rect x="1068" y="-75" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+      <rect x="1068" y="139" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#ff5a1f" stroke-opacity="0.4" stroke-width="1.5"/>
+      <text x="1170" y="317" fill="#d6ae61" font-family="Inter,system-ui,-apple-system,sans-serif" font-size="13" font-weight="700">★ 8.8</text>
+      <rect x="1084" y="295" width="68" height="8" rx="4" fill="#f2efe9" fill-opacity="0.85"/>
+      <rect x="1084" y="309" width="44" height="6" rx="3" fill="#9e9b95" fill-opacity="0.6"/>
+      <rect x="1068" y="353" width="136" height="198" rx="16" fill="url(#card-dark)" stroke="#2e2e35" stroke-width="1.5"/>
+    </g>
+
+    <!-- Brand mark + Typography -->
+    <g transform="translate(64, 62)">
+      <rect x="0" y="0" width="56" height="56" rx="15" fill="#121215" stroke="#2e2e35" stroke-width="2"/>
+      <rect x="10" y="21" width="9" height="14" rx="2.5" fill="#f2efe9" fill-opacity="0.9"/>
+      <rect x="10" y="38" width="9" height="8" rx="2" fill="#f2efe9" fill-opacity="0.35"/>
+      <rect x="23" y="9" width="10" height="18" rx="3" fill="url(#flame)"/>
+      <rect x="23" y="30" width="10" height="16" rx="3" fill="url(#flame)" fill-opacity="0.85"/>
+      <rect x="37" y="16" width="9" height="14" rx="2.5" fill="#d6ae61"/>
+      <rect x="37" y="33" width="9" height="13" rx="2.5" fill="#f2efe9" fill-opacity="0.75"/>
+
+      <text x="74" y="34" fill="#ff5a1f" font-family="Inter,system-ui,-apple-system,sans-serif" font-size="14" font-weight="800" letter-spacing="4">DISCOVER • LETTERBOXD TOP 500 • SAVE</text>
+    </g>
+
+    <g font-family="Inter,system-ui,-apple-system,sans-serif">
+      <text x="64" y="198" fill="#f2efe9" font-size="72" font-weight="850" letter-spacing="-2.5">Movie Fountain</text>
+      <text x="66" y="248" fill="#9e9b95" font-size="24" font-weight="500">Let the next movie find you — without endless scrolling.</text>
+
+      <rect x="64" y="294" width="292" height="50" rx="25" fill="#ff5a1f"/>
+      <text x="92" y="325" fill="#f2efe9" font-size="18" font-weight="750">movie-fountain.pages.dev ↗</text>
+
+      <rect x="372" y="294" width="196" height="50" rx="25" fill="#121215" stroke="#2e2e35" stroke-width="1.5"/>
+      <text x="400" y="325" fill="#d6ae61" font-size="16" font-weight="700">★ Multi-source ratings</text>
+    </g>
+  </g>
+  <rect x="1" y="1" width="1278" height="418" rx="27" stroke="#242429" stroke-width="2"/>
+</svg>
