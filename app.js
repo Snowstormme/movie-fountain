@@ -382,13 +382,13 @@ function card(movie, decorative = false, eagerPoster = false) {
   </div>`;
 }
 
-function shelf(title, subtitle, movies, href = "") {
+function shelf(title, subtitle, movies, href = "", moreLabel = "View all →") {
   if (!movies?.length) return "";
   const headingTitle = href
     ? `<h2><a class="shelf-title-link" href="${href}">${title} →</a></h2>`
     : `<h2>${title}</h2>`;
   const actionLink = href
-    ? `<a class="text-link shelf-more-link" href="${href}">View all 500 →</a>`
+    ? `<a class="text-link shelf-more-link" href="${href}">${moreLabel}</a>`
     : "";
   return `<section class="shelf">
     <div class="shelf-heading">
@@ -629,17 +629,22 @@ function homeShelves(data) {
       "Trending now",
       "What people are watching this week",
       takeUnique(data.trending),
+      "#trending",
+      "View top 100 →",
     ),
     shelf(
       "Letterboxd Top 500",
       "Rotating selection from the 500 highest-rated narrative films on Letterboxd",
       takeUnique(shuffleList(data.letterboxd_top)),
       "#letterboxd",
+      "View all 500 →",
     ),
     shelf(
       "Coming soon",
       "Keep an eye on what is next",
       takeUnique(data.upcoming),
+      "#upcoming",
+      "View all 60 →",
     ),
   ].join("");
 }
@@ -654,6 +659,22 @@ async function home() {
   }
 }
 
+async function trendingPage() {
+  app.innerHTML = '<div class="loading">Loading trending movies…</div>';
+  try {
+    const data = await api("/api/trending");
+    const movies = data.results || [];
+    app.innerHTML = `<div class="page-heading">
+      <p class="eyebrow">Weekly chart</p>
+      <h1>Trending now</h1>
+      <p class="hero-copy">The ${movies.length} most watched and talked-about movies this week, ordered from #1 to #${movies.length}.</p>
+    </div>
+    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
+}
+
 async function letterboxdPage() {
   app.innerHTML = '<div class="loading">Loading Letterboxd Top 500…</div>';
   try {
@@ -663,6 +684,22 @@ async function letterboxdPage() {
       <p class="eyebrow">Curated collection</p>
       <h1>Letterboxd Top 500</h1>
       <p class="hero-copy">The ${movies.length} highest-rated narrative feature films on Letterboxd, ordered from #1 to #${movies.length}.</p>
+    </div>
+    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
+}
+
+async function upcomingPage() {
+  app.innerHTML = '<div class="loading">Loading upcoming movies…</div>';
+  try {
+    const data = await api("/api/upcoming");
+    const movies = data.results || [];
+    app.innerHTML = `<div class="page-heading">
+      <p class="eyebrow">Release calendar</p>
+      <h1>Coming soon</h1>
+      <p class="hero-copy">${movies.length} upcoming theatrical and digital releases worth keeping on your radar.</p>
     </div>
     <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
   } catch (error) {
@@ -1033,7 +1070,9 @@ async function route() {
   const [kind, id] = location.hash.slice(1).split("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
+  if (kind === "trending") return trendingPage();
   if (kind === "letterboxd") return letterboxdPage();
+  if (kind === "upcoming") return upcomingPage();
   if (kind === "search") return search(decodeURIComponent(id || ""));
   if (kind === "fountain") return fountainPage();
   if (kind === "movie") return movie(id);
