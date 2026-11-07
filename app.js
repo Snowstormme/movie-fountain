@@ -382,14 +382,21 @@ function card(movie, decorative = false, eagerPoster = false) {
   </div>`;
 }
 
-function shelf(title, subtitle, movies) {
+function shelf(title, subtitle, movies, href = "") {
   if (!movies?.length) return "";
+  const headingTitle = href
+    ? `<h2><a class="shelf-title-link" href="${href}">${title} →</a></h2>`
+    : `<h2>${title}</h2>`;
+  const actionLink = href
+    ? `<a class="text-link shelf-more-link" href="${href}">View all 500 →</a>`
+    : "";
   return `<section class="shelf">
     <div class="shelf-heading">
       <div>
-        <h2>${title}</h2>
+        ${headingTitle}
         <p>${subtitle}</p>
       </div>
+      ${actionLink}
     </div>
     <div class="movie-row">${movies
       .slice(0, 12)
@@ -627,6 +634,7 @@ function homeShelves(data) {
       "Letterboxd Top 500",
       "Rotating selection from the 500 highest-rated narrative films on Letterboxd",
       takeUnique(shuffleList(data.letterboxd_top)),
+      "#letterboxd",
     ),
     shelf("Top rated", "A reliable place to start", takeUnique(data.top_rated)),
     shelf(
@@ -642,6 +650,22 @@ async function home() {
   try {
     const data = await api("/api/home?v=fountain-lb500");
     app.innerHTML = homeShelves(data);
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
+}
+
+async function letterboxdPage() {
+  app.innerHTML = '<div class="loading">Loading Letterboxd Top 500…</div>';
+  try {
+    const data = await api("/api/letterboxd");
+    const movies = data.results || [];
+    app.innerHTML = `<div class="page-heading">
+      <p class="eyebrow">Curated collection</p>
+      <h1>Letterboxd Top 500</h1>
+      <p class="hero-copy">The ${movies.length} highest-rated narrative feature films on Letterboxd, ordered from #1 to #${movies.length}.</p>
+    </div>
+    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -1010,6 +1034,7 @@ async function route() {
   const [kind, id] = location.hash.slice(1).split("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
+  if (kind === "letterboxd") return letterboxdPage();
   if (kind === "search") return search(decodeURIComponent(id || ""));
   if (kind === "fountain") return fountainPage();
   if (kind === "movie") return movie(id);

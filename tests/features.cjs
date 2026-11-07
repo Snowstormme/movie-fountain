@@ -142,6 +142,7 @@ test("corrupt storage fails safely; filters select genres", () => {
   assert.doesNotMatch(homeMarkup, /Now playing/);
   assert.doesNotMatch(homeMarkup, /Popular this week/);
   assert.match(homeMarkup, /Letterboxd Top 500/);
+  assert.match(homeMarkup, /href="#letterboxd"/);
   assert.match(homeMarkup, /<h3>Harakiri<\/h3>/);
   assert.equal((homeMarkup.match(/<h3>Shared Movie<\/h3>/g) || []).length, 1);
   assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 5);

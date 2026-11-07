@@ -29,6 +29,7 @@ jobs:
           node --check functions/_lib/letterboxd500.js
           node --check functions/api/discover.js
           node --check functions/api/home.js
+          node --check functions/api/letterboxd.js
           node --check functions/api/search.js
           node --check "functions/api/movie/[id].js"
           node --check "functions/api/movie/[id]/cast.js"
