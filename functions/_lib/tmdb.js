@@ -11,6 +11,15 @@ export async function tmdb(path, env, params = {}) {
   return response.json();
 }
 
+export function extractLang(request) {
+  try {
+    const url = new URL(request?.url || "");
+    return url.searchParams.get("lang") === "ru" ? "ru-RU" : "en-US";
+  } catch {
+    return "en-US";
+  }
+}
+
 export function numericId(value) {
   const id = String(value || "");
   if (!/^\d{1,10}$/.test(id)) throw new Error("Invalid resource identifier");

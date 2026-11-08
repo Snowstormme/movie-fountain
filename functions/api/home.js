@@ -1,4 +1,4 @@
-import { tmdb, safeError } from "../_lib/tmdb.js";
+import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 import { LETTERBOXD_TOP_500 } from "../_lib/letterboxd500.js";
 
 function sampleLetterboxdTop(count = 100) {
@@ -10,8 +10,9 @@ function sampleLetterboxdTop(count = 100) {
   return pool.slice(0, count);
 }
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
   try {
+    const language = extractLang(request);
     const keys = [
       "trending",
       "popular",
@@ -24,7 +25,7 @@ export async function onRequestGet({ env }) {
         tmdb(
           key === "trending" ? "/trending/movie/week" : `/movie/${key}`,
           env,
-          { page },
+          { page, language },
         ),
       ),
     );

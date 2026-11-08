@@ -38,8 +38,8 @@ const translations = {
     theme_liquid: "Liquid Glass",
     lang_btn: "Language",
     lang_name: "English",
-    export_json: "Export JSON",
-    import_json: "+ Import JSON",
+    export_json: "Export",
+    import_json: "+ Import",
     privacy: "Privacy",
 
     rank_enthusiast: "Film Enthusiast",
@@ -220,9 +220,9 @@ const translations = {
     theme_liquid: "Жидкое стекло",
     lang_btn: "Язык",
     lang_name: "Русский",
-    export_json: "Экспорт JSON",
-    import_json: "+ Импорт JSON",
-    privacy: "Конфиденциальность",
+    export_json: "Экспорт",
+    import_json: "+ Импорт",
+    privacy: "Приватность",
 
     rank_enthusiast: "Начинающий зритель",
     rank_cinephile_1: "Любитель кино (Ур. 1)",

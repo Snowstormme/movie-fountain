@@ -374,7 +374,7 @@ test("i18n and language switching in Account and cards", () => {
   // Account rendering in Russian
   run("account()");
   assert.match(stub.innerHTML, /Паспорт синефила/);
-  assert.match(stub.innerHTML, /🌐 Язык: Русский/);
+  assert.match(stub.innerHTML, /🌐 Русский/);
   assert.match(stub.innerHTML, /Личная фильмотека/);
   assert.match(stub.innerHTML, /Прогресс/);
   assert.match(stub.innerHTML, /Хочу посмотреть/);
@@ -386,5 +386,5 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("t('cinema_passport')"), "Cinema Passport");
   run("account()");
   assert.match(stub.innerHTML, /Cinema Passport/);
-  assert.match(stub.innerHTML, /🌐 Language: English/);
+  assert.match(stub.innerHTML, /🌐 English/);
 });

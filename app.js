@@ -99,7 +99,7 @@ function account() {
         </div>
       </div>
       <div class="account-hero-actions">
-        <button type="button" class="account-hero-btn" data-lang-toggle aria-label="Toggle language">🌐 ${savedLang === "ru" ? "Язык: Русский" : "Language: English"}</button>
+        <button type="button" class="account-hero-btn" data-lang-toggle aria-label="Toggle language">🌐 ${savedLang === "ru" ? "Русский" : "English"}</button>
         <button type="button" class="account-hero-btn" data-open-style>${t("theme_btn")}: ${theme}</button>
         <button type="button" class="account-hero-btn" id="export-list">${t("export_json")}</button>
         <label class="account-hero-btn account-hero-btn--primary">
@@ -676,7 +676,12 @@ function bindFountainControls(movies, letterboxdMovies = []) {
 }
 
 async function api(path) {
-  const response = await fetch(path, {
+  let target = path;
+  if (savedLang === "ru" && !path.includes("/ratings")) {
+    const sep = path.includes("?") ? "&" : "?";
+    target = `${path}${sep}lang=ru`;
+  }
+  const response = await fetch(target, {
     headers: { accept: "application/json" },
   });
   const data = await response.json();
@@ -1150,12 +1155,17 @@ async function movie(id) {
     const directorMarkup = data.director
       ? `<a href="#person/${data.director.id}">${esc(data.director.name)}</a>`
       : "Unknown";
+    const originalTitle =
+      m.original_title && m.original_title !== m.title
+        ? `<p class="original-title">${esc(m.original_title)}</p>`
+        : "";
 
     app.innerHTML = `<article class="detail">
       <div>${poster}</div>
       <div>
         <p class="eyebrow">${t("movie_details")}</p>
         <h1>${esc(m.title)}</h1>
+        ${originalTitle}
         <p class="detail-meta">${year(m.release_date)} · ${runtimeText} · ★ ${(m.vote_average || 0).toFixed(1)}</p>
         <p class="overview">${esc(m.overview || t("no_overview"))}</p>
         <div class="chips">${genresMarkup}</div>

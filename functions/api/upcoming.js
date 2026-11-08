@@ -1,10 +1,11 @@
-import { tmdb, safeError } from "../_lib/tmdb.js";
+import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
   try {
+    const language = extractLang(request);
     const pages = [1, 2, 3, 4, 5];
     const responses = await Promise.all(
-      pages.map((page) => tmdb("/movie/upcoming", env, { page })),
+      pages.map((page) => tmdb("/movie/upcoming", env, { page, language })),
     );
     const seen = new Set();
     const results = [];

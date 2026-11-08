@@ -1,13 +1,14 @@
-import { tmdb, safeError, searchQuery } from "../_lib/tmdb.js";
+import { tmdb, safeError, searchQuery, extractLang } from "../_lib/tmdb.js";
 
 export async function onRequestGet({ request, env }) {
   try {
     const query = searchQuery(new URL(request.url).searchParams.get("q"));
     if (!query) return Response.json({ results: [], people: [] });
+    const language = extractLang(request);
 
     const [moviesData, peopleData] = await Promise.all([
-      tmdb("/search/movie", env, { query }),
-      tmdb("/search/person", env, { query }),
+      tmdb("/search/movie", env, { query, language }),
+      tmdb("/search/person", env, { query, language }),
     ]);
 
     const people = (peopleData.results || [])

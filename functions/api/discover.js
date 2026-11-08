@@ -1,4 +1,4 @@
-import { tmdb, safeError } from "../_lib/tmdb.js";
+import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 import { LETTERBOXD_TOP_500 } from "../_lib/letterboxd500.js";
 
 export async function onRequestGet({ request, env }) {
@@ -33,6 +33,7 @@ export async function onRequestGet({ request, env }) {
       sort_by: "popularity.desc",
       "vote_count.gte": "20",
       "primary_release_date.lte": new Date().toISOString().slice(0, 10),
+      language: extractLang(request),
     };
     if (year) params.primary_release_year = year;
     if (runtime) {

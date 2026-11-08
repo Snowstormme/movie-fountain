@@ -1,4 +1,4 @@
-import { tmdb, safeError, numericId } from "../../_lib/tmdb.js";
+import { tmdb, safeError, numericId, extractLang } from "../../_lib/tmdb.js";
 
 function uniqueDirectedMovies(crew, currentMovieId) {
   const seen = new Set([Number(currentMovieId)]);
@@ -37,12 +37,31 @@ export function pickTrailer(videos) {
     : null;
 }
 
-export async function onRequestGet({ params, env }) {
+export async function onRequestGet({ request, params, env }) {
   try {
     const id = numericId(params.id);
+    const language = extractLang(request);
+    const isRu = language === "ru-RU";
     const movie = await tmdb(`/movie/${id}`, env, {
+      language,
       append_to_response: "credits,recommendations,videos",
     });
+
+    if (isRu && (!movie.overview || !pickTrailer(movie.videos))) {
+      try {
+        const enMovie = await tmdb(`/movie/${id}`, env, {
+          language: "en-US",
+          append_to_response: "videos",
+        });
+        if (!movie.overview && enMovie.overview) {
+          movie.overview = enMovie.overview;
+        }
+        if (!pickTrailer(movie.videos) && enMovie.videos) {
+          movie.videos = enMovie.videos;
+        }
+      } catch {}
+    }
+
     const director =
       (movie.credits?.crew || []).find((person) => person.job === "Director") ||
       null;
@@ -52,6 +71,7 @@ export async function onRequestGet({ params, env }) {
         const credits = await tmdb(
           `/person/${numericId(director.id)}/movie_credits`,
           env,
+          { language },
         );
         directorMovies = uniqueDirectedMovies(credits.crew, id);
       } catch {

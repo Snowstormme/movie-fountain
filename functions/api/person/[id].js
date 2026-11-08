@@ -1,4 +1,4 @@
-import { tmdb, safeError, numericId } from "../../_lib/tmdb.js";
+import { tmdb, safeError, numericId, extractLang } from "../../_lib/tmdb.js";
 
 function uniqueByReleaseDate(list) {
   const seen = new Set();
@@ -11,12 +11,22 @@ function uniqueByReleaseDate(list) {
     .sort((a, b) => (b.release_date || "").localeCompare(a.release_date || ""));
 }
 
-export async function onRequestGet({ params, env }) {
+export async function onRequestGet({ request, params, env }) {
   try {
     const id = numericId(params.id);
+    const language = extractLang(request);
     const person = await tmdb(`/person/${id}`, env, {
+      language,
       append_to_response: "movie_credits",
     });
+    if (language === "ru-RU" && !person.biography) {
+      try {
+        const enPerson = await tmdb(`/person/${id}`, env, {
+          language: "en-US",
+        });
+        if (enPerson.biography) person.biography = enPerson.biography;
+      } catch {}
+    }
     const credits = person.movie_credits || {};
     return Response.json({
       person,
