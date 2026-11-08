@@ -115,6 +115,12 @@ html[data-theme="current"] .save-movie[aria-pressed="true"]{border-color:#ff5a1f
 .account-tab.is-active{border-color:#ff5a1f;background:rgba(255,90,31,0.15);color:#ff5a1f}
 .account-sort{display:flex;align-items:center;gap:8px;color:#9e9b95;font-size:12px}
 .account-sort select{padding:8px 10px;border:1px solid #2e2e35;border-radius:9px;background:#18181c;color:#dcd8d0;font:inherit;font-size:12px}
+.list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:24px 0 6px;padding-bottom:14px;border-bottom:1px solid #242429}
+.list-count-badge{display:inline-flex;align-items:center;padding:6px 12px;border:1px solid #2e2e35;border-radius:8px;background:#18181c;color:#f2efe9;font-size:12px;font-weight:700}
+.list-sort{display:flex;align-items:center;gap:8px;color:#9e9b95;font-size:12px}
+.list-sort select{padding:8px 12px;border:1px solid #2e2e35;border-radius:9px;background:#18181c;color:#dcd8d0;font:inherit;font-size:12px;cursor:pointer;outline:none;transition:border-color .18s}
+.list-sort select:hover,.list-sort select:focus{border-color:#ff5a1f;color:#fff}
+html[data-theme="liquid"] .list-count-badge,html[data-theme="liquid"] .list-sort select{border-color:#ffffff38;background:linear-gradient(145deg,#ffffff20,#ffffff0a 48%,#0000001c);color:#f5f1f8}
 .watched-badge{position:absolute;top:10px;left:10px;z-index:2;padding:4px 8px;border-radius:6px;background:#ff5a1f;color:#0a0a0c;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;box-shadow:0 4px 12px rgba(255,90,31,0.35)}
 .account-empty{display:grid;justify-items:center;gap:8px;grid-column:1 / -1;padding:56px 20px;border:1px dashed #2e2e35;border-radius:14px;text-align:center;color:#9e9b95}.account-empty strong{color:#f2efe9;font-size:16px}.account-empty .text-link{margin-top:8px}
 html[data-theme="liquid"] .account-hero{border-color:#ffffff38;background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#0000001c);box-shadow:inset 0 1px #ffffff42,0 12px 28px #02050a44;backdrop-filter:blur(18px) saturate(165%)}

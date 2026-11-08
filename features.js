@@ -70,6 +70,12 @@ const translations = {
     sort_rating: "Highest rated",
     sort_release: "Release date",
     sort_title: "Title A–Z",
+    sort_default: "Default order",
+    sort_rating_desc: "Highest rated",
+    sort_rating_asc: "Lowest rated",
+    sort_year_desc: "Release date (newest)",
+    sort_year_asc: "Release date (oldest)",
+    sort_title_asc: "Title (A–Z)",
     empty_watchlist: "Your watchlist is empty here.",
     empty_watchlist_sub:
       "Save movies from the Fountain and they will appear in this section.",
@@ -258,6 +264,12 @@ const translations = {
     sort_rating: "По рейтингу",
     sort_release: "По дате выхода",
     sort_title: "По названию (А–Я)",
+    sort_default: "По умолчанию",
+    sort_rating_desc: "По рейтингу (высший)",
+    sort_rating_asc: "По рейтингу (низший)",
+    sort_year_desc: "Сначала новые",
+    sort_year_asc: "Сначала классика",
+    sort_title_asc: "По названию (А–Я)",
     empty_watchlist: "В этом разделе пока пусто.",
     empty_watchlist_sub:
       "Сохраняйте понравившиеся фильмы из Фонтана или списков, и они появятся здесь.",
@@ -511,6 +523,32 @@ function normalizeMovies(data) {
   }
 
   return [...unique.values()];
+}
+
+function sortMovieList(movies, sortKey = "default") {
+  if (!Array.isArray(movies)) return [];
+  const list = [...movies];
+  switch (sortKey) {
+    case "rating_desc":
+      return list.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+    case "rating_asc":
+      return list.sort((a, b) => (a.vote_average || 0) - (b.vote_average || 0));
+    case "year_desc":
+      return list.sort((a, b) =>
+        String(b.release_date || "").localeCompare(String(a.release_date || "")),
+      );
+    case "year_asc":
+      return list.sort((a, b) => {
+        const da = String(a.release_date || "9999");
+        const db = String(b.release_date || "9999");
+        return da.localeCompare(db);
+      });
+    case "title_asc":
+      return list.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    case "default":
+    default:
+      return list;
+  }
 }
 
 function extraActions(m) {

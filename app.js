@@ -319,6 +319,10 @@ app.addEventListener("change", (event) => {
     accountSort = event.target.value;
     refreshAccountMovies();
   }
+  if (event.target.matches("[data-list-sort]")) {
+    currentListSort = event.target.value;
+    refreshListMovies();
+  }
 });
 
 app.addEventListener("watchedchange", () => {
@@ -751,6 +755,45 @@ async function home() {
   }
 }
 
+let currentListMovies = [];
+let currentListSort = "default";
+
+function renderMovieListPage({ eyebrow, title, subText, movies }) {
+  currentListMovies = movies || [];
+  currentListSort = "default";
+  const sorted = sortMovieList(currentListMovies, currentListSort);
+
+  app.innerHTML = `<div class="page-heading">
+    <p class="eyebrow">${eyebrow}</p>
+    <h1>${title}</h1>
+    <p class="hero-copy">${esc(subText)}</p>
+    <div class="list-toolbar">
+      <div class="list-stats">
+        <span class="list-count-badge">${pluralFilms(currentListMovies.length)}</span>
+      </div>
+      <label class="list-sort">
+        <span>${t("sort_label")}:</span>
+        <select data-list-sort aria-label="${t("sort_label")}">
+          <option value="default">${t("sort_default")}</option>
+          <option value="rating_desc">${t("sort_rating_desc")}</option>
+          <option value="rating_asc">${t("sort_rating_asc")}</option>
+          <option value="year_desc">${t("sort_year_desc")}</option>
+          <option value="year_asc">${t("sort_year_asc")}</option>
+          <option value="title_asc">${t("sort_title_asc")}</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div class="movie-grid" id="list-movie-grid">${sorted.map((m) => card(m)).join("")}</div>`;
+}
+
+function refreshListMovies() {
+  const grid = document.querySelector("#list-movie-grid");
+  if (!grid) return;
+  const sorted = sortMovieList(currentListMovies, currentListSort);
+  grid.innerHTML = sorted.map((m) => card(m)).join("");
+}
+
 async function trendingPage() {
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
@@ -760,12 +803,12 @@ async function trendingPage() {
       /\{count\}/g,
       String(movies.length),
     );
-    app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">${t("chart_weekly")}</p>
-      <h1>${t("page_trending_title")}</h1>
-      <p class="hero-copy">${esc(subText)}</p>
-    </div>
-    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+    renderMovieListPage({
+      eyebrow: t("chart_weekly"),
+      title: t("page_trending_title"),
+      subText,
+      movies,
+    });
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -780,12 +823,12 @@ async function letterboxdPage() {
       /\{count\}/g,
       String(movies.length),
     );
-    app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">${t("curated_collection")}</p>
-      <h1>${t("page_letterboxd_title")}</h1>
-      <p class="hero-copy">${esc(subText)}</p>
-    </div>
-    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+    renderMovieListPage({
+      eyebrow: t("curated_collection"),
+      title: t("page_letterboxd_title"),
+      subText,
+      movies,
+    });
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -800,12 +843,12 @@ async function imdbPage() {
       /\{count\}/g,
       String(movies.length),
     );
-    app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">${t("curated_collection")}</p>
-      <h1>${t("page_imdb_title")}</h1>
-      <p class="hero-copy">${esc(subText)}</p>
-    </div>
-    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+    renderMovieListPage({
+      eyebrow: t("curated_collection"),
+      title: t("page_imdb_title"),
+      subText,
+      movies,
+    });
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -820,12 +863,12 @@ async function upcomingPage() {
       /\{count\}/g,
       String(movies.length),
     );
-    app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">${t("release_calendar")}</p>
-      <h1>${t("page_upcoming_title")}</h1>
-      <p class="hero-copy">${esc(subText)}</p>
-    </div>
-    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+    renderMovieListPage({
+      eyebrow: t("release_calendar"),
+      title: t("page_upcoming_title"),
+      subText,
+      movies,
+    });
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }

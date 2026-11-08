@@ -406,3 +406,63 @@ test("i18n and language switching in Account and cards", () => {
   assert.match(stub.innerHTML, /Cinema Passport/);
   assert.match(stub.innerHTML, /🌐 English/);
 });
+
+test("sortMovieList and list page rendering sort by rating, release date, and title", () => {
+  const { run, stub } = setup();
+
+  const testMovies = [
+    { id: 1, title: "Zodiac", vote_average: 7.9, release_date: "2007-03-02" },
+    { id: 2, title: "Amadeus", vote_average: 8.4, release_date: "1984-09-19" },
+    { id: 3, title: "Parasite", vote_average: 8.5, release_date: "2019-05-30" },
+    { id: 4, title: "Casablanca", vote_average: 8.2, release_date: "1942-11-26" },
+  ];
+
+  // Default order preserved
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'default').map(m => m.id)`).join(","),
+    "1,2,3,4",
+  );
+
+  // Highest rated
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'rating_desc').map(m => m.id)`).join(","),
+    "3,2,4,1",
+  );
+
+  // Lowest rated
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'rating_asc').map(m => m.id)`).join(","),
+    "1,4,2,3",
+  );
+
+  // Newest first
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'year_desc').map(m => m.id)`).join(","),
+    "3,1,2,4",
+  );
+
+  // Oldest first
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'year_asc').map(m => m.id)`).join(","),
+    "4,2,1,3",
+  );
+
+  // Title A-Z
+  assert.equal(
+    run(`sortMovieList(${JSON.stringify(testMovies)}, 'title_asc').map(m => m.id)`).join(","),
+    "2,4,3,1", // Amadeus, Casablanca, Parasite, Zodiac
+  );
+
+  // Renders list page with sort toolbar and counter
+  run(`renderMovieListPage({
+    eyebrow: 'Curated collection',
+    title: 'IMDb Top 250',
+    subText: 'The 250 highest-rated movies',
+    movies: ${JSON.stringify(testMovies)}
+  })`);
+  assert.match(stub.innerHTML, /IMDb Top 250/);
+  assert.match(stub.innerHTML, /class="list-toolbar"/);
+  assert.match(stub.innerHTML, /data-list-sort/);
+  assert.match(stub.innerHTML, /4 films/);
+  assert.match(stub.innerHTML, /id="list-movie-grid"/);
+});
