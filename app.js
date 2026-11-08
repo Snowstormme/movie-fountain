@@ -196,6 +196,38 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  const closeTrailer = event.target.closest("[data-close-trailer]");
+  if (closeTrailer?.dataset?.closeTrailer !== undefined) {
+    const slot = document.querySelector?.("#trailer-embed-slot");
+    const trigger = document.querySelector?.("[data-trailer-key]");
+    if (slot) slot.innerHTML = "";
+    if (trigger) {
+      trigger.setAttribute?.("aria-expanded", "false");
+      trigger.textContent = "▶ Watch trailer";
+    }
+    return;
+  }
+
+  const trailerBtn = event.target.closest("[data-trailer-key]");
+  if (trailerBtn?.dataset?.trailerKey) {
+    const slot = document.querySelector?.("#trailer-embed-slot");
+    if (!slot) return;
+    const isOpen = trailerBtn.getAttribute("aria-expanded") === "true";
+    if (isOpen) {
+      slot.innerHTML = "";
+      trailerBtn.setAttribute("aria-expanded", "false");
+      trailerBtn.textContent = "▶ Watch trailer";
+    } else {
+      slot.innerHTML = renderTrailerEmbed(
+        trailerBtn.dataset.trailerKey,
+        trailerBtn.dataset.trailerName || "Official Trailer",
+      );
+      trailerBtn.setAttribute("aria-expanded", "true");
+      trailerBtn.textContent = "Hide trailer";
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-save]");
   if (!button) return;
   const item = movieCache.get(button.dataset.save);
@@ -893,6 +925,54 @@ function renderRatingsSection(m, ratings = null) {
   ${attribution}`;
 }
 
+function validYoutubeKey(key) {
+  return typeof key === "string" && /^[a-zA-Z0-9_-]{6,20}$/.test(key)
+    ? key
+    : null;
+}
+
+function renderTrailerControls(m, trailer) {
+  const key = validYoutubeKey(trailer?.key);
+  if (key) {
+    const label = trailer?.name || "Official Trailer";
+    return `<div class="detail-links">
+      <button type="button" class="trailer-button" data-trailer-key="${esc(key)}" data-trailer-name="${esc(label)}" aria-expanded="false">▶ Watch trailer</button>
+      <a class="text-link" href="https://www.youtube.com/watch?v=${esc(key)}" target="_blank" rel="noopener noreferrer">YouTube</a>
+      <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
+    </div>`;
+  }
+  const query = encodeURIComponent(
+    `${m.title || ""} ${year(m.release_date)} official trailer`.trim(),
+  );
+  return `<div class="detail-links">
+    <a class="trailer-button" href="https://www.youtube.com/results?search_query=${query}" target="_blank" rel="noopener noreferrer">▶ Watch trailer</a>
+    <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
+  </div>`;
+}
+
+function renderTrailerEmbed(key, name = "Official Trailer") {
+  const safeKey = validYoutubeKey(key);
+  if (!safeKey) return "";
+  return `<section class="trailer-player" aria-label="Movie trailer">
+    <div class="trailer-player-bar">
+      <strong>${esc(name)}</strong>
+      <div class="trailer-player-actions">
+        <a href="https://www.youtube.com/watch?v=${esc(safeKey)}" target="_blank" rel="noopener noreferrer">Open on YouTube</a>
+        <button type="button" data-close-trailer>Close</button>
+      </div>
+    </div>
+    <div class="trailer-frame-wrap">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/${esc(safeKey)}?autoplay=1&rel=0"
+        title="${esc(name)}"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </section>`;
+}
+
 async function movie(id) {
   app.innerHTML = '<div class="loading">Loading movie…</div>';
   try {
@@ -925,9 +1005,10 @@ async function movie(id) {
         <p class="overview">${esc(m.overview || "No overview available.")}</p>
         <div class="chips">${genresMarkup}</div>
         <p class="detail-meta">Directed by ${directorMarkup}</p>
-        <a class="text-link" href="#cast/${m.id}">View full cast</a>
+        ${renderTrailerControls(m, data.trailer)}
       </div>
     </article>
+    <div id="trailer-embed-slot"></div>
     <section class="shelf" id="movie-ratings" aria-label="Ratings">
       ${renderRatingsSection(m, null)}
     </section>
