@@ -2,6 +2,16 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.5.0] - 2026-11-08
+
+- Add composite **Fountain Score** (0–100 universal rating) synthesizing IMDb, Letterboxd, Rotten Tomatoes critics/audience, and TMDB with dynamic fallback weighting, qualitative verdict badges (_Universal Acclaim_, _Strong Consensus_, _Solid_, _Mixed_, _Skip_), and breakdown tooltips.
+- Redesign the **Account** view into a **Cinephile Passport** interface featuring dynamic cinephile ranks (_Casual Viewer_, _Movie Buff_, _Cinephile_, _Film Scholar_, _Auteur in the Making_, _Film Historian_), completion progress bars, tabbed filtering (`All`, `To Watch`, `Watched`), and visual card badges.
+- Add dedicated full-page movie charts for `#trending` (Top 100 films) and `#upcoming` (60 most anticipated releases) powered by edge-cached Cloudflare Pages Functions (`/api/trending`, `/api/upcoming`).
+- Integrate official **YouTube trailer playback** (`▶ Watch trailer`) with an inline responsive privacy-enhanced player modal (`youtube-nocookie.com`) and updated CSP frame policies.
+- Enhance homepage shelves with single-row drag-to-scroll carousel navigation and direct links to dedicated charts.
+- Implement comprehensive SEO optimizations: Schema.org JSON-LD structured data, XML sitemap with IndexNow protocol integration, and Google Search Console verification.
+- Add legal TMDB API attribution notice and nominative fair use disclaimers.
+
 ## [0.4.0] - 2026-11-07
 
 - Add curated **Letterboxd Top 500** dataset (`functions/_lib/letterboxd500.js`) with a rotating homepage shelf and a dedicated **Letterboxd Top 500** browse mode in the Fountain (including year refinement via `/api/discover?source=letterboxd`).

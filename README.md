@@ -4,18 +4,18 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.4.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
+![Version](https://img.shields.io/badge/version-0.5.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
 
 ## A movie night, without the endless scrolling
 
 Watch posters flow through the Fountain, narrow the selection by genre or mood, and save anything that catches your eye.
 
-| Explore | Make it yours |
-| --- | --- |
-| Animated Fountain with speed and pause controls | Account area with local watchlist, filters, sort, and stats |
-| Rotating Letterboxd Top 500 shelf and Fountain filter mode | Classic (Jet Black & Flame Orange) and Liquid Glass themes |
-| Search movies, directors, and actors with full filmographies | Import/export your watchlist as JSON & share movie links |
-| Multi-source ratings (TMDB, IMDb, Letterboxd, Rotten Tomatoes) | Privacy-first local browser storage with zero tracking |
+| Explore                                                                       | Make it yours                                                    |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Animated Fountain with speed and pause controls                               | Cinephile Passport account area with ranks, stats & progress     |
+| Dedicated charts: Trending (Top 100), Upcoming (60 releases) & Letterboxd 500 | Multi-source ratings + composite **Fountain Score** (0–100)      |
+| Search movies, directors, and actors with full filmographies                  | Watch official YouTube trailers in an inline privacy-first modal |
+| Rotating Letterboxd Top 500 shelf and Fountain filter mode                    | Import/export your watchlist as JSON & share movie links         |
 
 ### How to use it
 
@@ -47,6 +47,10 @@ Live site: [movie-fountain.pages.dev](https://movie-fountain.pages.dev/)
 - Cloudflare Pages Functions that proxy TMDB and external ratings requests without exposing API keys to the browser.
 - Fountain mode with speed controls, pause/play, genre/mood filters, year/runtime refinement, keyboard focus states, and reduced-motion support.
 - Movie, cast, person, search, recommendation, and multi-source rating views (TMDB, IMDb, Letterboxd, and Rotten Tomatoes).
+- Composite Fountain Score (0–100 universal rating) synthesizing multi-source data.
+- Cinephile Passport account area with dynamic ranks, completion stats, and watchlist filtering.
+- Dedicated full-page charts for Trending (Top 100) and Upcoming (60 releases).
+- Official YouTube trailer player modal with privacy-enhanced mode.
 
 ## Quick start
 
@@ -68,10 +72,10 @@ To preview the full stack locally with Cloudflare Pages Functions, copy `.env.ex
 
 ## Configuration
 
-| Variable | Required | Used by | Description |
-| --- | --- | --- | --- |
-| `TMDB_API_KEY` | Yes | Pages Functions | Server-side TMDB credential |
-| `OMDB_API_KEY` | No | Pages Functions (`/api/movie/[id]/ratings`) | Optional fallback for IMDb and Rotten Tomatoes ratings |
+| Variable       | Required | Used by                                     | Description                                            |
+| -------------- | -------- | ------------------------------------------- | ------------------------------------------------------ |
+| `TMDB_API_KEY` | Yes      | Pages Functions                             | Server-side TMDB credential                            |
+| `OMDB_API_KEY` | No       | Pages Functions (`/api/movie/[id]/ratings`) | Optional fallback for IMDb and Rotten Tomatoes ratings |
 
 See [`.env.example`](./.env.example) for safe placeholders. Real credential files (`.env`, `.dev.vars`) are ignored by Git.
 
