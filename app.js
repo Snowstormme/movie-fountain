@@ -50,16 +50,17 @@ let lastMovieId = "";
 
 function saveButton(movie) {
   const saved = savedMovies.some((m) => m.id === movie.id);
-  const actionLabel = `${saved ? "Remove" : "Save"} ${esc(movie.title)} ${saved ? "from" : "to"} watchlist`;
-  return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${actionLabel}">${saved ? "Saved" : "Save"}</button>`;
+  const actionLabel = `${saved ? t("remove") : t("save")} ${esc(movie.title)} ${saved ? t("from_watchlist") : t("to_watchlist")}`;
+  return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${actionLabel}">${saved ? t("saved") : t("save")}</button>`;
 }
 
 function getCinephileRank(watchedCount) {
-  if (watchedCount >= 30) return "Cinema Connoisseur";
-  if (watchedCount >= 15) return "Level 3 Cinephile";
-  if (watchedCount >= 5) return "Level 2 Cinephile";
-  if (watchedCount >= 1) return "Level 1 Cinephile";
-  return "Film Enthusiast";
+  if (watchedCount >= 50) return t("rank_historian");
+  if (watchedCount >= 25) return t("rank_auteur");
+  if (watchedCount >= 15) return t("rank_scholar");
+  if (watchedCount >= 5) return t("rank_cinephile_2");
+  if (watchedCount >= 1) return t("rank_cinephile_1");
+  return t("rank_enthusiast");
 }
 
 function account() {
@@ -78,78 +79,79 @@ function account() {
   const rank = getCinephileRank(watchedCount);
   const theme =
     typeof savedTheme === "string" && savedTheme === "liquid"
-      ? "Liquid Glass"
-      : "Classic";
+      ? t("theme_liquid")
+      : t("theme_classic");
   const lastWatchedTitle = watchedMovies.length
     ? watchedMovies[watchedMovies.length - 1].title
-    : "None yet";
+    : t("stat_none_yet");
 
   app.innerHTML = `<section class="account-page">
     <div class="account-hero">
       <div class="account-profile">
         <div class="account-avatar" aria-hidden="true">M</div>
         <div class="account-name-wrap">
-          <p class="eyebrow">Personal library</p>
-          <h1>Cinema Passport</h1>
+          <p class="eyebrow">${t("personal_library")}</p>
+          <h1>${t("cinema_passport")}</h1>
           <div class="account-badges">
             <span class="account-rank-badge">★ ${esc(rank)}</span>
-            <span class="account-count-badge">${savedMovies.length} ${savedMovies.length === 1 ? "film" : "films"}</span>
+            <span class="account-count-badge">${pluralFilms(savedMovies.length)}</span>
           </div>
         </div>
       </div>
       <div class="account-hero-actions">
-        <button type="button" class="account-hero-btn" data-open-style>Theme: ${theme}</button>
-        <button type="button" class="account-hero-btn" id="export-list">Export JSON</button>
+        <button type="button" class="account-hero-btn" data-lang-toggle aria-label="Toggle language">🌐 ${savedLang === "ru" ? "Язык: Русский" : "Language: English"}</button>
+        <button type="button" class="account-hero-btn" data-open-style>${t("theme_btn")}: ${theme}</button>
+        <button type="button" class="account-hero-btn" id="export-list">${t("export_json")}</button>
         <label class="account-hero-btn account-hero-btn--primary">
-          + Import JSON
+          ${t("import_json")}
           <input type="file" id="import-list" accept="application/json,.json" style="display:none">
         </label>
-        <a class="account-hero-btn" href="/privacy.html">Privacy</a>
+        <a class="account-hero-btn" href="/privacy.html">${t("privacy")}</a>
       </div>
     </div>
 
-    <div class="account-stats-row" aria-label="Watchlist summary">
+    <div class="account-stats-row" aria-label="${t("filter_watchlist")}">
       <div class="account-stat-card">
-        <span class="account-stat-label">Completion</span>
+        <span class="account-stat-label">${t("stat_completion")}</span>
         <strong class="account-stat-value">${completionRate}%</strong>
         <div class="account-progress-track">
           <div class="account-progress-fill" style="width: ${completionRate}%"></div>
         </div>
-        <small class="account-stat-sub">${watchedCount} of ${savedMovies.length} watched</small>
+        <small class="account-stat-sub">${watchedCount} ${t("stat_of")} ${savedMovies.length} ${t("stat_completion_sub")}</small>
       </div>
 
       <div class="account-stat-card">
-        <span class="account-stat-label">Watchlist</span>
+        <span class="account-stat-label">${t("stat_watchlist")}</span>
         <strong class="account-stat-value">${savedMovies.length}</strong>
-        <small class="account-stat-sub">${toWatchCount} waiting to watch</small>
+        <small class="account-stat-sub">${toWatchCount} ${t("stat_waiting")}</small>
       </div>
 
       <div class="account-stat-card">
-        <span class="account-stat-label">Watched</span>
+        <span class="account-stat-label">${t("stat_watched")}</span>
         <strong class="account-stat-value account-stat-value--accent">${watchedCount}</strong>
         <small class="account-stat-sub" title="${esc(lastWatchedTitle)}">${esc(lastWatchedTitle)}</small>
       </div>
 
       <div class="account-stat-card">
-        <span class="account-stat-label">Library Score</span>
+        <span class="account-stat-label">${t("stat_library_score")}</span>
         <strong class="account-stat-value account-stat-value--gold">★ ${average}</strong>
-        <small class="account-stat-sub">Average rating</small>
+        <small class="account-stat-sub">${t("stat_avg_rating")}</small>
       </div>
     </div>
 
     <div class="account-shelf-header">
-      <div class="account-tabs" role="group" aria-label="Filter watchlist">
-        <button type="button" data-account-filter="all" class="account-tab">All Movies (${savedMovies.length})</button>
-        <button type="button" data-account-filter="unwatched" class="account-tab">To Watch (${toWatchCount})</button>
-        <button type="button" data-account-filter="watched" class="account-tab">Watched (${watchedCount})</button>
+      <div class="account-tabs" role="group" aria-label="${t("filter_watchlist")}">
+        <button type="button" data-account-filter="all" class="account-tab">${t("tab_all")} (${savedMovies.length})</button>
+        <button type="button" data-account-filter="unwatched" class="account-tab">${t("tab_to_watch")} (${toWatchCount})</button>
+        <button type="button" data-account-filter="watched" class="account-tab">${t("tab_watched")} (${watchedCount})</button>
       </div>
       <label class="account-sort">
-        Sort
+        ${t("sort_label")}
         <select data-account-sort>
-          <option value="saved">Recently saved</option>
-          <option value="rating">Highest rated</option>
-          <option value="release">Release date</option>
-          <option value="title">Title A–Z</option>
+          <option value="saved">${t("sort_saved")}</option>
+          <option value="rating">${t("sort_rating")}</option>
+          <option value="release">${t("sort_release")}</option>
+          <option value="title">${t("sort_title")}</option>
         </select>
       </label>
     </div>
@@ -195,9 +197,9 @@ function accountMovieMarkup() {
   return (
     movies.map(card).join("") ||
     `<div class="account-empty">
-      <strong>Your watchlist is empty here.</strong>
-      <span>Save movies from the Fountain and they will appear in this section.</span>
-      <a class="text-link" href="#fountain">Explore the Fountain</a>
+      <strong>${t("empty_watchlist")}</strong>
+      <span>${t("empty_watchlist_sub")}</span>
+      <a class="text-link" href="#fountain">${t("explore_fountain")}</a>
     </div>`
   );
 }
@@ -215,9 +217,17 @@ function refreshAccountMovies() {
 }
 
 app.addEventListener("click", (event) => {
+  const langToggle = event.target.closest("[data-lang-toggle]");
+  if (langToggle?.dataset?.langToggle !== undefined) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    setLang(savedLang === "ru" ? "en" : "ru");
+    return;
+  }
+
   const styleLink = event.target.closest("[data-open-style]");
   if (styleLink?.dataset?.openStyle !== undefined) {
-    event.stopPropagation();
+    event.stopPropagation?.();
     setTheme(savedTheme === "liquid" ? "classic" : "liquid");
     return;
   }
@@ -236,7 +246,7 @@ app.addEventListener("click", (event) => {
     if (slot) slot.innerHTML = "";
     if (trigger) {
       trigger.setAttribute?.("aria-expanded", "false");
-      trigger.textContent = "▶ Watch trailer";
+      trigger.textContent = t("watch_trailer");
     }
     return;
   }
@@ -249,14 +259,14 @@ app.addEventListener("click", (event) => {
     if (isOpen) {
       slot.innerHTML = "";
       trailerBtn.setAttribute("aria-expanded", "false");
-      trailerBtn.textContent = "▶ Watch trailer";
+      trailerBtn.textContent = t("watch_trailer");
     } else {
       slot.innerHTML = renderTrailerEmbed(
         trailerBtn.dataset.trailerKey,
-        trailerBtn.dataset.trailerName || "Official Trailer",
+        trailerBtn.dataset.trailerName || t("official_trailer"),
       );
       trailerBtn.setAttribute("aria-expanded", "true");
-      trailerBtn.textContent = "Hide trailer";
+      trailerBtn.textContent = t("close_trailer");
       slot.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
     }
     return;
@@ -292,8 +302,8 @@ app.addEventListener("click", (event) => {
 
   savedMovies = next;
   document.querySelector("#save-status").textContent = exists
-    ? "Removed from watchlist."
-    : "Saved to watchlist.";
+    ? t("saved_status_remove")
+    : t("saved_status_add");
 
   if (location.hash === "#account" || location.hash === "#watchlist") {
     account();
@@ -319,6 +329,15 @@ document.addEventListener("themechange", () => {
   if (location.hash === "#account" || location.hash === "#watchlist") account();
 });
 
+document.addEventListener("langchange", () => {
+  applyLang(savedLang);
+  if (location.hash === "#account" || location.hash === "#watchlist") {
+    account();
+  } else {
+    route();
+  }
+});
+
 window.addEventListener("storage", (event) => {
   if (event.key === watchlistKey || event.key === null) {
     savedMovies = readWatchlist();
@@ -335,10 +354,11 @@ window.addEventListener("storage", (event) => {
 
 document
   .querySelector(".topbar-left")
-  .insertAdjacentHTML(
+  ?.insertAdjacentHTML(
     "beforeend",
-    '<a class="fountain-nav" href="#account">Account</a>',
+    `<a class="fountain-nav" href="#account">${t("nav_account")}</a>`,
   );
+applyLang(savedLang);
 document.body.insertAdjacentHTML(
   "beforeend",
   '<p id="save-status" class="visually-hidden" role="status"></p>',
@@ -417,10 +437,10 @@ function card(movie, decorative = false, eagerPoster = false) {
           <div class="card-meta"><span>${year(movie.release_date)}</span></div>
         </div>
       </a>
-      <span class="save-movie" aria-hidden="true">${saved ? "Saved" : "Save"}</span>
+      <span class="save-movie" aria-hidden="true">${saved ? t("saved") : t("save")}</span>
       <div class="movie-actions" aria-hidden="true">
-        <button type="button" tabindex="-1">${watched.has(movie.id) ? "✓ Watched" : "Mark watched"}</button>
-        <button type="button" tabindex="-1">Share</button>
+        <button type="button" tabindex="-1">${watched.has(movie.id) ? t("watched") : t("mark_watched")}</button>
+        <button type="button" tabindex="-1">${t("share")}</button>
       </div>
     </div>`;
   }
@@ -430,13 +450,13 @@ function card(movie, decorative = false, eagerPoster = false) {
     <a class="movie-card" href="#movie/${movie.id}">
       ${poster}
       <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
-      ${isWatched ? '<strong class="watched-badge">✓ Watched</strong>' : ""}
+      ${isWatched ? `<strong class="watched-badge">${t("watched")}</strong>` : ""}
       <div class="card-copy">
         <h3>${esc(movie.title)}</h3>
         <div class="card-meta"><span>${year(movie.release_date)}</span></div>
       </div>
       <div class="card-preview">
-        <p>${esc(movie.overview || "Open the details to learn more about this movie.")}</p>
+        <p>${esc(movie.overview || t("no_overview"))}</p>
       </div>
     </a>
     ${saveButton(movie)}
@@ -566,33 +586,33 @@ function fountain(data) {
   const movies = fountainMovies(data).slice(0, fountainMovieLimit);
   return `<section class="fountain" id="fountain-stream" data-speed="normal" data-filter="all" aria-label="Movie Fountain">
     <div class="fountain-toolbar">
-      <button class="fountain-settings" type="button" aria-expanded="false" aria-controls="fountain-settings-panel">Settings</button>
+      <button class="fountain-settings" type="button" aria-expanded="false" aria-controls="fountain-settings-panel">${t("settings")}</button>
     </div>
     <div class="fountain-settings-panel" id="fountain-settings-panel" hidden>
       <section class="fountain-settings-group">
-        <div class="fountain-settings-label"><span>Playback</span></div>
+        <div class="fountain-settings-label"><span>${t("playback")}</span></div>
         <div class="fountain-controls" role="group" aria-label="Fountain controls">
-          <button class="fountain-control" type="button" data-speed="slow">Slow</button>
-          <button class="fountain-control is-active" type="button" data-speed="normal">Normal</button>
-          <button class="fountain-control" type="button" data-speed="fast">Fast</button>
-          <button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">Pause</button>
+          <button class="fountain-control" type="button" data-speed="slow">${t("speed_slow")}</button>
+          <button class="fountain-control is-active" type="button" data-speed="normal">${t("speed_normal")}</button>
+          <button class="fountain-control" type="button" data-speed="fast">${t("speed_fast")}</button>
+          <button class="fountain-control pause-control" type="button" data-action="pause" aria-pressed="false">${t("pause")}</button>
         </div>
       </section>
       <section class="fountain-settings-group">
-        <div class="fountain-settings-label"><span>Browse</span></div>
+        <div class="fountain-settings-label"><span>${t("browse")}</span></div>
         <div class="fountain-filters" role="group" aria-label="Filter the Fountain">
-          <button class="fountain-filter is-active" type="button" data-filter="all">All movies</button>
-          <button class="fountain-filter" type="button" data-filter="letterboxd">Letterboxd Top 500</button>
-          <button class="fountain-filter" type="button" data-filter="action">Action</button>
-          <button class="fountain-filter" type="button" data-filter="comedy">Comedy</button>
-          <button class="fountain-filter" type="button" data-filter="drama">Drama</button>
-          <button class="fountain-filter" type="button" data-filter="horror">Horror</button>
-          <button class="fountain-filter" type="button" data-filter="scifi">Sci-fi</button>
-          <button class="fountain-filter" type="button" data-filter="animation">Animation</button>
-          <button class="fountain-filter" type="button" data-filter="exciting">Exciting</button>
-          <button class="fountain-filter" type="button" data-filter="dark">Dark</button>
-          <button class="fountain-filter" type="button" data-filter="feelgood">Feel-good</button>
-          <button class="fountain-filter" type="button" data-filter="romantic">Romantic</button>
+          <button class="fountain-filter is-active" type="button" data-filter="all">${t("all_movies")}</button>
+          <button class="fountain-filter" type="button" data-filter="letterboxd">${t("genre_letterboxd")}</button>
+          <button class="fountain-filter" type="button" data-filter="action">${t("genre_action")}</button>
+          <button class="fountain-filter" type="button" data-filter="comedy">${t("genre_comedy")}</button>
+          <button class="fountain-filter" type="button" data-filter="drama">${t("genre_drama")}</button>
+          <button class="fountain-filter" type="button" data-filter="horror">${t("genre_horror")}</button>
+          <button class="fountain-filter" type="button" data-filter="scifi">${t("genre_scifi")}</button>
+          <button class="fountain-filter" type="button" data-filter="animation">${t("genre_animation")}</button>
+          <button class="fountain-filter" type="button" data-filter="exciting">${t("mood_exciting")}</button>
+          <button class="fountain-filter" type="button" data-filter="dark">${t("mood_dark")}</button>
+          <button class="fountain-filter" type="button" data-filter="feelgood">${t("mood_feel_good")}</button>
+          <button class="fountain-filter" type="button" data-filter="romantic">${t("mood_romantic")}</button>
         </div>
       </section>
     </div>
@@ -629,7 +649,7 @@ function bindFountainControls(movies, letterboxdMovies = []) {
   const pause = document.querySelector(".pause-control");
   pause?.addEventListener("click", () => {
     const paused = stream.classList.toggle("is-paused");
-    pause.textContent = paused ? "Play" : "Pause";
+    pause.textContent = paused ? t("play") : t("pause");
     pause.setAttribute("aria-pressed", String(paused));
   });
 
@@ -684,20 +704,20 @@ function homeShelves(data) {
   };
   return [
     shelf(
-      "Trending now",
-      "What people are watching this week",
+      t("shelf_trending_title"),
+      t("shelf_trending_sub"),
       takeUnique(data.trending),
       "#trending",
     ),
     shelf(
-      "Letterboxd Top 500",
-      "Rotating selection from the 500 highest-rated narrative films on Letterboxd",
+      t("shelf_letterboxd_title"),
+      t("shelf_letterboxd_sub"),
       takeUnique(shuffleList(data.letterboxd_top)),
       "#letterboxd",
     ),
     shelf(
-      "Coming soon",
-      "Keep an eye on what is next",
+      t("shelf_upcoming_title"),
+      t("shelf_upcoming_sub"),
       takeUnique(data.upcoming),
       "#upcoming",
     ),
@@ -705,7 +725,7 @@ function homeShelves(data) {
 }
 
 async function home() {
-  app.innerHTML = '<div class="loading">Loading movies…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/home?v=fountain-lb500");
     app.innerHTML = homeShelves(data);
@@ -715,14 +735,18 @@ async function home() {
 }
 
 async function trendingPage() {
-  app.innerHTML = '<div class="loading">Loading trending movies…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/trending");
     const movies = data.results || [];
+    const subText = t("page_trending_sub").replace(
+      /\{count\}/g,
+      String(movies.length),
+    );
     app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">Weekly chart</p>
-      <h1>Trending now</h1>
-      <p class="hero-copy">The ${movies.length} most watched and talked-about movies this week, ordered from #1 to #${movies.length}.</p>
+      <p class="eyebrow">${t("chart_weekly")}</p>
+      <h1>${t("page_trending_title")}</h1>
+      <p class="hero-copy">${esc(subText)}</p>
     </div>
     <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
   } catch (error) {
@@ -731,14 +755,18 @@ async function trendingPage() {
 }
 
 async function letterboxdPage() {
-  app.innerHTML = '<div class="loading">Loading Letterboxd Top 500…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/letterboxd");
     const movies = data.results || [];
+    const subText = t("page_letterboxd_sub").replace(
+      /\{count\}/g,
+      String(movies.length),
+    );
     app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">Curated collection</p>
-      <h1>Letterboxd Top 500</h1>
-      <p class="hero-copy">The ${movies.length} highest-rated narrative feature films on Letterboxd, ordered from #1 to #${movies.length}.</p>
+      <p class="eyebrow">${t("curated_collection")}</p>
+      <h1>${t("page_letterboxd_title")}</h1>
+      <p class="hero-copy">${esc(subText)}</p>
     </div>
     <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
   } catch (error) {
@@ -747,14 +775,18 @@ async function letterboxdPage() {
 }
 
 async function upcomingPage() {
-  app.innerHTML = '<div class="loading">Loading upcoming movies…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/upcoming");
     const movies = data.results || [];
+    const subText = t("page_upcoming_sub").replace(
+      /\{count\}/g,
+      String(movies.length),
+    );
     app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">Release calendar</p>
-      <h1>Coming soon</h1>
-      <p class="hero-copy">${movies.length} upcoming theatrical and digital releases worth keeping on your radar.</p>
+      <p class="eyebrow">${t("release_calendar")}</p>
+      <h1>${t("page_upcoming_title")}</h1>
+      <p class="hero-copy">${esc(subText)}</p>
     </div>
     <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
   } catch (error) {
@@ -807,7 +839,7 @@ function personCard(person) {
 }
 
 async function search(query) {
-  app.innerHTML = '<div class="loading">Searching…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api(`/api/search?q=${encodeURIComponent(query)}`);
     const people = data.people || [];
@@ -817,20 +849,22 @@ async function search(query) {
       ? `<section class="shelf">
           <div class="shelf-heading">
             <div>
-              <h2>Directors & Actors</h2>
-              <p>Open a person to view their biography and full filmography</p>
+              <h2>${t("search_people_heading")}</h2>
+              <p>${t("search_people_sub")}</p>
             </div>
           </div>
           <div class="cast-grid">${people.map(personCard).join("")}</div>
         </section>`
       : "";
 
+    const countLabel =
+      movies.length === 1 ? t("result_one") : t("results_count");
     const moviesSection = movies.length
       ? `<section class="shelf">
           <div class="shelf-heading">
             <div>
-              <h2>Movies</h2>
-              <p>${movies.length} ${movies.length === 1 ? "result" : "results"}</p>
+              <h2>${t("search_movies_heading")}</h2>
+              <p>${movies.length} ${countLabel}</p>
             </div>
           </div>
           <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>
@@ -839,12 +873,12 @@ async function search(query) {
 
     const emptyMessage =
       !people.length && !movies.length
-        ? '<div class="message">No movies, directors, or actors found.</div>'
+        ? `<div class="message">${t("search_empty")}</div>`
         : "";
 
     app.innerHTML = `<div class="page-heading">
-      <p class="eyebrow">Search results</p>
-      <h1>Results for “${esc(query)}”</h1>
+      <p class="eyebrow">${t("search_heading")}</p>
+      <h1>${t("results_for")} “${esc(query)}”</h1>
     </div>
     ${peopleSection}
     ${moviesSection}
@@ -985,16 +1019,18 @@ function renderRatingsSection(m, ratings = null) {
   const fountain = computeFountainScore(m, r);
   let fountainCard = "";
   if (fountain) {
-    let tag = "Recommended";
-    if (fountain.score >= 85) tag = "Universal Acclaim";
-    else if (fountain.score >= 75) tag = "Highly Rated";
-    else if (fountain.score >= 60) tag = "Generally Favorable";
-    else if (fountain.score >= 45) tag = "Mixed Reviews";
-    else tag = "Underwhelming";
+    let tag = t("score_recommended");
+    if (fountain.score >= 85) tag = t("score_acclaim");
+    else if (fountain.score >= 75) tag = t("score_highly_rated");
+    else if (fountain.score >= 60) tag = t("score_favorable");
+    else if (fountain.score >= 45) tag = t("score_mixed");
+    else tag = t("score_underwhelming");
 
     const desc = loading
-      ? "Initial consensus based on TMDB · Calculating full cross-platform consensus…"
-      : `Universal consensus calculated from ${fountain.sourcesCount} ${fountain.sourcesCount === 1 ? "source" : "sources"} (${fountain.sourcesList}).`;
+      ? t("consensus_initial")
+      : savedLang === "ru"
+        ? `Универсальный консенсус рассчитан по ${fountain.sourcesCount} ${fountain.sourcesCount === 1 ? "источнику" : "источникам"} (${fountain.sourcesList}).`
+        : `Universal consensus calculated from ${fountain.sourcesCount} ${fountain.sourcesCount === 1 ? "source" : "sources"} (${fountain.sourcesList}).`;
 
     fountainCard = `<div class="fountain-score-card">
       <div class="fountain-score-badge">
@@ -1003,7 +1039,7 @@ function renderRatingsSection(m, ratings = null) {
       </div>
       <div class="fountain-score-info">
         <div class="fountain-score-title">
-          <span class="fountain-score-label">Fountain Score</span>
+          <span class="fountain-score-label">${t("fountain_score_label")}</span>
           <span class="fountain-score-tag">${tag}</span>
         </div>
         <p class="fountain-score-desc">${esc(desc)}</p>
@@ -1013,8 +1049,8 @@ function renderRatingsSection(m, ratings = null) {
 
   return `<div class="shelf-heading">
     <div>
-      <h2>Ratings &amp; Consensus</h2>
-      <p>Weighted consensus score and direct links across movie databases</p>
+      <h2>${t("ratings_heading")}</h2>
+      <p>${t("ratings_sub")}</p>
     </div>
   </div>
   ${fountainCard}
@@ -1053,9 +1089,9 @@ function validYoutubeKey(key) {
 function renderTrailerControls(m, trailer) {
   const key = validYoutubeKey(trailer?.key);
   if (key) {
-    const label = trailer?.name || "Official Trailer";
+    const label = trailer?.name || t("official_trailer");
     return `<div class="detail-links">
-      <button type="button" class="trailer-button" data-trailer-key="${esc(key)}" data-trailer-name="${esc(label)}" aria-expanded="false">▶ Watch trailer</button>
+      <button type="button" class="trailer-button" data-trailer-key="${esc(key)}" data-trailer-name="${esc(label)}" aria-expanded="false">${t("watch_trailer")}</button>
       <a class="text-link" href="https://www.youtube.com/watch?v=${esc(key)}" target="_blank" rel="noopener noreferrer">YouTube</a>
       <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
     </div>`;
@@ -1064,7 +1100,7 @@ function renderTrailerControls(m, trailer) {
     `${m.title || ""} ${year(m.release_date)} official trailer`.trim(),
   );
   return `<div class="detail-links">
-    <a class="trailer-button" href="https://www.youtube.com/results?search_query=${query}" target="_blank" rel="noopener noreferrer">▶ Watch trailer</a>
+    <a class="trailer-button" href="https://www.youtube.com/results?search_query=${query}" target="_blank" rel="noopener noreferrer">${t("watch_trailer")}</a>
     <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
   </div>`;
 }
@@ -1077,7 +1113,7 @@ function renderTrailerEmbed(key, name = "Official Trailer") {
       <strong>${esc(name)}</strong>
       <div class="trailer-player-actions">
         <a href="https://www.youtube.com/watch?v=${esc(safeKey)}" target="_blank" rel="noopener noreferrer">Open on YouTube</a>
-        <button type="button" data-close-trailer>Close</button>
+        <button type="button" data-close-trailer aria-label="${t("close_trailer")}">${t("close_trailer")}</button>
       </div>
     </div>
     <div class="trailer-frame-wrap">
@@ -1093,7 +1129,7 @@ function renderTrailerEmbed(key, name = "Official Trailer") {
 }
 
 async function movie(id) {
-  app.innerHTML = '<div class="loading">Loading movie…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const target = `#movie/${id}`;
     const data = await api(`/api/movie/${id}`);
@@ -1107,7 +1143,7 @@ async function movie(id) {
       : "";
     const runtimeText = m.runtime
       ? `${Math.floor(m.runtime / 60)}h ${m.runtime % 60}m`
-      : "Runtime unknown";
+      : t("runtime_unknown");
     const genresMarkup = (m.genres || [])
       .map((g) => `<span>${esc(g.name)}</span>`)
       .join("");
@@ -1118,12 +1154,12 @@ async function movie(id) {
     app.innerHTML = `<article class="detail">
       <div>${poster}</div>
       <div>
-        <p class="eyebrow">Movie details</p>
+        <p class="eyebrow">${t("movie_details")}</p>
         <h1>${esc(m.title)}</h1>
         <p class="detail-meta">${year(m.release_date)} · ${runtimeText} · ★ ${(m.vote_average || 0).toFixed(1)}</p>
-        <p class="overview">${esc(m.overview || "No overview available.")}</p>
+        <p class="overview">${esc(m.overview || t("no_overview"))}</p>
         <div class="chips">${genresMarkup}</div>
-        <p class="detail-meta">Directed by ${directorMarkup}</p>
+        <p class="detail-meta">${t("directed_by")} ${directorMarkup}</p>
         ${renderTrailerControls(m, data.trailer)}
       </div>
     </article>
@@ -1131,8 +1167,8 @@ async function movie(id) {
     <section class="shelf" id="movie-ratings" aria-label="Ratings">
       ${renderRatingsSection(m, null)}
     </section>
-    ${shelf("You may also like", "More movies to explore", data.recommendations)}
-    ${shelf(data.director ? `More from ${esc(data.director.name)}` : "More from this director", "Other films by this director", data.director_movies)}`;
+    ${shelf(t("recommendations_title"), t("recommendations_sub"), data.recommendations)}
+    ${shelf(data.director ? `${t("more_from_prefix")} ${esc(data.director.name)}` : t("more_from_generic"), t("other_films_director"), data.director_movies)}`;
 
     const imdbParam = m.imdb_id
       ? `?imdb_id=${encodeURIComponent(m.imdb_id)}`
@@ -1195,7 +1231,7 @@ function filmographySection(title, subtitle, movies) {
 }
 
 async function person(id) {
-  app.innerHTML = '<div class="loading">Loading biography & filmography…</div>';
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api(`/api/person/${id}`);
     const p = data.person;
@@ -1209,36 +1245,40 @@ async function person(id) {
       ? `<img class="person-photo" src="${image(p.profile_path)}" alt="Photo of ${esc(p.name)}">`
       : '<div class="person-photo no-poster">No photo</div>';
     const backMarkup = lastMovieId
-      ? `<a class="back" href="#movie/${esc(lastMovieId)}">Back to movie</a>`
+      ? `<a class="back" href="#movie/${esc(lastMovieId)}">${t("back_to_movie")}</a>`
       : "";
 
     const metaParts = [];
     if (isDirector && directedMovies.length) {
-      metaParts.push("Director");
+      metaParts.push(t("role_director"));
     } else if (actingMovies.length) {
-      metaParts.push("Actor");
+      metaParts.push(t("role_actor"));
     }
     if (p.birthday) {
       metaParts.push(
-        p.deathday ? `${p.birthday} – ${p.deathday}` : `Born ${p.birthday}`,
+        p.deathday
+          ? `${p.birthday} – ${p.deathday}`
+          : `${t("born")} ${p.birthday}`,
       );
     }
     if (p.place_of_birth) {
       metaParts.push(p.place_of_birth);
     }
     const counts = [];
-    if (directedMovies.length) counts.push(`${directedMovies.length} directed`);
-    if (actingMovies.length) counts.push(`${actingMovies.length} acting`);
+    if (directedMovies.length)
+      counts.push(`${directedMovies.length} ${t("films_directed")}`);
+    if (actingMovies.length)
+      counts.push(`${actingMovies.length} ${t("films_acting")}`);
     if (counts.length) metaParts.push(counts.join(" · "));
 
     const directedMarkup = filmographySection(
-      "Directed",
-      "Films directed by " + esc(p.name),
+      t("directed_heading"),
+      t("films_directed_by") + " " + esc(p.name),
       directedMovies,
     );
     const actingMarkup = filmographySection(
-      "Acting",
-      "Acting appearances by " + esc(p.name),
+      t("acting_heading"),
+      t("acting_by") + " " + esc(p.name),
       actingMovies,
     );
 
@@ -1246,10 +1286,10 @@ async function person(id) {
     <article class="person">
       <div>${photo}</div>
       <div>
-        <p class="eyebrow">${isDirector ? "Director & Filmography" : "Biography & Filmography"}</p>
+        <p class="eyebrow">${isDirector ? t("director_filmography") : t("biography_filmography")}</p>
         <h1>${esc(p.name)}</h1>
         <p class="detail-meta">${esc(metaParts.join(" · "))}</p>
-        <p class="overview">${esc(p.biography || "No biography available.")}</p>
+        <p class="overview">${esc(p.biography || t("no_biography"))}</p>
       </div>
     </article>
     ${isDirector ? directedMarkup + actingMarkup : actingMarkup + directedMarkup}`;

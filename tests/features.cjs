@@ -337,3 +337,54 @@ test("trailer selection and embed rendering validate YouTube keys and fallback c
   assert.match(embedHtml, /Official &lt;Trailer&gt;/);
   assert.equal(run(`renderTrailerEmbed('bad"key')`), "");
 });
+
+test("i18n and language switching in Account and cards", () => {
+  const { run, data, stub } = setup();
+
+  // Defaults to English
+  assert.equal(run("savedLang"), "en");
+  assert.equal(run("t('cinema_passport')"), "Cinema Passport");
+  assert.equal(run("pluralFilms(1)"), "1 film");
+  assert.equal(run("pluralFilms(5)"), "5 films");
+  assert.equal(run("getCinephileRank(0)"), "Film Enthusiast");
+  assert.equal(run("getCinephileRank(1)"), "Level 1 Cinephile");
+  assert.equal(run("getCinephileRank(50)"), "Level 5 Film Historian");
+
+  // Switch to Russian
+  run("setLang('ru')");
+  assert.equal(data["movie-fountain.lang.v1"], "ru");
+  assert.equal(run("savedLang"), "ru");
+  assert.equal(run("t('cinema_passport')"), "Паспорт синефила");
+  assert.equal(run("t('personal_library')"), "Личная фильмотека");
+  assert.equal(run("t('watch_trailer')"), "▶ Смотреть трейлер");
+  assert.equal(run("t('close_trailer')"), "Закрыть трейлер");
+
+  // Russian pluralization rules
+  assert.equal(run("pluralFilms(1)"), "1 фильм");
+  assert.equal(run("pluralFilms(2)"), "2 фильма");
+  assert.equal(run("pluralFilms(5)"), "5 фильмов");
+  assert.equal(run("pluralFilms(21)"), "21 фильм");
+
+  // Russian Cinephile ranks
+  assert.equal(run("getCinephileRank(0)"), "Начинающий зритель");
+  assert.equal(run("getCinephileRank(1)"), "Любитель кино (Ур. 1)");
+  assert.equal(run("getCinephileRank(5)"), "Синефил (Ур. 2)");
+  assert.equal(run("getCinephileRank(50)"), "Киноисторик (Ур. 5)");
+
+  // Account rendering in Russian
+  run("account()");
+  assert.match(stub.innerHTML, /Паспорт синефила/);
+  assert.match(stub.innerHTML, /🌐 Язык: Русский/);
+  assert.match(stub.innerHTML, /Личная фильмотека/);
+  assert.match(stub.innerHTML, /Прогресс/);
+  assert.match(stub.innerHTML, /Хочу посмотреть/);
+
+  // Switch back to English
+  run("setLang('en')");
+  assert.equal(data["movie-fountain.lang.v1"], "en");
+  assert.equal(run("savedLang"), "en");
+  assert.equal(run("t('cinema_passport')"), "Cinema Passport");
+  run("account()");
+  assert.match(stub.innerHTML, /Cinema Passport/);
+  assert.match(stub.innerHTML, /🌐 Language: English/);
+});
