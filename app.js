@@ -306,12 +306,6 @@ document
     "beforeend",
     '<a class="fountain-nav" href="#account">Account</a>',
   );
-document
-  .querySelector("footer")
-  .insertAdjacentHTML(
-    "beforeend",
-    ' · <a href="/privacy.html">Privacy</a> · <a href="https://github.com/Snowstormme/movie-fountain">About & source</a>',
-  );
 document.body.insertAdjacentHTML(
   "beforeend",
   '<p id="save-status" class="visually-hidden" role="status"></p>',
