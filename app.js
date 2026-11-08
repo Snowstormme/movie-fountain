@@ -224,6 +224,7 @@ app.addEventListener("click", (event) => {
       );
       trailerBtn.setAttribute("aria-expanded", "true");
       trailerBtn.textContent = "Hide trailer";
+      slot.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
     }
     return;
   }
