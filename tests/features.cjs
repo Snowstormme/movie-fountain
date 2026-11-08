@@ -263,3 +263,73 @@ test("ratings Pages Function validates scores, IDs, URLs, and OMDb fallback", as
   });
   assert.deepEqual(omdb, { imdb_rating: "8.8/10", rotten_rating: "79%" });
 });
+
+test("trailer selection and embed rendering validate YouTube keys and fallback cleanly", async () => {
+  const { run } = setup();
+  const movieModule = await import(
+    path.join(ROOT_DIR, "functions/api/movie/[id].js")
+  );
+  const { pickTrailer } = movieModule;
+
+  const trailer = pickTrailer({
+    results: [
+      { site: "YouTube", type: "Teaser", official: true, key: "teaser123" },
+      {
+        site: "YouTube",
+        type: "Trailer",
+        official: false,
+        key: "unofficial1",
+      },
+      {
+        site: "YouTube",
+        type: "Trailer",
+        official: true,
+        key: "qtRKdVHc-cE",
+        name: "Official Theatrical Trailer",
+      },
+      { site: "Vimeo", type: "Trailer", official: true, key: "99999999" },
+    ],
+  });
+  assert.deepEqual(trailer, {
+    key: "qtRKdVHc-cE",
+    name: "Official Theatrical Trailer",
+    type: "Trailer",
+  });
+
+  // Rejects malformed YouTube keys
+  assert.equal(
+    pickTrailer({
+      results: [
+        { site: "YouTube", type: "Trailer", key: 'bad"onload="alert(1)' },
+      ],
+    }),
+    null,
+  );
+
+  const controlsHtml = run(
+    `renderTrailerControls({id: 550, title: 'Fight Club', release_date: '1999-10-15'}, {key: 'qtRKdVHc-cE', name: 'Official Trailer'})`,
+  );
+  assert.match(controlsHtml, /data-trailer-key="qtRKdVHc-cE"/);
+  assert.match(
+    controlsHtml,
+    /https:\/\/www\.youtube\.com\/watch\?v=qtRKdVHc-cE/,
+  );
+
+  const fallbackHtml = run(
+    `renderTrailerControls({id: 550, title: 'Fight Club', release_date: '1999-10-15'}, null)`,
+  );
+  assert.match(
+    fallbackHtml,
+    /https:\/\/www\.youtube\.com\/results\?search_query=Fight%20Club%201999%20official%20trailer/,
+  );
+
+  const embedHtml = run(
+    `renderTrailerEmbed('qtRKdVHc-cE', 'Official <Trailer>')`,
+  );
+  assert.match(
+    embedHtml,
+    /https:\/\/www\.youtube-nocookie\.com\/embed\/qtRKdVHc-cE\?autoplay=1&rel=0/,
+  );
+  assert.match(embedHtml, /Official &lt;Trailer&gt;/);
+  assert.equal(run(`renderTrailerEmbed('bad"key')`), "");
+});
