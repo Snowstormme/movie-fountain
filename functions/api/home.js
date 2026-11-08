@@ -1,8 +1,18 @@
 import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 import { LETTERBOXD_TOP_500 } from "../_lib/letterboxd500.js";
+import { IMDB_TOP_250 } from "../_lib/imdb250.js";
 
 function sampleLetterboxdTop(count = 100) {
   const pool = [...LETTERBOXD_TOP_500];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
+function sampleImdbTop(count = 100) {
+  const pool = [...IMDB_TOP_250];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -46,6 +56,7 @@ export async function onRequestGet({ request, env }) {
       }),
     );
     lists.letterboxd_top = sampleLetterboxdTop(100);
+    lists.imdb_top = sampleImdbTop(100);
 
     return Response.json(lists, {
       headers: {

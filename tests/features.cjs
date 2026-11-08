@@ -120,9 +120,19 @@ test("corrupt storage fails safely; filters select genres", () => {
     ),
     14537,
   );
+  assert.equal(
+    run(
+      `filteredMovies([{id:1,genre_ids:[28]}],'imdb',[],[{id:278,title:'The Shawshank Redemption'}])[0].id`,
+    ),
+    278,
+  );
   assert.match(
     run(`fountain({trending:[{id:1,title:'Movie 1',poster_path:'/abc.jpg'}]})`),
     /data-filter="letterboxd">Letterboxd Top 500<\/button>/,
+  );
+  assert.match(
+    run(`fountain({trending:[{id:1,title:'Movie 1',poster_path:'/abc.jpg'}]})`),
+    /data-filter="imdb">IMDb Top 250<\/button>/,
   );
   const fountainHtml = run(
     `fountainColumns([{id:1,title:'Movie 1',poster_path:'/abc.jpg'}])`,
@@ -133,6 +143,7 @@ test("corrupt storage fails safely; filters select genres", () => {
     `homeShelves({
       trending: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 6, title: 'Second Trending', vote_average: 7.5}],
       letterboxd_top: [{id: 14537, title: 'Harakiri', vote_average: 8.4}],
+      imdb_top: [{id: 278, title: 'The Shawshank Redemption', vote_average: 9.3}],
       popular: [{id: 2, title: 'Unique Popular', vote_average: 7}],
       now_playing: [{id: 3, title: 'In Cinemas', vote_average: 7}],
       top_rated: [{id: 1, title: 'Shared Movie', vote_average: 8}, {id: 4, title: 'Top Film', vote_average: 9}],
@@ -146,12 +157,15 @@ test("corrupt storage fails safely; filters select genres", () => {
   assert.match(homeMarkup, /href="#trending"/);
   assert.match(homeMarkup, /Letterboxd Top 500/);
   assert.match(homeMarkup, /href="#letterboxd"/);
+  assert.match(homeMarkup, /IMDb Top 250/);
+  assert.match(homeMarkup, /href="#imdb"/);
   assert.match(homeMarkup, /href="#upcoming"/);
   assert.match(homeMarkup, /<h3>Harakiri<\/h3>/);
+  assert.match(homeMarkup, /<h3>The Shawshank Redemption<\/h3>/);
   assert.equal((homeMarkup.match(/<h3>Shared Movie<\/h3>/g) || []).length, 1);
-  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 4);
-  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 4);
-  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 4);
+  assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 5);
+  assert.equal((homeMarkup.match(/data-share=/g) || []).length, 5);
+  assert.equal((homeMarkup.match(/data-save=/g) || []).length, 5);
 });
 
 test("renderRatingsSection renders multi-source ratings, OMDb fallback, and escapes unsafe strings", () => {
@@ -344,6 +358,8 @@ test("i18n and language switching in Account and cards", () => {
   // Defaults to English
   assert.equal(run("savedLang"), "en");
   assert.equal(run("t('cinema_passport')"), "Cinema Passport");
+  assert.equal(run("t('shelf_imdb_title')"), "IMDb Top 250");
+  assert.equal(run("t('genre_imdb')"), "IMDb Top 250");
   assert.equal(run("pluralFilms(1)"), "1 film");
   assert.equal(run("pluralFilms(5)"), "5 films");
   assert.equal(run("getCinephileRank(0)"), "Film Enthusiast");
@@ -355,6 +371,8 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(data["movie-fountain.lang.v1"], "ru");
   assert.equal(run("savedLang"), "ru");
   assert.equal(run("t('cinema_passport')"), "Паспорт синефила");
+  assert.equal(run("t('shelf_imdb_title')"), "IMDb Топ-250");
+  assert.equal(run("t('genre_imdb')"), "IMDb Топ-250");
   assert.equal(run("t('personal_library')"), "Личная фильмотека");
   assert.equal(run("t('watch_trailer')"), "▶ Смотреть трейлер");
   assert.equal(run("t('close_trailer')"), "Закрыть трейлер");

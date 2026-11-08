@@ -500,12 +500,17 @@ function movieGenres(movie) {
   return movie.genre_ids || (movie.genres || []).map((genre) => genre.id);
 }
 
-function filteredMovies(movies, filter, letterboxdMovies = []) {
+function filteredMovies(movies, filter, letterboxdMovies = [], imdbMovies = []) {
   if (filter === "all") return movies;
   if (filter === "letterboxd") {
     return letterboxdMovies.length
       ? letterboxdMovies
       : movies.filter((movie) => movie.letterboxd_top);
+  }
+  if (filter === "imdb") {
+    return imdbMovies.length
+      ? imdbMovies
+      : movies.filter((movie) => movie.imdb_top);
   }
   const ids = genreIds[filter] ? [genreIds[filter]] : moodFilters[filter] || [];
   return movies.filter((movie) =>
@@ -603,6 +608,7 @@ function fountain(data) {
         <div class="fountain-filters" role="group" aria-label="Filter the Fountain">
           <button class="fountain-filter is-active" type="button" data-filter="all">${t("all_movies")}</button>
           <button class="fountain-filter" type="button" data-filter="letterboxd">${t("genre_letterboxd")}</button>
+          <button class="fountain-filter" type="button" data-filter="imdb">${t("genre_imdb")}</button>
           <button class="fountain-filter" type="button" data-filter="action">${t("genre_action")}</button>
           <button class="fountain-filter" type="button" data-filter="comedy">${t("genre_comedy")}</button>
           <button class="fountain-filter" type="button" data-filter="drama">${t("genre_drama")}</button>
@@ -620,7 +626,7 @@ function fountain(data) {
   </section>`;
 }
 
-function bindFountainControls(movies, letterboxdMovies = []) {
+function bindFountainControls(movies, letterboxdMovies = [], imdbMovies = []) {
   fountainAbort?.abort();
   const stream = document.querySelector("#fountain-stream");
   if (!stream) return;
@@ -665,7 +671,7 @@ function bindFountainControls(movies, letterboxdMovies = []) {
       if (!document.querySelector("#advanced-filters")) {
         const grid = document.querySelector(".fountain-grid") || stream;
         grid.innerHTML = fountainColumns(
-          filteredMovies(movies, filter, letterboxdMovies),
+          filteredMovies(movies, filter, letterboxdMovies, imdbMovies),
         );
         syncFountainFlow(stream, true);
       }
@@ -719,6 +725,12 @@ function homeShelves(data) {
       t("shelf_letterboxd_sub"),
       takeUnique(shuffleList(data.letterboxd_top)),
       "#letterboxd",
+    ),
+    shelf(
+      t("shelf_imdb_title"),
+      t("shelf_imdb_sub"),
+      takeUnique(shuffleList(data.imdb_top)),
+      "#imdb",
     ),
     shelf(
       t("shelf_upcoming_title"),
@@ -779,6 +791,26 @@ async function letterboxdPage() {
   }
 }
 
+async function imdbPage() {
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
+  try {
+    const data = await api("/api/imdb");
+    const movies = data.results || [];
+    const subText = t("page_imdb_sub").replace(
+      /\{count\}/g,
+      String(movies.length),
+    );
+    app.innerHTML = `<div class="page-heading">
+      <p class="eyebrow">${t("curated_collection")}</p>
+      <h1>${t("page_imdb_title")}</h1>
+      <p class="hero-copy">${esc(subText)}</p>
+    </div>
+    <div class="movie-grid">${movies.map((m) => card(m)).join("")}</div>`;
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
+}
+
 async function upcomingPage() {
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
@@ -809,9 +841,13 @@ async function fountainPage() {
       0,
       fountainMovieLimit,
     );
+    const imdbMovies = shuffleList(data.imdb_top || []).slice(
+      0,
+      fountainMovieLimit,
+    );
     app.innerHTML = fountain(data);
-    bindFountainControls(movies, letterboxdMovies);
-    enhanceFountain(movies, letterboxdMovies);
+    bindFountainControls(movies, letterboxdMovies, imdbMovies);
+    enhanceFountain(movies, letterboxdMovies, imdbMovies);
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -1315,6 +1351,7 @@ async function route() {
   if (kind === "account" || kind === "watchlist") return account();
   if (kind === "trending") return trendingPage();
   if (kind === "letterboxd") return letterboxdPage();
+  if (kind === "imdb" || kind === "imdb250") return imdbPage();
   if (kind === "upcoming") return upcomingPage();
   if (kind === "search") return search(decodeURIComponent(id || ""));
   if (kind === "fountain") return fountainPage();

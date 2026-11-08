@@ -80,6 +80,8 @@ const translations = {
     shelf_trending_sub: "Popular films this week",
     shelf_letterboxd_title: "Letterboxd Top 500",
     shelf_letterboxd_sub: "Curated classics and cinephile favorites",
+    shelf_imdb_title: "IMDb Top 250",
+    shelf_imdb_sub: "The highest-rated films of all time by IMDb voters",
     shelf_upcoming_title: "Coming soon",
     shelf_upcoming_sub: "Anticipated releases heading to theaters",
 
@@ -91,6 +93,9 @@ const translations = {
     page_letterboxd_title: "Letterboxd Top 500",
     page_letterboxd_sub:
       "The {count} highest-rated narrative feature films on Letterboxd, ordered from #1 to #{count}.",
+    page_imdb_title: "IMDb Top 250",
+    page_imdb_sub:
+      "The {count} highest-rated movies according to IMDb user ratings, ordered from #1 to #{count}.",
     release_calendar: "Release calendar",
     page_upcoming_title: "Coming soon",
     page_upcoming_sub:
@@ -160,6 +165,7 @@ const translations = {
     browse: "Browse",
     all_movies: "All movies",
     genre_letterboxd: "Letterboxd Top 500",
+    genre_imdb: "IMDb Top 250",
     genre_action: "Action",
     genre_comedy: "Comedy",
     genre_drama: "Drama",
@@ -262,6 +268,8 @@ const translations = {
     shelf_trending_sub: "Популярные фильмы этой недели",
     shelf_letterboxd_title: "Letterboxd Топ-500",
     shelf_letterboxd_sub: "Признанная классика и шедевры мирового кино",
+    shelf_imdb_title: "IMDb Топ-250",
+    shelf_imdb_sub: "Фильмы с наивысшими оценками зрителей IMDb всех времён",
     shelf_upcoming_title: "Скоро в кино",
     shelf_upcoming_sub: "Ожидаемые премьеры ближайших месяцев",
 
@@ -273,6 +281,9 @@ const translations = {
     page_letterboxd_title: "Letterboxd Топ-500",
     page_letterboxd_sub:
       "{count} художественных фильмов с наивысшими оценками на Letterboxd, с 1-го по {count}-е место.",
+    page_imdb_title: "IMDb Топ-250",
+    page_imdb_sub:
+      "{count} фильмов с наивысшими оценками по версии пользователей IMDb, с 1-го по {count}-е место.",
     release_calendar: "Календарь премьер",
     page_upcoming_title: "Скоро в кино",
     page_upcoming_sub:
@@ -341,6 +352,7 @@ const translations = {
     browse: "Категории",
     all_movies: "Все фильмы",
     genre_letterboxd: "Letterboxd Топ-500",
+    genre_imdb: "IMDb Топ-250",
     genre_action: "Боевик",
     genre_comedy: "Комедия",
     genre_drama: "Драма",
@@ -558,6 +570,8 @@ async function discoverMovies(form, genre = "all") {
   }
   if (genre === "letterboxd") {
     q.set("source", "letterboxd");
+  } else if (genre === "imdb") {
+    q.set("source", "imdb");
   }
   const ids = genreIds[genre] ? [genreIds[genre]] : moodFilters[genre] || [];
   if (ids.length) {
@@ -568,7 +582,7 @@ async function discoverMovies(form, genre = "all") {
 
 let fountainAbort;
 
-function enhanceFountain(movies, letterboxdMovies = []) {
+function enhanceFountain(movies, letterboxdMovies = [], imdbMovies = []) {
   const panel = document.querySelector("#fountain-settings-panel");
   const stream = document.querySelector("#fountain-stream");
   const grid = document.querySelector("#fountain-grid");
@@ -609,7 +623,7 @@ function enhanceFountain(movies, letterboxdMovies = []) {
       const result =
         form.elements.year.value || form.elements.runtime.value
           ? await discoverMovies(form, genre)
-          : filteredMovies(movies, genre, letterboxdMovies);
+          : filteredMovies(movies, genre, letterboxdMovies, imdbMovies);
       if (token !== sequence) return;
       current = result;
       render();

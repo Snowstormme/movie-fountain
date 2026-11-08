@@ -1,5 +1,6 @@
 import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 import { LETTERBOXD_TOP_500 } from "../_lib/letterboxd500.js";
+import { IMDB_TOP_250 } from "../_lib/imdb250.js";
 
 export async function onRequestGet({ request, env }) {
   const q = new URL(request.url).searchParams;
@@ -12,13 +13,23 @@ export async function onRequestGet({ request, env }) {
     (year && !/^(19|20)\d{2}$/.test(year)) ||
     (runtime && !["90", "120", "180"].includes(runtime)) ||
     (genres && !/^\d{1,5}([|,]\d{1,5}){0,8}$/.test(genres)) ||
-    (source && source !== "letterboxd")
+    (source && source !== "letterboxd" && source !== "imdb")
   ) {
     return Response.json({ error: "Invalid filters" }, { status: 400 });
   }
 
   if (source === "letterboxd") {
     const results = LETTERBOXD_TOP_500.filter((movie) =>
+      year ? String(movie.release_date || "").startsWith(year) : true,
+    ).slice(0, 100);
+    return Response.json(
+      { results },
+      { headers: { "Cache-Control": "public, max-age=300" } },
+    );
+  }
+
+  if (source === "imdb") {
+    const results = IMDB_TOP_250.filter((movie) =>
       year ? String(movie.release_date || "").startsWith(year) : true,
     ).slice(0, 100);
     return Response.json(
