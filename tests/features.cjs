@@ -465,4 +465,12 @@ test("sortMovieList and list page rendering sort by rating, release date, and ti
   assert.match(stub.innerHTML, /data-list-sort/);
   assert.match(stub.innerHTML, /4 films/);
   assert.match(stub.innerHTML, /id="list-movie-grid"/);
+
+  // getMovieScore & renderRatingBadge
+  assert.equal(run("getMovieScore({ vote_average: 8.4 })"), 84);
+  assert.equal(run("getMovieScore({ fountain_score: 91, vote_average: 7.5 })"), 91);
+  const badgeHtml = run("renderRatingBadge({ vote_average: 8.4 })");
+  assert.match(badgeHtml, /class="rating-badge"/);
+  assert.match(badgeHtml, /⛲/);
+  assert.match(badgeHtml, /84/);
 });

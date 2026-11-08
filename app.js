@@ -134,8 +134,8 @@ function account() {
 
       <div class="account-stat-card">
         <span class="account-stat-label">${t("stat_library_score")}</span>
-        <strong class="account-stat-value account-stat-value--gold">★ ${average}</strong>
-        <small class="account-stat-sub">${t("stat_avg_rating")}</small>
+        <strong class="account-stat-value account-stat-value--fountain"><span class="rating-badge-icon" aria-hidden="true">⛲</span> ${savedMovies.length ? Math.round(average * 10) : 0}</strong>
+        <small class="account-stat-sub">${t("fountain_score_label")}</small>
       </div>
     </div>
 
@@ -435,7 +435,7 @@ function card(movie, decorative = false, eagerPoster = false) {
     return `<div class="movie-tile">
       <a class="movie-card" href="#movie/${movie.id}" tabindex="-1">
         ${poster}
-        <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
+        ${renderRatingBadge(movie)}
         <div class="card-copy">
           <h3>${esc(movie.title)}</h3>
           <div class="card-meta"><span>${year(movie.release_date)}</span></div>
@@ -453,7 +453,7 @@ function card(movie, decorative = false, eagerPoster = false) {
   return `<div class="movie-tile">
     <a class="movie-card" href="#movie/${movie.id}">
       ${poster}
-      <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
+      ${renderRatingBadge(movie)}
       ${isWatched ? `<strong class="watched-badge">${t("watched")}</strong>` : ""}
       <div class="card-copy">
         <h3>${esc(movie.title)}</h3>
@@ -1245,7 +1245,7 @@ async function movie(id) {
         <p class="eyebrow">${t("movie_details")}</p>
         <h1>${esc(m.title)}</h1>
         ${originalTitle}
-        <p class="detail-meta">${year(m.release_date)} · ${runtimeText} · ★ ${(m.vote_average || 0).toFixed(1)}</p>
+        <p class="detail-meta">${year(m.release_date)} · ${runtimeText} · <span class="detail-fountain-score" title="${t("fountain_score_label")}: ${getMovieScore(m)}/100">⛲ ${getMovieScore(m)}/100</span></p>
         <p class="overview">${esc(m.overview || t("no_overview"))}</p>
         <div class="chips">${genresMarkup}</div>
         <p class="detail-meta">${t("directed_by")} ${directorMarkup}</p>

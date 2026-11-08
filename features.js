@@ -551,6 +551,19 @@ function sortMovieList(movies, sortKey = "default") {
   }
 }
 
+function getMovieScore(movie) {
+  if (!movie) return 0;
+  if (typeof movie.fountain_score === "number") return movie.fountain_score;
+  const avg = typeof movie.vote_average === "number" ? movie.vote_average : 0;
+  return Math.round(avg * 10);
+}
+
+function renderRatingBadge(movie) {
+  const score = getMovieScore(movie);
+  if (!score) return "";
+  return `<strong class="rating-badge" title="${t("fountain_score_label")}: ${score}/100"><span class="rating-badge-icon" aria-hidden="true">⛲</span> ${score}</strong>`;
+}
+
 function extraActions(m) {
   const isWatched = watched.has(m.id);
   return `<div class="movie-actions">
