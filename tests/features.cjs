@@ -166,6 +166,9 @@ test("corrupt storage fails safely; filters select genres", () => {
   assert.equal((homeMarkup.match(/data-watched=/g) || []).length, 5);
   assert.equal((homeMarkup.match(/data-share=/g) || []).length, 5);
   assert.equal((homeMarkup.match(/data-save=/g) || []).length, 5);
+  assert.match(homeMarkup, /rating-badge--letterboxd/);
+  assert.match(homeMarkup, /rating-badge--imdb/);
+  assert.match(homeMarkup, /rating-badge--fountain/);
 });
 
 test("renderRatingsSection renders multi-source ratings, OMDb fallback, and escapes unsafe strings", () => {
@@ -470,7 +473,19 @@ test("sortMovieList and list page rendering sort by rating, release date, and ti
   assert.equal(run("getMovieScore({ vote_average: 8.4 })"), 84);
   assert.equal(run("getMovieScore({ fountain_score: 91, vote_average: 7.5 })"), 91);
   const badgeHtml = run("renderRatingBadge({ vote_average: 8.4 })");
-  assert.match(badgeHtml, /class="rating-badge"/);
+  assert.match(badgeHtml, /rating-badge--fountain/);
   assert.match(badgeHtml, /⛲/);
   assert.match(badgeHtml, /84/);
+
+  const imdbBadge = run("renderRatingBadge({ vote_average: 9.3, rating_source: 'imdb' })");
+  assert.match(imdbBadge, /rating-badge--imdb/);
+  assert.match(imdbBadge, /★/);
+  assert.match(imdbBadge, /9\.3/);
+  assert.match(imdbBadge, /IMDb: 9\.3\/10/);
+
+  const lbBadge = run("renderRatingBadge({ vote_average: 8.6, rating_source: 'letterboxd' })");
+  assert.match(lbBadge, /rating-badge--letterboxd/);
+  assert.match(lbBadge, /★/);
+  assert.match(lbBadge, /4\.3/);
+  assert.match(lbBadge, /Letterboxd: 4\.3\/5/);
 });

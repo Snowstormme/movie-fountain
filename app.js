@@ -717,6 +717,14 @@ function homeShelves(data) {
     items.forEach((movie) => seen.add(movie.id));
     return items;
   };
+  const letterboxdMovies = takeUnique(shuffleList(data.letterboxd_top)).map(
+    (movie) => ({ ...movie, rating_source: "letterboxd" }),
+  );
+  const imdbMovies = takeUnique(shuffleList(data.imdb_top)).map((movie) => ({
+    ...movie,
+    rating_source: "imdb",
+  }));
+
   return [
     shelf(
       t("shelf_trending_title"),
@@ -727,13 +735,13 @@ function homeShelves(data) {
     shelf(
       t("shelf_letterboxd_title"),
       t("shelf_letterboxd_sub"),
-      takeUnique(shuffleList(data.letterboxd_top)),
+      letterboxdMovies,
       "#letterboxd",
     ),
     shelf(
       t("shelf_imdb_title"),
       t("shelf_imdb_sub"),
-      takeUnique(shuffleList(data.imdb_top)),
+      imdbMovies,
       "#imdb",
     ),
     shelf(
@@ -818,7 +826,10 @@ async function letterboxdPage() {
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/letterboxd");
-    const movies = data.results || [];
+    const movies = (data.results || []).map((m) => ({
+      ...m,
+      rating_source: "letterboxd",
+    }));
     const subText = t("page_letterboxd_sub").replace(
       /\{count\}/g,
       String(movies.length),
@@ -838,7 +849,10 @@ async function imdbPage() {
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api("/api/imdb");
-    const movies = data.results || [];
+    const movies = (data.results || []).map((m) => ({
+      ...m,
+      rating_source: "imdb",
+    }));
     const subText = t("page_imdb_sub").replace(
       /\{count\}/g,
       String(movies.length),
@@ -880,14 +894,12 @@ async function fountainPage() {
     const data = await api("/api/home?v=fountain-lb500");
     if (location.hash !== "#fountain") return;
     const movies = fountainMovies(data).slice(0, fountainMovieLimit);
-    const letterboxdMovies = shuffleList(data.letterboxd_top || []).slice(
-      0,
-      fountainMovieLimit,
-    );
-    const imdbMovies = shuffleList(data.imdb_top || []).slice(
-      0,
-      fountainMovieLimit,
-    );
+    const letterboxdMovies = shuffleList(data.letterboxd_top || [])
+      .slice(0, fountainMovieLimit)
+      .map((m) => ({ ...m, rating_source: "letterboxd" }));
+    const imdbMovies = shuffleList(data.imdb_top || [])
+      .slice(0, fountainMovieLimit)
+      .map((m) => ({ ...m, rating_source: "imdb" }));
     app.innerHTML = fountain(data);
     bindFountainControls(movies, letterboxdMovies, imdbMovies);
     enhanceFountain(movies, letterboxdMovies, imdbMovies);

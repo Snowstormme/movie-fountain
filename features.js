@@ -559,9 +559,23 @@ function getMovieScore(movie) {
 }
 
 function renderRatingBadge(movie) {
+  if (!movie) return "";
+
+  if (movie.rating_source === "imdb") {
+    const val = Number(movie.vote_average || 0).toFixed(1);
+    if (!Number(val)) return "";
+    return `<strong class="rating-badge rating-badge--imdb" title="IMDb: ${val}/10"><span class="rating-badge-icon" aria-hidden="true">★</span> ${val}</strong>`;
+  }
+
+  if (movie.rating_source === "letterboxd") {
+    const val = (Number(movie.vote_average || 0) / 2).toFixed(1);
+    if (!Number(val)) return "";
+    return `<strong class="rating-badge rating-badge--letterboxd" title="Letterboxd: ${val}/5"><span class="rating-badge-icon" aria-hidden="true">★</span> ${val}</strong>`;
+  }
+
   const score = getMovieScore(movie);
   if (!score) return "";
-  return `<strong class="rating-badge" title="${t("fountain_score_label")}: ${score}/100"><span class="rating-badge-icon" aria-hidden="true">⛲</span> ${score}</strong>`;
+  return `<strong class="rating-badge rating-badge--fountain" title="${t("fountain_score_label")}: ${score}/100"><span class="rating-badge-icon" aria-hidden="true">⛲</span> ${score}</strong>`;
 }
 
 function extraActions(m) {

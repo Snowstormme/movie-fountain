@@ -43,7 +43,10 @@ html[data-theme="liquid"] .save-movie{border-radius:999px}
 .fountain-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.fountain-column-4{padding-top:52px}.fountain-column-5{padding-top:14px}
 @media(max-width:650px){.fountain-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fountain-column-3,.fountain-column-4,.fountain-column-5{display:block;padding-top:0}}
 .card-meta{position:relative;display:block;width:100%;padding-right:42px}.card-copy strong{position:absolute;top:0;right:0;float:none;margin:0;white-space:nowrap;text-align:right}
-.movie-card .rating-badge{position:absolute;right:10px;bottom:10px;z-index:1;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border:1px solid rgba(255,90,31,0.4);border-radius:6px;background:rgba(14,14,17,0.85);backdrop-filter:blur(6px);color:#ff5a1f;font-size:11px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);transition:opacity .18s,border-color .18s}
+.movie-card .rating-badge{position:absolute;right:10px;bottom:10px;z-index:1;display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;background:rgba(14,14,17,0.85);backdrop-filter:blur(6px);font-size:11px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.45);transition:opacity .18s,border-color .18s}
+.rating-badge--fountain{color:#ff5a1f;border:1px solid rgba(255,90,31,0.4)}
+.rating-badge--imdb{color:#f5c518;border:1px solid rgba(245,197,24,0.45);background:rgba(18,16,10,0.88)}
+.rating-badge--letterboxd{color:#00e054;border:1px solid rgba(0,224,84,0.4);background:rgba(10,18,14,0.88)}
 .rating-badge-icon{font-size:10px;line-height:1}
 .movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{opacity:0}
 @media(max-width:650px){.movie-card .rating-badge,.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{z-index:3;opacity:1}}
@@ -72,7 +75,9 @@ html[data-theme="current"] .card-copy span{color:#b5b0a6}
 html[data-theme="current"] .card-preview{background:linear-gradient(transparent 22%,#0a0a0cf5 68%)}
 html[data-theme="current"] .card-preview p{color:#e6e2da}
 html[data-theme="current"] .card-preview span{color:#ff6b2c}
-html[data-theme="current"] .card-copy strong,html[data-theme="current"] .movie-card .rating-badge{color:#ff6b2c;border-color:rgba(255,90,31,0.45);background:rgba(10,10,12,0.92)}
+html[data-theme="current"] .card-copy strong,html[data-theme="current"] .movie-card .rating-badge--fountain{color:#ff6b2c;border-color:rgba(255,90,31,0.45);background:rgba(10,10,12,0.92)}
+html[data-theme="current"] .movie-card .rating-badge--imdb{color:#f5c518;border-color:rgba(245,197,24,0.45);background:rgba(14,12,8,0.92)}
+html[data-theme="current"] .movie-card .rating-badge--letterboxd{color:#00e054;border-color:rgba(0,224,84,0.4);background:rgba(8,14,10,0.92)}
 html[data-theme="current"] .text-link,html[data-theme="current"] .back,html[data-theme="current"] .footer a{color:#ff6b2c}
 html[data-theme="current"] .chips span{border-color:#ff5a1f55;background:#ff5a1f12;color:#ff6b2c}
 html[data-theme="current"] .fountain{border-color:#242429;background:#0e0e11}
