@@ -4,18 +4,19 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.5.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
+![Version](https://img.shields.io/badge/version-0.6.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
 
 ## A movie night, without the endless scrolling
 
 Watch posters flow through the Fountain, narrow the selection by genre or mood, and save anything that catches your eye.
 
-| Explore                                                                       | Make it yours                                                    |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Animated Fountain with speed and pause controls                               | Cinephile Passport account area with ranks, stats & progress     |
-| Dedicated charts: Trending (Top 100), Upcoming (60 releases) & Letterboxd 500 | Multi-source ratings + composite **Fountain Score** (0–100)      |
-| Search movies, directors, and actors with full filmographies                  | Watch official YouTube trailers in an inline privacy-first modal |
-| Rotating Letterboxd Top 500 shelf and Fountain filter mode                    | Import/export your watchlist as JSON & share movie links         |
+| Explore                                                                               | Make it yours                                                              |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Animated Fountain with speed and pause controls                                       | Cinephile Passport account area with ranks, stats & progress               |
+| Dedicated charts: Trending (Top 100), Upcoming (60), IMDb Top 250 & Letterboxd Top 500 | Multi-source ratings with official IMDb & Letterboxd logos + Fountain Score |
+| Multi-criteria in-list sorting (by rating, release date, and title) on all charts     | Customizable profile picture avatar with client-side Canvas compression    |
+| Search movies, directors, and actors with full filmographies                          | Watch official YouTube trailers in an inline privacy-first modal           |
+| Curated IMDb Top 250 and Letterboxd Top 500 shelves and Fountain filter modes         | Dual appearance: Classic Flame Orange and Liquid Glass Midnight Sapphire   |
 
 ### How to use it
 
@@ -45,12 +46,15 @@ Live site: [movie-fountain.pages.dev](https://movie-fountain.pages.dev/)
 
 - Cloudflare Pages single-page application for the production site.
 - Cloudflare Pages Functions that proxy TMDB and external ratings requests without exposing API keys to the browser.
-- Fountain mode with speed controls, pause/play, genre/mood filters, year/runtime refinement, keyboard focus states, and reduced-motion support.
-- Movie, cast, person, search, recommendation, and multi-source rating views (TMDB, IMDb, Letterboxd, and Rotten Tomatoes).
-- Composite Fountain Score (0–100 universal rating) synthesizing multi-source data.
-- Cinephile Passport account area with dynamic ranks, completion stats, and watchlist filtering.
-- Dedicated full-page charts for Trending (Top 100) and Upcoming (60 releases).
+- Fountain continuous discovery mode with speed controls, pause/play, genre/mood filters, year/runtime refinement, keyboard focus states, and reduced-motion support.
+- Curated IMDb Top 250 and Letterboxd Top 500 datasets with dedicated full-page charts, real-time in-list sorting, and continuous Fountain streams.
+- Multi-criteria real-time sorting (by rating, release date, and title) on all chart views.
+- Official vector platform logos for IMDb and Letterboxd across rating badges, shelves, and headers.
+- Multi-source external ratings (IMDb, Letterboxd, Rotten Tomatoes Critics/Audience, TMDB) + composite Fountain Score (0–100 universal rating).
+- Cinephile Passport account area with dynamic ranks, completion stats, watchlist filtering, and local avatar customization.
+- Dedicated full-page charts for Trending (Top 100), Upcoming (60 releases), IMDb Top 250, and Letterboxd Top 500.
 - Official YouTube trailer player modal with privacy-enhanced mode.
+- Dual appearance themes: Classic (Flame Orange & Jet Black) and Liquid Glass (Midnight Sapphire).
 
 ## Quick start
 

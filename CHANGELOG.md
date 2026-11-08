@@ -2,6 +2,15 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.6.0] - 2026-11-08
+
+- Add curated **IMDb Top 250** dataset (`functions/_lib/imdb250.js`) with a dedicated full-page chart (`#imdb`), homepage shelf, and streaming Fountain filter mode (`?source=imdb`).
+- Add multi-criteria **in-list sorting** across all curated charts (`#letterboxd`, `#imdb`, `#trending`, `#upcoming`): sort by rating (highest/lowest), release date (newest/oldest), and title (A–Z/Z–A).
+- Integrate **official vector platform logos** for IMDb (gold badge) and Letterboxd (iconic 3-circle logomark) into movie card rating badges, homepage shelves, and chart headers.
+- Add local **profile picture customization** in the Cinephile Passport (`#account`) with film avatar presets, custom photo upload with client-side Canvas 200×200 JPEG compression, and desktop/mobile topbar indicators without requiring backend accounts.
+- Redesign **Liquid Glass** theme with a **Midnight Sapphire** palette (`#0b0f18` midnight base, royal cobalt glow, and ice-sapphire active button/tab highlights), eliminating legacy purple and teal color leaks.
+- Modernize base styles in `site.css` and `privacy.html` with Flame Orange (`#ff5a1f`) and Jet Black (`#0a0a0c`), adding static `data-theme="current"` to eliminate theme flash on first load.
+
 ## [0.5.0] - 2026-11-08
 
 - Add composite **Fountain Score** (0–100 universal rating) synthesizing IMDb, Letterboxd, Rotten Tomatoes critics/audience, and TMDB with dynamic fallback weighting, qualitative verdict badges (_Universal Acclaim_, _Strong Consensus_, _Solid_, _Mixed_, _Skip_), and breakdown tooltips.
