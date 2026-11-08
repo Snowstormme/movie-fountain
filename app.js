@@ -54,88 +54,121 @@ function saveButton(movie) {
   return `<button class="save-movie" type="button" data-save="${movie.id}" aria-pressed="${saved}" aria-label="${actionLabel}">${saved ? "Saved" : "Save"}</button>`;
 }
 
+function getCinephileRank(watchedCount) {
+  if (watchedCount >= 30) return "Cinema Connoisseur";
+  if (watchedCount >= 15) return "Level 3 Cinephile";
+  if (watchedCount >= 5) return "Level 2 Cinephile";
+  if (watchedCount >= 1) return "Level 1 Cinephile";
+  return "Film Enthusiast";
+}
+
 function account() {
-  const watchedCount = savedMovies.filter((movie) =>
-    watched.has(movie.id),
-  ).length;
+  const watchedMovies = savedMovies.filter((movie) => watched.has(movie.id));
+  const watchedCount = watchedMovies.length;
+  const toWatchCount = savedMovies.length - watchedCount;
+  const completionRate = savedMovies.length
+    ? Math.round((watchedCount / savedMovies.length) * 100)
+    : 0;
   const average = savedMovies.length
     ? (
         savedMovies.reduce((sum, movie) => sum + (movie.vote_average || 0), 0) /
         savedMovies.length
       ).toFixed(1)
     : "—";
-  const countLabel = `${savedMovies.length} ${savedMovies.length === 1 ? "movie" : "movies"}`;
+  const rank = getCinephileRank(watchedCount);
+  const theme =
+    typeof savedTheme === "string" && savedTheme === "liquid"
+      ? "Liquid Glass"
+      : "Classic";
+  const lastWatchedTitle = watchedMovies.length
+    ? watchedMovies[watchedMovies.length - 1].title
+    : "None yet";
 
   app.innerHTML = `<section class="account-page">
-    <div class="page-heading">
-      <p class="eyebrow">Personal library</p>
-      <h1>Account</h1>
-      <p>These preferences and saved movies are stored on this device. Sign-in and cross-device sync can be added later.</p>
-    </div>
-    <div class="account-stats" aria-label="Watchlist summary">
-      <div><strong>${savedMovies.length}</strong><span>Saved</span></div>
-      <div><strong>${watchedCount}</strong><span>Watched</span></div>
-      <div><strong>${savedMovies.length - watchedCount}</strong><span>To watch</span></div>
-      <div><strong>${average}</strong><span>Avg. rating</span></div>
-    </div>
-    ${accountPreferencesMarkup()}
-    ${libraryTools()}
-    <section class="account-section" aria-labelledby="watchlist-heading">
-      <div class="account-section-heading">
-        <div>
-          <p class="eyebrow">Saved movies</p>
-          <h2 id="watchlist-heading">Watchlist</h2>
+    <div class="account-hero">
+      <div class="account-profile">
+        <div class="account-avatar" aria-hidden="true">M</div>
+        <div class="account-name-wrap">
+          <p class="eyebrow">Personal library</p>
+          <h1>Cinema Passport</h1>
+          <div class="account-badges">
+            <span class="account-rank-badge">★ ${esc(rank)}</span>
+            <span class="account-count-badge">${savedMovies.length} ${savedMovies.length === 1 ? "film" : "films"}</span>
+          </div>
         </div>
-        <strong>${countLabel}</strong>
       </div>
-      <div class="account-library-tools">
-        <div class="account-filters" role="group" aria-label="Filter watchlist">
-          <button type="button" data-account-filter="all" class="is-active">All</button>
-          <button type="button" data-account-filter="unwatched">Unwatched</button>
-          <button type="button" data-account-filter="watched">Watched</button>
-        </div>
-        <label class="account-sort">
-          Sort
-          <select data-account-sort>
-            <option value="saved">Recently saved</option>
-            <option value="rating">Highest rated</option>
-            <option value="release">Release date</option>
-            <option value="title">Title A–Z</option>
-          </select>
+      <div class="account-hero-actions">
+        <button type="button" class="account-hero-btn" data-open-style>Theme: ${theme}</button>
+        <button type="button" class="account-hero-btn" id="export-list">Export JSON</button>
+        <label class="account-hero-btn account-hero-btn--primary">
+          + Import JSON
+          <input type="file" id="import-list" accept="application/json,.json" style="display:none">
         </label>
+        <a class="account-hero-btn" href="/privacy.html">Privacy</a>
       </div>
-      <div class="movie-grid" id="account-movie-grid">${accountMovieMarkup()}</div>
-    </section>
+    </div>
+
+    <div class="account-stats-row" aria-label="Watchlist summary">
+      <div class="account-stat-card">
+        <span class="account-stat-label">Completion</span>
+        <strong class="account-stat-value">${completionRate}%</strong>
+        <div class="account-progress-track">
+          <div class="account-progress-fill" style="width: ${completionRate}%"></div>
+        </div>
+        <small class="account-stat-sub">${watchedCount} of ${savedMovies.length} watched</small>
+      </div>
+
+      <div class="account-stat-card">
+        <span class="account-stat-label">Watchlist</span>
+        <strong class="account-stat-value">${savedMovies.length}</strong>
+        <small class="account-stat-sub">${toWatchCount} waiting to watch</small>
+      </div>
+
+      <div class="account-stat-card">
+        <span class="account-stat-label">Watched</span>
+        <strong class="account-stat-value account-stat-value--accent">${watchedCount}</strong>
+        <small class="account-stat-sub" title="${esc(lastWatchedTitle)}">${esc(lastWatchedTitle)}</small>
+      </div>
+
+      <div class="account-stat-card">
+        <span class="account-stat-label">Library Score</span>
+        <strong class="account-stat-value account-stat-value--gold">★ ${average}</strong>
+        <small class="account-stat-sub">Average rating</small>
+      </div>
+    </div>
+
+    <div class="account-shelf-header">
+      <div class="account-tabs" role="group" aria-label="Filter watchlist">
+        <button type="button" data-account-filter="all" class="account-tab">All Movies (${savedMovies.length})</button>
+        <button type="button" data-account-filter="unwatched" class="account-tab">To Watch (${toWatchCount})</button>
+        <button type="button" data-account-filter="watched" class="account-tab">Watched (${watchedCount})</button>
+      </div>
+      <label class="account-sort">
+        Sort
+        <select data-account-sort>
+          <option value="saved">Recently saved</option>
+          <option value="rating">Highest rated</option>
+          <option value="release">Release date</option>
+          <option value="title">Title A–Z</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="movie-grid" id="account-movie-grid">${accountMovieMarkup()}</div>
   </section>`;
 
-  app
-    .querySelector?.(`[data-account-filter="${accountFilter}"]`)
-    ?.classList.add("is-active");
+  app.querySelectorAll?.("[data-account-filter]").forEach((button) => {
+    button.classList.toggle(
+      "is-active",
+      button.dataset.accountFilter === accountFilter,
+    );
+  });
   const sortControl = app.querySelector?.("[data-account-sort]");
   if (sortControl) sortControl.value = accountSort;
 }
 
 function watchlist() {
   account();
-}
-
-function accountPreferencesMarkup() {
-  const theme =
-    typeof savedTheme === "string" && savedTheme === "liquid"
-      ? "Liquid Glass"
-      : "Classic";
-  const nextTheme = theme === "Classic" ? "Liquid Glass" : "Classic";
-  return `<section class="account-preferences" aria-labelledby="account-preferences-heading">
-    <div>
-      <p class="eyebrow">Preferences & privacy</p>
-      <h2 id="account-preferences-heading">Your settings</h2>
-      <p>Current appearance: <strong>${theme}</strong>. Your watchlist and watched status stay in this browser.</p>
-    </div>
-    <div class="account-preference-actions">
-      <button type="button" data-open-style>Switch to ${nextTheme}</button>
-      <a href="/privacy.html">Privacy</a>
-    </div>
-  </section>`;
 }
 
 function accountMovieMarkup() {
@@ -392,10 +425,12 @@ function card(movie, decorative = false, eagerPoster = false) {
     </div>`;
   }
 
+  const isWatched = watched.has(movie.id);
   return `<div class="movie-tile">
     <a class="movie-card" href="#movie/${movie.id}">
       ${poster}
       <strong class="rating-badge">★ ${(movie.vote_average || 0).toFixed(1)}</strong>
+      ${isWatched ? '<strong class="watched-badge">✓ Watched</strong>' : ""}
       <div class="card-copy">
         <h3>${esc(movie.title)}</h3>
         <div class="card-meta"><span>${year(movie.release_date)}</span></div>
