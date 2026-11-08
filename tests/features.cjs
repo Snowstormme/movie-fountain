@@ -183,6 +183,10 @@ test("renderRatingsSection renders multi-source ratings, OMDb fallback, and esca
   assert.match(loadedMarkup, /79<small>%<\/small>/);
   assert.match(loadedMarkup, /Audience 96%/);
   assert.match(loadedMarkup, /Updated 2026-11-01/);
+  assert.match(loadedMarkup, /Fountain Score/);
+  assert.match(loadedMarkup, /86<\/span>/);
+  assert.match(loadedMarkup, /Universal Acclaim/);
+  assert.match(loadedMarkup, /4 sources/);
 
   const omdbMarkup = run(
     `renderRatingsSection(

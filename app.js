@@ -819,6 +819,65 @@ async function search(query) {
   }
 }
 
+function computeFountainScore(m, r = {}) {
+  const parts = [];
+
+  // IMDb: weight 30
+  if (typeof r.imdb === "number" && r.imdb > 0) {
+    parts.push({ score: r.imdb * 10, weight: 30, name: "IMDb" });
+  } else if (r.imdb_rating) {
+    const parsed = parseFloat(r.imdb_rating);
+    if (!isNaN(parsed) && parsed > 0) {
+      parts.push({ score: parsed * 10, weight: 30, name: "IMDb" });
+    }
+  }
+
+  // Letterboxd: weight 30
+  if (typeof r.letterboxd === "number" && r.letterboxd > 0) {
+    parts.push({
+      score: (r.letterboxd / 5) * 100,
+      weight: 30,
+      name: "Letterboxd",
+    });
+  }
+
+  // Rotten Tomatoes: weight 25
+  const rtScores = [];
+  if (typeof r.rotten === "number" && r.rotten >= 0) rtScores.push(r.rotten);
+  else if (r.rotten_rating) {
+    const parsed = parseInt(r.rotten_rating, 10);
+    if (!isNaN(parsed) && parsed >= 0) rtScores.push(parsed);
+  }
+  if (typeof r.rotten_audience === "number" && r.rotten_audience >= 0) {
+    rtScores.push(r.rotten_audience);
+  }
+  if (rtScores.length) {
+    const avgRt = rtScores.reduce((a, b) => a + b, 0) / rtScores.length;
+    parts.push({ score: avgRt, weight: 25, name: "Rotten Tomatoes" });
+  }
+
+  // TMDB: weight 15
+  if (
+    m?.vote_count &&
+    typeof m.vote_average === "number" &&
+    m.vote_average > 0
+  ) {
+    parts.push({ score: m.vote_average * 10, weight: 15, name: "TMDB" });
+  }
+
+  if (!parts.length) return null;
+
+  const totalWeight = parts.reduce((sum, p) => sum + p.weight, 0);
+  const weightedSum = parts.reduce((sum, p) => sum + p.score * p.weight, 0);
+  const finalScore = Math.round(weightedSum / totalWeight);
+
+  return {
+    score: Math.max(0, Math.min(100, finalScore)),
+    sourcesCount: parts.length,
+    sourcesList: parts.map((p) => p.name).join(", "),
+  };
+}
+
 function renderRatingsSection(m, ratings = null) {
   const r = ratings || {};
   const loading = ratings === null;
@@ -888,12 +947,42 @@ function renderRatingsSection(m, ratings = null) {
       '<p class="rating-attribution">IMDb and Rotten Tomatoes scores via <a href="https://www.omdbapi.com/" target="_blank" rel="noopener noreferrer">OMDb</a>.</p>';
   }
 
+  const fountain = computeFountainScore(m, r);
+  let fountainCard = "";
+  if (fountain) {
+    let tag = "Recommended";
+    if (fountain.score >= 85) tag = "Universal Acclaim";
+    else if (fountain.score >= 75) tag = "Highly Rated";
+    else if (fountain.score >= 60) tag = "Generally Favorable";
+    else if (fountain.score >= 45) tag = "Mixed Reviews";
+    else tag = "Underwhelming";
+
+    const desc = loading
+      ? "Initial consensus based on TMDB · Calculating full cross-platform consensus…"
+      : `Universal consensus calculated from ${fountain.sourcesCount} ${fountain.sourcesCount === 1 ? "source" : "sources"} (${fountain.sourcesList}).`;
+
+    fountainCard = `<div class="fountain-score-card">
+      <div class="fountain-score-badge">
+        <span class="fountain-score-num">${fountain.score}</span>
+        <span class="fountain-score-max">/ 100</span>
+      </div>
+      <div class="fountain-score-info">
+        <div class="fountain-score-title">
+          <span class="fountain-score-label">Fountain Score</span>
+          <span class="fountain-score-tag">${tag}</span>
+        </div>
+        <p class="fountain-score-desc">${esc(desc)}</p>
+      </div>
+    </div>`;
+  }
+
   return `<div class="shelf-heading">
     <div>
-      <h2>Ratings</h2>
-      <p>Scores and direct links across movie databases</p>
+      <h2>Ratings &amp; Consensus</h2>
+      <p>Weighted consensus score and direct links across movie databases</p>
     </div>
   </div>
+  ${fountainCard}
   <div class="ratings-grid">
     <div class="score-card tmdb-score">
       <span class="score-source">TMDB</span>

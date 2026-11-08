@@ -120,6 +120,17 @@ html[data-theme="liquid"] .fountain-settings-group{border-color:#ffffff1f}
 @media(max-width:650px){.fountain-settings-group{align-items:flex-start;flex-direction:column;gap:6px;padding:8px 0}.fountain-settings-label{flex:none}}
 
 /* Multi-source external ratings on movie detail view */
+.fountain-score-card{display:flex;align-items:center;gap:22px;margin-bottom:16px;padding:20px 24px;border:1px solid #242429;border-left:5px solid #ff5a1f;border-radius:14px;background:linear-gradient(135deg,#1c1613 0%,#121215 65%)}
+.fountain-score-badge{display:flex;align-items:baseline;gap:4px;flex:none}
+.fountain-score-num{font-size:44px;font-weight:900;line-height:1;letter-spacing:-.05em;color:#ff5a1f}
+.fountain-score-max{color:#9e9b95;font-size:15px;font-weight:600}
+.fountain-score-info{display:flex;flex-direction:column;gap:5px}
+.fountain-score-title{display:flex;align-items:center;gap:10px}
+.fountain-score-label{font-size:13px;font-weight:800;letter-spacing:.08em;color:#f2efe9;text-transform:uppercase}
+.fountain-score-tag{display:inline-block;padding:3px 9px;border:1px solid #ff5a1f55;border-radius:6px;background:#ff5a1f18;color:#ff6b2c;font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.fountain-score-desc{margin:0;color:#9e9b95;font-size:13px;line-height:1.45}
+html[data-theme="liquid"] .fountain-score-card{border-color:#ffffff38;border-left:5px solid #ff5a1f;background:linear-gradient(145deg,#ffffff20,#ffffff08 48%,#0000001c);box-shadow:inset 0 1px #ffffff42,0 12px 28px #02050a44;backdrop-filter:blur(18px) saturate(165%)}
+@media(max-width:650px){.fountain-score-card{flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px}.fountain-score-num{font-size:38px}}
 .ratings-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .score-card{display:flex;flex-direction:column;min-height:150px;padding:20px 22px;border:1px solid #242429;border-top:3px solid #ff5a1f;border-radius:12px;background:#121215}
 .imdb-score{border-top-color:#e1ba61}
