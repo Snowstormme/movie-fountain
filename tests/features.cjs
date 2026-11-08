@@ -16,6 +16,7 @@ function setup() {
       handlers[name] = fn;
     },
     insertAdjacentHTML() {},
+    querySelector: () => null,
     querySelectorAll: () => [],
   };
   const ctx = {
@@ -33,6 +34,7 @@ function setup() {
     console,
     document: {
       querySelector: () => stub,
+      querySelectorAll: () => [],
       body: stub,
       addEventListener() {},
       documentElement: {
@@ -49,6 +51,9 @@ function setup() {
       getItem: (k) => data[k] || null,
       setItem: (k, v) => {
         data[k] = v;
+      },
+      removeItem: (k) => {
+        delete data[k];
       },
     },
   };
@@ -408,6 +413,28 @@ test("i18n and language switching in Account and cards", () => {
   run("account()");
   assert.match(stub.innerHTML, /Cinema Passport/);
   assert.match(stub.innerHTML, /🌐 English/);
+  assert.match(stub.innerHTML, /id="change-avatar-btn"/);
+  assert.match(stub.innerHTML, /account-avatar-badge/);
+
+  // Avatar functionality
+  assert.equal(run("getAvatar()"), "");
+  assert.match(run("renderAvatarHtml()"), /avatar-initial/);
+  assert.match(run("renderAvatarHtml()"), /M/);
+
+  run("setAvatar('🎬')");
+  assert.equal(data["movie-fountain.avatar.v1"], "🎬");
+  assert.equal(run("getAvatar()"), "🎬");
+  assert.match(run("renderAvatarHtml()"), /avatar-emoji/);
+  assert.match(run("renderAvatarHtml()"), /🎬/);
+
+  run("setAvatar('data:image/jpeg;base64,sample123')");
+  assert.equal(data["movie-fountain.avatar.v1"], "data:image/jpeg;base64,sample123");
+  assert.match(run("renderAvatarHtml()"), /data:image\/jpeg;base64,sample123/);
+
+  run("setAvatar('')");
+  assert.equal(data["movie-fountain.avatar.v1"], undefined);
+  assert.equal(run("getAvatar()"), "");
+  assert.match(run("renderAvatarHtml()"), /avatar-initial/);
 });
 
 test("sortMovieList and list page rendering sort by rating, release date, and title", () => {

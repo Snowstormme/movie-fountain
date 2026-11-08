@@ -196,6 +196,15 @@ const translations = {
     reset_filters: "Reset",
     filter_error: "Could not update filters. Try again.",
     matching_movies: "matching movies",
+
+    // Avatar
+    avatar_change: "Change photo",
+    avatar_choose: "Choose profile picture",
+    avatar_upload: "Upload photo",
+    avatar_presets: "Or choose a cinephile icon",
+    avatar_remove: "Reset to default",
+    avatar_close: "Close",
+    avatar_updated: "Profile picture updated",
   },
   ru: {
     // Topbar
@@ -389,6 +398,15 @@ const translations = {
     reset_filters: "Сброс",
     filter_error: "Не удалось применить фильтры. Попробуйте снова.",
     matching_movies: "подходящих фильмов",
+
+    // Avatar
+    avatar_change: "Сменить фото",
+    avatar_choose: "Выбор фотографии профиля",
+    avatar_upload: "Загрузить своё фото",
+    avatar_presets: "Или выберите кино-значок",
+    avatar_remove: "Сбросить фото",
+    avatar_close: "Закрыть",
+    avatar_updated: "Фотография профиля обновлена",
   },
 };
 
@@ -424,12 +442,194 @@ function applyLang(lang) {
   const accountNav = document.querySelector?.(
     'a.fountain-nav[href="#account"]',
   );
-  if (accountNav) accountNav.textContent = t("nav_account");
+  if (accountNav) {
+    const label = accountNav.querySelector?.(".account-nav-label");
+    if (label) {
+      label.textContent = t("nav_account");
+    } else {
+      accountNav.textContent = t("nav_account");
+    }
+  }
   const searchInput = document.querySelector?.("#search");
   if (searchInput) searchInput.placeholder = t("search_placeholder");
   const searchBtn = document.querySelector?.("#search-form button");
   if (searchBtn) searchBtn.textContent = t("search_btn");
 }
+
+const avatarKey = "movie-fountain.avatar.v1";
+let savedAvatar = "";
+try {
+  savedAvatar = localStorage.getItem(avatarKey) || "";
+} catch {}
+
+function getAvatar() {
+  return savedAvatar;
+}
+
+function setAvatar(val) {
+  savedAvatar = typeof val === "string" ? val.trim() : "";
+  try {
+    if (savedAvatar) {
+      localStorage.setItem(avatarKey, savedAvatar);
+    } else {
+      localStorage.removeItem(avatarKey);
+    }
+  } catch {}
+  updateAvatarsInUI();
+}
+
+const AVATAR_PRESETS = [
+  "🎬",
+  "🍿",
+  "📽️",
+  "🕶️",
+  "🚀",
+  "🦁",
+  "🎭",
+  "🎞️",
+  "⛲",
+  "⭐",
+  "🏆",
+  "🍸",
+];
+
+function renderAvatarContent(avatar = getAvatar()) {
+  if (!avatar) {
+    return '<span class="avatar-initial">M</span>';
+  }
+  if (
+    avatar.startsWith("data:image/") ||
+    avatar.startsWith("https://") ||
+    avatar.startsWith("/")
+  ) {
+    return `<img src="${esc(avatar)}" alt="Avatar" class="avatar-img" />`;
+  }
+  return `<span class="avatar-emoji">${esc(avatar)}</span>`;
+}
+
+function renderAvatarHtml(extraClass = "", isButton = false) {
+  const content = renderAvatarContent();
+  if (isButton) {
+    return `<button type="button" class="account-avatar account-avatar--btn ${extraClass}" id="change-avatar-btn" aria-label="${t("avatar_change")}" title="${t("avatar_change")}">
+      ${content}
+      <span class="account-avatar-badge" aria-hidden="true">📷</span>
+    </button>`;
+  }
+  return `<span class="topbar-avatar ${extraClass}" aria-hidden="true">${content}</span>`;
+}
+
+function updateAvatarsInUI() {
+  document.querySelectorAll?.(".topbar-avatar")?.forEach((el) => {
+    el.innerHTML = renderAvatarContent();
+  });
+  const accountBtn = document.querySelector?.("#change-avatar-btn");
+  if (accountBtn) {
+    accountBtn.innerHTML = `${renderAvatarContent()}<span class="account-avatar-badge" aria-hidden="true">📷</span>`;
+  }
+}
+
+function openAvatarModal() {
+  closeAvatarModal();
+  const current = getAvatar();
+  const modalHtml = `<div class="avatar-modal-overlay" id="avatar-modal" role="dialog" aria-modal="true" aria-labelledby="avatar-modal-title">
+    <div class="avatar-modal-card">
+      <div class="avatar-modal-header">
+        <h3 id="avatar-modal-title">${t("avatar_choose")}</h3>
+        <button type="button" class="avatar-modal-close" id="avatar-modal-close" aria-label="${t("avatar_close")}">✕</button>
+      </div>
+      <div class="avatar-modal-body">
+        <div class="avatar-current-preview">
+          <div class="account-avatar account-avatar--preview" aria-hidden="true">
+            ${renderAvatarContent(current)}
+          </div>
+        </div>
+        <div class="avatar-upload-row">
+          <label class="avatar-upload-btn">
+            <span>📷 ${t("avatar_upload")}</span>
+            <input type="file" id="avatar-file-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none">
+          </label>
+          ${current ? `<button type="button" class="avatar-reset-btn" id="avatar-reset-btn">${t("avatar_remove")}</button>` : ""}
+        </div>
+        <p class="avatar-presets-title">${t("avatar_presets")}</p>
+        <div class="avatar-presets-grid">
+          ${AVATAR_PRESETS.map((p) => `<button type="button" class="avatar-preset-btn ${current === p ? "is-selected" : ""}" data-preset="${p}">${p}</button>`).join("")}
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+  const modal = document.querySelector("#avatar-modal");
+  const closeBtn = modal?.querySelector("#avatar-modal-close");
+  const fileInput = modal?.querySelector("#avatar-file-input");
+  const resetBtn = modal?.querySelector("#avatar-reset-btn");
+
+  closeBtn?.addEventListener("click", closeAvatarModal);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeAvatarModal();
+  });
+
+  document.addEventListener("keydown", handleModalEsc);
+
+  resetBtn?.addEventListener("click", () => {
+    setAvatar("");
+    closeAvatarModal();
+  });
+
+  fileInput?.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (loadEvt) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          const size = 200;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          setAvatar(dataUrl);
+          closeAvatarModal();
+        } catch {
+          setAvatar(loadEvt.target.result);
+          closeAvatarModal();
+        }
+      };
+      img.src = loadEvt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  modal?.querySelectorAll("[data-preset]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setAvatar(btn.dataset.preset);
+      closeAvatarModal();
+    });
+  });
+}
+
+function handleModalEsc(e) {
+  if (e.key === "Escape") closeAvatarModal();
+}
+
+function closeAvatarModal() {
+  document.removeEventListener("keydown", handleModalEsc);
+  document.querySelector("#avatar-modal")?.remove();
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest?.("#change-avatar-btn");
+  if (btn) {
+    e.preventDefault();
+    openAvatarModal();
+  }
+});
 
 function setLang(lang) {
   savedLang = lang === "ru" ? "ru" : "en";

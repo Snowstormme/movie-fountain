@@ -88,7 +88,7 @@ function account() {
   app.innerHTML = `<section class="account-page">
     <div class="account-hero">
       <div class="account-profile">
-        <div class="account-avatar" aria-hidden="true">M</div>
+        ${renderAvatarHtml("", true)}
         <div class="account-name-wrap">
           <p class="eyebrow">${t("personal_library")}</p>
           <h1>${t("cinema_passport")}</h1>
@@ -360,7 +360,7 @@ document
   .querySelector(".topbar-left")
   ?.insertAdjacentHTML(
     "beforeend",
-    `<a class="fountain-nav" href="#account">${t("nav_account")}</a>`,
+    `<a class="fountain-nav account-nav" href="#account"><span class="account-nav-label">${t("nav_account")}</span>${renderAvatarHtml()}</a>`,
   );
 applyLang(savedLang);
 document.body.insertAdjacentHTML(
