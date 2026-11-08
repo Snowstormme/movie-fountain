@@ -479,13 +479,13 @@ test("sortMovieList and list page rendering sort by rating, release date, and ti
 
   const imdbBadge = run("renderRatingBadge({ vote_average: 9.3, rating_source: 'imdb' })");
   assert.match(imdbBadge, /rating-badge--imdb/);
-  assert.match(imdbBadge, /★/);
+  assert.match(imdbBadge, /brand-logo-svg--imdb/);
   assert.match(imdbBadge, /9\.3/);
   assert.match(imdbBadge, /IMDb: 9\.3\/10/);
 
   const lbBadge = run("renderRatingBadge({ vote_average: 8.6, rating_source: 'letterboxd' })");
   assert.match(lbBadge, /rating-badge--letterboxd/);
-  assert.match(lbBadge, /★/);
+  assert.match(lbBadge, /brand-logo-svg--letterboxd/);
   assert.match(lbBadge, /4\.3/);
   assert.match(lbBadge, /Letterboxd: 4\.3\/5/);
 });

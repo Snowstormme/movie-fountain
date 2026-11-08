@@ -48,6 +48,15 @@ html[data-theme="liquid"] .save-movie{border-radius:999px}
 .rating-badge--imdb{color:#f5c518;border:1px solid rgba(245,197,24,0.45);background:rgba(18,16,10,0.88)}
 .rating-badge--letterboxd{color:#00e054;border:1px solid rgba(0,224,84,0.4);background:rgba(10,18,14,0.88)}
 .rating-badge-icon{font-size:10px;line-height:1}
+.brand-logo-svg{display:inline-block;vertical-align:middle;flex-shrink:0}
+.rating-badge .brand-logo-svg--imdb{width:24px;height:12px;border-radius:2px}
+.rating-badge .brand-logo-svg--letterboxd{width:24px;height:10px}
+.shelf-title-link{display:inline-flex;align-items:center;gap:10px}
+.shelf-title-link .brand-logo-svg--imdb{width:38px;height:19px;border-radius:3px}
+.shelf-title-link .brand-logo-svg--letterboxd{width:36px;height:14px}
+.page-heading h1{display:inline-flex;align-items:center;flex-wrap:wrap;gap:14px}
+.page-heading h1 .brand-logo-svg--imdb{width:clamp(36px,5.5vw,56px);height:auto;border-radius:4px}
+.page-heading h1 .brand-logo-svg--letterboxd{width:clamp(36px,5.5vw,54px);height:auto}
 .movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{opacity:0}
 @media(max-width:650px){.movie-card .rating-badge,.movie-card:hover .rating-badge,.movie-card:focus-visible .rating-badge{z-index:3;opacity:1}}
 

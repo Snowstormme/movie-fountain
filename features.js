@@ -551,6 +551,10 @@ function sortMovieList(movies, sortKey = "default") {
   }
 }
 
+const IMDB_LOGO_SVG = `<svg class="brand-logo-svg brand-logo-svg--imdb" viewBox="0 0 575 290" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="575" height="290" rx="40" fill="#f5c518"/><path d="M69.35 58.24h45.63v175.65H69.35zM201.2 139.15c-3.92-26.77-6.1-41.65-6.53-44.62-1.91-14.33-3.73-26.8-5.47-37.44-3.95 0-23.66 0-59.16 0v175.65h39.97V116.76l16.82 115.98h28.47l15.95-118.56.15 118.56h39.84V57.09h-59.61l-10.57 82.06zM346.71 93.63c.5 2.24.76 7.32.76 15.26v68.1c0 11.69-.76 18.85-2.27 21.49-1.52 2.64-5.56 3.95-12.11 3.95v-115.3c4.97 0 8.36.53 10.16 1.57 1.8 1.05 2.96 2.69 3.46 4.93zm20.61 137.32c5.43-1.19 9.99-3.29 13.69-6.28 3.69-3 6.28-7.15 7.76-12.46 1.49-5.3 2.37-15.83 2.37-31.58v-61.68c0-16.62-.65-27.76-1.66-33.42s-3.55-10.82-7.6-15.44c-4.06-4.62-9.98-7.94-17.76-9.96-7.79-2.02-20.49-3.04-42.58-3.04-2.27 0-13.61 0-34.04 0v175.65h55.28c12.74-.4 20.92-.99 24.54-1.79zM464.76 204.7c-.84 2.23-4.52 3.36-7.3 3.36-2.72 0-4.53-1.08-5.45-3.25-.92-2.16-1.37-7.09-1.37-14.81v-46.42c0-8 .4-12.99 1.21-14.98.8-1.97 2.56-2.97 5.28-2.97 2.78 0 6.51 1.13 7.47 3.4.95 2.27 1.43 7.12 1.43 14.55v45.01c-.29 9.25-.71 14.62-1.27 16.11zm-58.08 26.51h41.08c1.71-6.71 2.65-10.44 2.84-11.19 3.72 4.5 7.81 7.88 12.3 10.12 4.47 2.25 11.16 3.37 16.34 3.37 7.21 0 13.43-1.89 18.68-5.68 5.24-3.78 8.58-8.26 10-13.41 1.42-5.16 2.13-13 2.13-23.54v-49.28c0-10.6-.24-17.52-.71-20.77-.47-3.25-1.87-6.56-4.2-9.95-2.33-3.39-5.72-6.02-10.16-7.9-4.44-1.88-9.68-2.82-15.72-2.82-5.25 0-11.97 1.05-16.45 3.12-4.47 2.07-8.53 5.21-12.17 9.42V55.56h-43.96v175.65z" fill="#000"/></svg>`;
+
+const LETTERBOXD_LOGO_SVG = `<svg class="brand-logo-svg brand-logo-svg--letterboxd" viewBox="0 0 52 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="#ff8000"/><circle cx="26" cy="10" r="8" fill="#00e054"/><circle cx="42" cy="10" r="8" fill="#40bcf4"/></svg>`;
+
 function getMovieScore(movie) {
   if (!movie) return 0;
   if (typeof movie.fountain_score === "number") return movie.fountain_score;
@@ -564,13 +568,13 @@ function renderRatingBadge(movie) {
   if (movie.rating_source === "imdb") {
     const val = Number(movie.vote_average || 0).toFixed(1);
     if (!Number(val)) return "";
-    return `<strong class="rating-badge rating-badge--imdb" title="IMDb: ${val}/10"><span class="rating-badge-icon" aria-hidden="true">★</span> ${val}</strong>`;
+    return `<strong class="rating-badge rating-badge--imdb" title="IMDb: ${val}/10">${IMDB_LOGO_SVG} ${val}</strong>`;
   }
 
   if (movie.rating_source === "letterboxd") {
     const val = (Number(movie.vote_average || 0) / 2).toFixed(1);
     if (!Number(val)) return "";
-    return `<strong class="rating-badge rating-badge--letterboxd" title="Letterboxd: ${val}/5"><span class="rating-badge-icon" aria-hidden="true">★</span> ${val}</strong>`;
+    return `<strong class="rating-badge rating-badge--letterboxd" title="Letterboxd: ${val}/5">${LETTERBOXD_LOGO_SVG} ${val}</strong>`;
   }
 
   const score = getMovieScore(movie);

@@ -733,13 +733,13 @@ function homeShelves(data) {
       "#trending",
     ),
     shelf(
-      t("shelf_letterboxd_title"),
+      `${LETTERBOXD_LOGO_SVG} ${t("shelf_letterboxd_title")}`,
       t("shelf_letterboxd_sub"),
       letterboxdMovies,
       "#letterboxd",
     ),
     shelf(
-      t("shelf_imdb_title"),
+      `${IMDB_LOGO_SVG} ${t("shelf_imdb_title")}`,
       t("shelf_imdb_sub"),
       imdbMovies,
       "#imdb",
@@ -836,7 +836,7 @@ async function letterboxdPage() {
     );
     renderMovieListPage({
       eyebrow: t("curated_collection"),
-      title: t("page_letterboxd_title"),
+      title: `${LETTERBOXD_LOGO_SVG} ${t("page_letterboxd_title")}`,
       subText,
       movies,
     });
@@ -859,7 +859,7 @@ async function imdbPage() {
     );
     renderMovieListPage({
       eyebrow: t("curated_collection"),
-      title: t("page_imdb_title"),
+      title: `${IMDB_LOGO_SVG} ${t("page_imdb_title")}`,
       subText,
       movies,
     });
