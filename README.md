@@ -16,7 +16,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.7.0-ff5a1f?style=flat-square" alt="Version 0.7.0">
   <img src="https://img.shields.io/badge/Cloudflare-Pages%20Functions-f38020?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare Pages">
-  <img src="https://img.shields.io/badge/tests-10%2F10%20passing-3fb950?style=flat-square&logo=node.js&logoColor=white" alt="Unit Tests Passing">
+  <img src="https://img.shields.io/badge/tests-11%2F11%20passing-3fb950?style=flat-square&logo=node.js&logoColor=white" alt="Unit Tests Passing">
   <img src="https://img.shields.io/badge/CodeQL-0%20alerts-3fb950?style=flat-square&logo=github&logoColor=white" alt="CodeQL Clean">
   <img src="https://img.shields.io/badge/privacy-100%25_local_only-a7d6d2?style=flat-square" alt="Private Storage">
   <img src="https://img.shields.io/badge/license-Apache_2.0-d6ae61?style=flat-square" alt="Apache 2.0 License">
@@ -30,10 +30,11 @@
 - [✨ Key Visual Showcase & Features](#-key-visual-showcase--features)
   - [1. Continuous Fountain Discovery Stream](#1-continuous-fountain-discovery-stream)
   - [2. Where to Watch (Streaming Providers Hub)](#2-where-to-watch-streaming-providers-hub)
-  - [3. Editorial Canon & Curated Charts](#3-editorial-canon--curated-charts)
-  - [4. Multi-Source Ratings & Masterpiece Verdict](#4-multi-source-ratings--masterpiece-verdict)
-  - [5. Cinephile Passport & Custom Avatars](#5-cinephile-passport--custom-avatars)
-  - [6. Dual Aesthetic Design System](#6-dual-aesthetic-design-system)
+  - [3. Dedicated Streaming Catalog (Netflix & Beyond)](#3-dedicated-streaming-catalog-netflix--beyond)
+  - [4. Editorial Canon & Curated Charts](#4-editorial-canon--curated-charts)
+  - [5. Multi-Source Ratings & Masterpiece Verdict](#5-multi-source-ratings--masterpiece-verdict)
+  - [6. Cinephile Passport & Custom Avatars](#6-cinephile-passport--custom-avatars)
+  - [7. Dual Aesthetic Design System](#7-dual-aesthetic-design-system)
 - [🏗️ System Architecture & Data Flow](#️-system-architecture--data-flow)
 - [💻 Technology Stack](#-technology-stack)
 - [📁 Repository Structure](#-repository-structure)
@@ -97,7 +98,22 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 
 ---
 
-### 3. Editorial Canon & Curated Charts
+### 3. Dedicated Streaming Catalog (Netflix & Beyond)
+
+Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
+
+<p align="center">
+  <img src="docs/screenshots/streaming-hub.png" alt="Dedicated Streaming Catalog Hub with Netflix Originals and TV Series" width="95%">
+</p>
+
+- **Flagship Netflix Catalog**: Explore acclaimed Netflix original and licensed films (*Roma*, *The Irishman*, *All Quiet on the Western Front*, *Society of the Snow*) and iconic TV series (*Stranger Things*, *Squid Game*, *Dark*, *Mindhunter*, *The Queen's Gambit*, *Wednesday*, *Arcane*).
+- **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **🎬 Movies**, **📺 TV Series**, and **★ Top Rated / Masterpieces** ($\ge 8.0$).
+- **Integrated Watchlist Actions**: Save any Netflix movie or series directly to your local Cinephile Passport with real-time feedback.
+- **Extensible Provider Architecture**: Designed with active provider selection (Netflix) and upcoming teaser slots for Apple TV+, Max (HBO), Amazon Prime Video, and Kinopoisk.
+
+---
+
+### 4. Editorial Canon & Curated Charts
 
 Beyond algorithmic discovery, Movie Fountain includes curated, offline-ready cinematic canons and edge-cached charts.
 
@@ -120,7 +136,7 @@ Beyond algorithmic discovery, Movie Fountain includes curated, offline-ready cin
 
 ---
 
-### 4. Multi-Source Ratings & Masterpiece Verdict
+### 5. Multi-Source Ratings & Masterpiece Verdict
 
 Movie Fountain ends the bias of single-platform ratings by calculating an aggregated multi-source consensus.
 
@@ -137,7 +153,7 @@ Movie Fountain ends the bias of single-platform ratings by calculating an aggreg
 
 ---
 
-### 5. Cinephile Passport & Custom Avatars
+### 6. Cinephile Passport & Custom Avatars
 
 Your movie habits, watched diary, and watchlist live in your browser's private storage—no sign-up, no email, no cloud tracking.
 
@@ -154,7 +170,7 @@ Your movie habits, watched diary, and watchlist live in your browser's private s
 
 ---
 
-### 6. Dual Aesthetic Design System
+### 7. Dual Aesthetic Design System
 
 Movie Fountain features two complete visual design systems crafted with modern CSS variables, backdrop blurs, and responsive typography:
 

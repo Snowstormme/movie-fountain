@@ -6,9 +6,26 @@ const translations = {
   en: {
     // Topbar
     nav_fountain: "Fountain",
+    nav_streaming: "Streaming",
     nav_account: "Account",
     search_placeholder: "Search movies, directors, actors…",
     search_btn: "Search",
+
+    // Streaming Hub
+    streaming_title: "Streaming Services",
+    streaming_sub: "Curated films & binge-worthy TV series from leading streaming platforms.",
+    streaming_tag: "Streaming Hub",
+    provider_netflix: "Netflix",
+    provider_netflix_sub: "Originals, award-winning films & global series",
+    provider_active: "Active",
+    provider_coming_soon: "Coming soon",
+    tab_stream_all: "All (Movies & Series)",
+    tab_stream_movies: "🎬 Movies",
+    tab_stream_tv: "📺 TV Series",
+    tab_stream_top: "★ Top Rated",
+    stream_count: "Showing {count} Netflix titles",
+    media_movie: "Movie",
+    media_tv: "Series",
 
     // Action buttons & badges
     save: "Save",
@@ -230,9 +247,26 @@ const translations = {
   ru: {
     // Topbar
     nav_fountain: "Фонтан",
+    nav_streaming: "Стриминги",
     nav_account: "Аккаунт",
     search_placeholder: "Поиск фильмов, режиссёров, актёров…",
     search_btn: "Найти",
+
+    // Streaming Hub
+    streaming_title: "Стриминговые сервисы",
+    streaming_sub: "Отобранные фильмы и культовые сериалы с ведущих стриминговых платформ.",
+    streaming_tag: "Стриминговый хаб",
+    provider_netflix: "Netflix",
+    provider_netflix_sub: "Оригинальные фильмы, лауреаты премий и мировые сериалы",
+    provider_active: "Выбрано",
+    provider_coming_soon: "Скоро",
+    tab_stream_all: "Все (фильмы и сериалы)",
+    tab_stream_movies: "🎬 Фильмы",
+    tab_stream_tv: "📺 Сериалы",
+    tab_stream_top: "★ Топ рейтинг",
+    stream_count: "Показано {count} фильмов и сериалов на Netflix",
+    media_movie: "Фильм",
+    media_tv: "Сериал",
 
     // Action buttons & badges
     save: "В список",
@@ -481,6 +515,10 @@ function applyLang(lang) {
     'a.fountain-nav[href="#fountain"]',
   );
   if (fountainNav) fountainNav.textContent = t("nav_fountain");
+  const streamingNav = document.querySelector?.(
+    'a.fountain-nav[href="#streaming"]',
+  );
+  if (streamingNav) streamingNav.textContent = t("nav_streaming");
   const accountNav = document.querySelector?.(
     'a.fountain-nav[href="#account"]',
   );

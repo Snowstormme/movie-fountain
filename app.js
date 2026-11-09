@@ -250,6 +250,13 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  const streamTab = event.target.closest("[data-stream-tab]");
+  if (streamTab?.dataset?.streamTab) {
+    currentStreamingFilter = streamTab.dataset.streamTab;
+    renderStreamingView();
+    return;
+  }
+
   const closeTrailer = event.target.closest("[data-close-trailer]");
   if (closeTrailer?.dataset?.closeTrailer !== undefined) {
     const slot = document.querySelector?.("#trailer-embed-slot");
@@ -333,6 +340,10 @@ app.addEventListener("change", (event) => {
   if (event.target.matches("[data-list-sort]")) {
     currentListSort = event.target.value;
     refreshListMovies();
+  }
+  if (event.target.matches("[data-streaming-sort]")) {
+    currentStreamingSort = event.target.value;
+    renderStreamingView();
   }
 });
 
@@ -931,6 +942,172 @@ async function editorsChoicePage() {
     subText,
     movies,
   });
+}
+
+let currentStreamingFilter = "all";
+let currentStreamingSort = "default";
+let streamingItems = [];
+
+async function streamingPage(subFilter = "all") {
+  fountainAbort?.abort();
+  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
+  currentStreamingFilter = subFilter || "all";
+  currentStreamingSort = "default";
+
+  try {
+    const data = await api("/api/streaming?provider=netflix");
+    if (
+      !location.hash.startsWith("#streaming") &&
+      !location.hash.startsWith("#netflix")
+    )
+      return;
+    streamingItems = Array.isArray(data.results) ? data.results : [];
+    renderStreamingView();
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
+}
+
+function renderStreamingView() {
+  const filtered = streamingItems.filter((item) => {
+    if (currentStreamingFilter === "movie") return item.media_type === "movie";
+    if (currentStreamingFilter === "tv") return item.media_type === "tv";
+    if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 8.0;
+    return true;
+  });
+
+  const sorted = sortMovieList(filtered, currentStreamingSort);
+
+  app.innerHTML = `
+    <div class="page-heading streaming-heading">
+      <p class="eyebrow">🌐 ${t("streaming_tag")}</p>
+      <h1>${t("streaming_title")}</h1>
+      <p class="hero-copy">${esc(t("streaming_sub"))}</p>
+
+      <!-- Provider Selector -->
+      <div class="streaming-providers" role="tablist" aria-label="Streaming Providers">
+        <button type="button" class="streaming-provider is-active" data-provider="netflix" role="tab" aria-selected="true">
+          <span class="provider-icon provider-icon--netflix" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#e50914"><path d="M5.398 0v24c1.815-.224 3.655-.494 5.503-.807V9.775l5.244 13.064c1.94-.356 3.864-.734 5.753-1.139V0h-5.264v14.492L6.46 1.49C6.103.987 5.75.49 5.398 0z"/></svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>${t("provider_netflix")}</strong>
+              <span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>
+            </div>
+            <span class="provider-desc">${esc(t("provider_netflix_sub"))}</span>
+          </div>
+        </button>
+
+        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+          <span class="provider-icon provider-icon--apple" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>Apple TV+</strong>
+              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+          <span class="provider-icon provider-icon--max" aria-hidden="true">
+            <strong style="color:#2b59ff;font-family:sans-serif;font-weight:900;font-size:14px;letter-spacing:-0.03em;">MAX</strong>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>Max (HBO)</strong>
+              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+          <span class="provider-icon provider-icon--prime" aria-hidden="true">
+            <strong style="color:#00a8e1;font-family:sans-serif;font-weight:900;font-size:13px;">prime</strong>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>Prime Video</strong>
+              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+          <span class="provider-icon provider-icon--kp" aria-hidden="true">
+            <strong style="color:#ff6600;font-family:sans-serif;font-weight:900;font-size:13px;">Кино</strong>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>Кинопоиск</strong>
+              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Tabs & Sort Toolbar -->
+      <div class="streaming-toolbar">
+        <div class="streaming-tabs" role="tablist">
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "all" ? "is-active" : ""}" data-stream-tab="all">${t("tab_stream_all")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "movie" ? "is-active" : ""}" data-stream-tab="movie">${t("tab_stream_movies")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "tv" ? "is-active" : ""}" data-stream-tab="tv">${t("tab_stream_tv")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "top" ? "is-active" : ""}" data-stream-tab="top">${t("tab_stream_top")}</button>
+        </div>
+
+        <div class="streaming-right-tools">
+          <span class="streaming-count-label">${t("stream_count").replace(/\{count\}/g, String(sorted.length))}</span>
+          <label class="list-sort">
+            <span>${t("sort_label")}:</span>
+            <select data-streaming-sort aria-label="${t("sort_label")}">
+              <option value="default" ${currentStreamingSort === "default" ? "selected" : ""}>${t("sort_default")}</option>
+              <option value="rating_desc" ${currentStreamingSort === "rating_desc" ? "selected" : ""}>${t("sort_rating_desc")}</option>
+              <option value="date_desc" ${currentStreamingSort === "date_desc" ? "selected" : ""}>${t("sort_date_desc")}</option>
+              <option value="title_asc" ${currentStreamingSort === "title_asc" ? "selected" : ""}>${t("sort_title_asc")}</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movie & TV Grid -->
+    <div class="movie-grid" id="streaming-movie-grid">
+      ${sorted.map((item) => streamingCard(item)).join("")}
+    </div>
+  `;
+}
+
+function streamingCard(item) {
+  movieCache.set(String(item.id), item);
+  const movieId = safeNumericId(item.id) || 0;
+  const poster = item.poster_path
+    ? `<img src="${image(item.poster_path)}" alt="Poster for ${esc(item.title)}" loading="lazy" decoding="async">`
+    : '<div class="no-poster">No poster</div>';
+  const isWatched = watched.has(item.id);
+  const mediaLabel = item.media_type === "tv" ? t("media_tv") : t("media_movie");
+
+  return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}">
+    <a class="movie-card" href="#movie/${movieId}">
+      ${poster}
+      <div class="streaming-card-badges">
+        <span class="netflix-chip">NETFLIX</span>
+        <span class="media-type-chip">${mediaLabel}</span>
+      </div>
+      ${renderRatingBadge(item)}
+      ${isWatched ? `<strong class="watched-badge">${t("watched")}</strong>` : ""}
+      <div class="card-copy">
+        <h3>${esc(item.title)}</h3>
+        <div class="card-meta"><span>${year(item.release_date)}</span></div>
+      </div>
+      <div class="card-preview">
+        <p>${esc(item.overview || t("no_overview"))}</p>
+      </div>
+    </a>
+    ${saveButton(item)}
+    ${extraActions(item)}
+  </div>`;
 }
 
 async function fountainPage() {
@@ -1659,6 +1836,7 @@ async function route() {
   const rawId = rest.join("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
+  if (kind === "streaming" || kind === "netflix") return streamingPage(rawId);
   if (kind === "trending") return trendingPage();
   if (kind === "editors" || kind === "editors-choice") return editorsChoicePage();
   if (kind === "letterboxd") return letterboxdPage();

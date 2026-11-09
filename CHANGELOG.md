@@ -4,7 +4,10 @@ All notable changes to Movie Fountain are recorded here.
 
 ## [0.7.0] - 2026-11-09
 
+- Add **Streaming Services Hub** with dedicated Netflix catalog (`#streaming` / `#netflix`): explore acclaimed Netflix original and licensed films and series (*Stranger Things*, *Squid Game*, *Dark*, *Mindhunter*, *The Queen's Gambit*, *Wednesday*, *Roma*, *The Irishman*, *All Quiet on the Western Front*), with one-click type filtering (`All`, `Movies`, `TV Series`, `Top Rated`) and integrated watchlist controls.
+- Add TV series support to movie detail API and route handlers with automatic `/tv/[id]` fallback and creator credits.
 - Add **Where to Watch** (Streaming Providers) powered by JustWatch and TMDB data: displays real-time streaming options (subscription, rent, buy, free) with authentic provider logos, regional country switchers (e.g., RU, US, GB, DE, FR, CA), and direct links.
+- Add animated continuous Fountain stream hero GIF (`docs/hero-fountain.gif`) for interactive repository showcase.
 
 ## [0.6.4] - 2026-11-09
 

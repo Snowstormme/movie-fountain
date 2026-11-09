@@ -81,14 +81,44 @@ export async function onRequestGet({ request, params, env }) {
     const id = numericId(params.id);
     const language = extractLang(request);
     const isRu = language === "ru-RU";
-    const movie = await tmdb(`/movie/${id}`, env, {
-      language,
-      append_to_response: "credits,recommendations,videos,watch/providers",
-    });
+    const requestedType = new URL(request.url).searchParams.get("type");
+
+    let movie;
+    let isTv = requestedType === "tv";
+
+    if (isTv) {
+      movie = await tmdb(`/tv/${id}`, env, {
+        language,
+        append_to_response: "credits,recommendations,videos,watch/providers",
+      });
+    } else {
+      try {
+        movie = await tmdb(`/movie/${id}`, env, {
+          language,
+          append_to_response: "credits,recommendations,videos,watch/providers",
+        });
+      } catch (err) {
+        try {
+          movie = await tmdb(`/tv/${id}`, env, {
+            language,
+            append_to_response: "credits,recommendations,videos,watch/providers",
+          });
+          isTv = true;
+        } catch {
+          throw err;
+        }
+      }
+    }
+
+    if (isTv && movie) {
+      movie.title = movie.name || movie.original_name || "TV Series";
+      movie.release_date = movie.first_air_date || "";
+      movie.runtime = movie.episode_run_time?.[0] || null;
+    }
 
     if (isRu && (!movie.overview || !pickTrailer(movie.videos))) {
       try {
-        const enMovie = await tmdb(`/movie/${id}`, env, {
+        const enMovie = await tmdb(isTv ? `/tv/${id}` : `/movie/${id}`, env, {
           language: "en-US",
           append_to_response: "videos",
         });
@@ -103,6 +133,9 @@ export async function onRequestGet({ request, params, env }) {
 
     const director =
       (movie.credits?.crew || []).find((person) => person.job === "Director") ||
+      (Array.isArray(movie.created_by) && movie.created_by[0]
+        ? { id: movie.created_by[0].id, name: movie.created_by[0].name, job: "Creator" }
+        : null) ||
       null;
     let directorMovies = [];
     if (director?.id) {

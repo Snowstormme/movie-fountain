@@ -671,3 +671,43 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlRU, /Ivi/);
   assert.match(htmlRU, /data-watch-country="RU"/);
 });
+
+test("streaming hub endpoint and catalog serve Netflix movies and series with type filtering", async () => {
+  const { run } = setup();
+  const { onRequestGet } = await import("../functions/api/streaming.js");
+
+  // 1. All Netflix items (movies + series)
+  const reqAll = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix");
+  const resAll = await onRequestGet({ request: reqAll, env: {} });
+  assert.equal(resAll.status, 200);
+  const dataAll = await resAll.json();
+  assert.equal(dataAll.provider, "netflix");
+  assert.ok(dataAll.results.length >= 20);
+
+  const hasMovies = dataAll.results.some((m) => m.media_type === "movie");
+  const hasSeries = dataAll.results.some((m) => m.media_type === "tv");
+  assert.ok(hasMovies, "Must include Netflix movies");
+  assert.ok(hasSeries, "Must include Netflix TV series");
+
+  // 2. Type filtering: movies only
+  const reqMovies = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix&type=movie");
+  const resMovies = await onRequestGet({ request: reqMovies, env: {} });
+  const dataMovies = await resMovies.json();
+  assert.ok(dataMovies.results.every((m) => m.media_type === "movie"));
+
+  // 3. Type filtering: TV series only
+  const reqTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix&type=tv");
+  const resTv = await onRequestGet({ request: reqTv, env: {} });
+  const dataTv = await resTv.json();
+  assert.ok(dataTv.results.every((m) => m.media_type === "tv"));
+
+  // 4. Unsupported provider returns 400
+  const reqInvalid = new Request("https://movie-fountain.pages.dev/api/streaming?provider=unknown");
+  const resInvalid = await onRequestGet({ request: reqInvalid, env: {} });
+  assert.equal(resInvalid.status, 400);
+
+  // 5. I18n strings present
+  assert.equal(run("t('nav_streaming')"), "Streaming");
+  run("setLang('ru')");
+  assert.equal(run("t('nav_streaming')"), "Стриминги");
+});
