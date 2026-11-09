@@ -370,8 +370,13 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("t('genre_imdb')"), "IMDb Top 250");
   assert.equal(run("t('editors_choice')"), "Editor's Choice");
   assert.equal(run("isEditorsChoice(3782)"), true);
+  assert.equal(run("isEditorsChoice(976893)"), true);
+  assert.equal(run("isEditorsChoice(235)"), true);
+  assert.equal(run("isEditorsChoice(30020)"), true);
+  assert.equal(run("isEditorsChoice(334541)"), true);
   assert.equal(run("isEditorsChoice(9999999)"), false);
   assert.equal(run("getEditorsChoiceData(3782)?.title"), "Ikiru");
+  assert.equal(run("getEditorsChoiceData(976893)?.title"), "Perfect Days");
   assert.equal(run("pluralFilms(1)"), "1 film");
   assert.equal(run("pluralFilms(5)"), "5 films");
   assert.equal(run("getCinephileRank(0)"), "Film Enthusiast");

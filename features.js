@@ -771,14 +771,11 @@ function getMovieScore(movie) {
 }
 
 const editorsPicks = {
-  3782: {
-    title: "Ikiru",
-    badge: "Editor's Choice",
-    note_en:
-      "Akira Kurosawa's timeless masterpiece on mortality, purpose, and the courage to live.",
-    note_ru:
-      "Бессмертный шедевр Акиры Куросавы о ценности времени, призвании и смелости жить.",
-  },
+  3782: { title: "Ikiru" },
+  976893: { title: "Perfect Days" },
+  235: { title: "Stand by Me" },
+  30020: { title: "Taste of Cherry" },
+  334541: { title: "Manchester by the Sea" },
 };
 
 function isEditorsChoice(movieId) {
