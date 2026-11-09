@@ -183,6 +183,8 @@ const translations = {
     ratings_sub:
       "Weighted consensus score and direct links across movie databases",
     fountain_score_label: "Fountain Score",
+    fountain_score_formula:
+      "Weighted formula: IMDb (30%) + Letterboxd (30%) + Rotten Tomatoes (25%) + TMDB (15%). Scores ≥90 earn Masterpiece status.",
     score_masterpiece: "Masterpiece",
     score_recommended: "Recommended",
     score_acclaim: "Universal Acclaim",
@@ -445,6 +447,8 @@ const translations = {
     ratings_heading: "Рейтинги и консенсус",
     ratings_sub: "Взвешенный консенсус и прямые ссылки на кинобазы",
     fountain_score_label: "Fountain Score",
+    fountain_score_formula:
+      "Взвешенная формула: IMDb (30%) + Letterboxd (30%) + Rotten Tomatoes (25%) + TMDB (15%). Оценка ≥90 получает статус «Шедевр».",
     score_masterpiece: "Шедевр",
     score_recommended: "Рекомендуется",
     score_acclaim: "Всеобщее признание",

@@ -1663,6 +1663,7 @@ function renderRatingsSection(m, ratings = null) {
           ${tagMarkup}
         </div>
         <p class="fountain-score-desc">${esc(desc)}</p>
+        <p class="fountain-score-formula"><span class="formula-icon" aria-hidden="true">⚖️</span> <span>${esc(t("fountain_score_formula"))}</span></p>
       </div>
     </div>`;
   }

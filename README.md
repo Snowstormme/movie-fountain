@@ -138,18 +138,24 @@ Beyond algorithmic discovery, Movie Fountain includes curated, offline-ready cin
 
 ---
 
-### 5. Multi-Source Ratings & Masterpiece Verdict
+### 5. Multi-Source Ratings & Fountain Consensus Score
 
-Movie Fountain ends the bias of single-platform ratings by calculating an aggregated multi-source consensus.
+Movie Fountain ends the bias of single-platform ratings by calculating an aggregated, weighted 100-point multi-source consensus: the **Fountain Score**.
 
-| Rating Authority | Metric | Visual Treatment |
-| :--- | :--- | :--- |
-| **IMDb** | Weighted Mean (1–10) | Official Gold Vector Badge (`#f5c518`) |
-| **Letterboxd** | Community Rating (1–5) | Official Iconic 3-Circle Logomark (`#00e054`) |
-| **Rotten Tomatoes** | Critics Tomatometer & Audience Popcorn (0–100%) | Certified Tomato / Popcorn Badges |
-| **TMDB** | Global User Score (0–100%) | TMDB Cyan Rating Meter |
-| **Fountain Consensus** | Universal Aggregate Score (0–100) | Prominent Header Badge & Qualitative Tag |
+#### 📐 How the Fountain Score is Calculated
 
+Each movie's universal rating synthesizes four leading cinematic databases with calibrated weighting:
+
+$$\text{Fountain Score} = \frac{30 \cdot \text{IMDb} + 30 \cdot \text{Letterboxd} + 25 \cdot \text{Rotten Tomatoes} + 15 \cdot \text{TMDB}}{\sum \text{Weights of Available Sources}}$$
+
+| Rating Authority | Weight | Metric Normalization | Visual Treatment |
+| :--- | :---: | :--- | :--- |
+| **IMDb** | **30%** | $\text{Rating}_{10} \times 10$ | Official Gold Vector Badge (`#f5c518`) |
+| **Letterboxd** | **30%** | $(\text{Rating}_{5} / 5) \times 100$ | Official Iconic 3-Circle Logomark (`#00e054`) |
+| **Rotten Tomatoes** | **25%** | $\frac{\text{Critics Tomatometer} + \text{Audience Score}}{2}$ | Certified Tomato &amp; Popcorn Badges |
+| **TMDB** | **15%** | $\text{Vote Average}_{10} \times 10$ | TMDB Cyan Rating Meter |
+
+- **Dynamic Fallback Normalization**: If a film is missing a score on one platform (e.g., an indie release without an indexed Rotten Tomatoes score), the weights automatically normalize proportionally across remaining available sources without penalizing the film.
 - **Golden Masterpiece Verdict**: For films achieving a consensus score of **90 or above**, Movie Fountain displays an exclusive, shimmering golden **Masterpiece** badge.
 - **Non-Blocking Asynchronous Edge Fetching**: Core movie metadata and backdrop artwork render in sub-100ms, while external ratings load asynchronously in the background and cache at the edge for 1 hour (`Cache-Control: public, max-age=3600, s-maxage=3600`).
 
