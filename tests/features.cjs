@@ -553,7 +553,8 @@ test("safeNumericId and route handlers prevent client-side XSS from URL hash and
 
   // movie handler with malicious ID safely rejects without injecting XSS into DOM
   await run("movie('999<script>alert(1)</script>')");
-  assert.doesNotMatch(stub.innerHTML, /<script>/);
+  assert.ok(!stub.innerHTML.includes("<script>"));
+  assert.doesNotMatch(stub.innerHTML, /alert\(1\)/);
   assert.match(stub.innerHTML, /message error/);
 
   // person handler with malicious ID safely rejects without injecting XSS into DOM
