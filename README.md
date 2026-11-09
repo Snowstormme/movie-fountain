@@ -107,6 +107,8 @@ Browse exclusive movies and binge-worthy TV series available on your favorite st
 </p>
 
 - **Flagship Netflix Catalog**: Explore acclaimed Netflix original and licensed films (*Roma*, *The Irishman*, *All Quiet on the Western Front*, *Society of the Snow*) and iconic TV series (*Stranger Things*, *Squid Game*, *Dark*, *Mindhunter*, *The Queen's Gambit*, *Wednesday*, *Arcane*).
+- **Regional Country Selection (`watch_region`)**: Seamlessly switch between major regional Netflix libraries (`🇺🇸 US`, `🇬🇧 GB`, `🇨🇦 CA`, `🇩🇪 DE`, `🇫🇷 FR`, `🇯🇵 JP`, `🇰🇷 KR`, `🇹🇷 TR`, and more) with your preference automatically persisted in `localStorage`.
+- **Dynamic Pagination & "Load More"**: Browse beyond initial snapshots with on-demand chunk loading (`Load More Titles`), giving direct access to thousands of regional titles indexed via TMDB.
 - **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **🎬 Movies**, **📺 TV Series**, and **★ Top Rated / Masterpieces** ($\ge 8.0$).
 - **Integrated Watchlist Actions**: Save any Netflix movie or series directly to your local Cinephile Passport with real-time feedback.
 - **Extensible Provider Architecture**: Designed with active provider selection (Netflix) and upcoming teaser slots for Apple TV+, Max (HBO), Amazon Prime Video, and Kinopoisk.

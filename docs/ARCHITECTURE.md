@@ -19,7 +19,7 @@ Cloudflare Pages  --->  Pages Functions (/api/*)  --->  TMDB API
 ### Production path
 
 1. The browser loads `index.html`, `site.css`, `features.js`, and `app.js` from Cloudflare Pages.
-2. The SPA reads the URL hash to select home, fountain, search, movie, cast, person, or account views.
+2. The SPA reads the URL hash to select home, fountain, streaming, search, movie, cast, person, or account views.
 3. The browser requests same-origin `/api/*` endpoints.
 4. Pages Functions read `TMDB_API_KEY` (and optional `OMDB_API_KEY`) from the Cloudflare environment to call TMDB and external rating providers.
 5. Functions return JSON; the browser renders escaped text and TMDB-hosted poster images.
