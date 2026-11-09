@@ -30,6 +30,10 @@ const translations = {
     close_trailer: "Close trailer",
     official_trailer: "Official Trailer",
 
+    // Editor's Choice
+    editors_choice: "Editor's Choice",
+    editors_choice_tag: "Personal Recommendation",
+
     // Account Hero & Ranks
     personal_library: "Personal library",
     cinema_passport: "Cinema Passport",
@@ -232,6 +236,10 @@ const translations = {
     watch_trailer: "▶ Смотреть трейлер",
     close_trailer: "Закрыть трейлер",
     official_trailer: "Официальный трейлер",
+
+    // Editor's Choice
+    editors_choice: "Выбор редакции",
+    editors_choice_tag: "Личная рекомендация",
 
     // Account Hero & Ranks
     personal_library: "Личная фильмотека",
@@ -760,6 +768,25 @@ function getMovieScore(movie) {
   if (typeof movie.fountain_score === "number") return movie.fountain_score;
   const avg = typeof movie.vote_average === "number" ? movie.vote_average : 0;
   return Math.round(avg * 10);
+}
+
+const editorsPicks = {
+  3782: {
+    title: "Ikiru",
+    badge: "Editor's Choice",
+    note_en:
+      "Akira Kurosawa's timeless masterpiece on mortality, purpose, and the courage to live.",
+    note_ru:
+      "Бессмертный шедевр Акиры Куросавы о ценности времени, призвании и смелости жить.",
+  },
+};
+
+function isEditorsChoice(movieId) {
+  return Boolean(editorsPicks[Number(movieId)]);
+}
+
+function getEditorsChoiceData(movieId) {
+  return editorsPicks[Number(movieId)] || null;
 }
 
 function renderRatingBadge(movie) {

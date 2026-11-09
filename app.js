@@ -1251,12 +1251,34 @@ async function movie(id) {
         ? `<p class="original-title">${esc(m.original_title)}</p>`
         : "";
 
+    const edChoice =
+      typeof getEditorsChoiceData === "function"
+        ? getEditorsChoiceData(m.id)
+        : null;
+    const edMarkup = edChoice
+      ? `<aside class="detail-editors-choice" aria-label="${t("editors_choice")}">
+          <div class="editors-choice-badge">
+            <span class="editors-choice-icon" aria-hidden="true">★</span>
+            <div class="editors-choice-titles">
+              <span class="editors-choice-title">${t("editors_choice")}</span>
+              <span class="editors-choice-sub">${t("editors_choice_tag")}</span>
+            </div>
+          </div>
+          <p class="editors-choice-note">“${esc(savedLang === "ru" ? edChoice.note_ru : edChoice.note_en)}”</p>
+        </aside>`
+      : "";
+
     app.innerHTML = `<article class="detail">
       <div>${poster}</div>
-      <div>
-        <p class="eyebrow">${t("movie_details")}</p>
-        <h1>${esc(m.title)}</h1>
-        ${originalTitle}
+      <div class="detail-content">
+        <div class="detail-header-row">
+          <div class="detail-title-col">
+            <p class="eyebrow">${t("movie_details")}</p>
+            <h1>${esc(m.title)}</h1>
+            ${originalTitle}
+          </div>
+          ${edMarkup}
+        </div>
         <p class="detail-meta">${year(m.release_date)} · ${runtimeText} · <span class="detail-fountain-score" title="${t("fountain_score_label")}: ${getMovieScore(m)}/100">⛲ ${getMovieScore(m)}/100</span></p>
         <p class="overview">${esc(m.overview || t("no_overview"))}</p>
         <div class="chips">${genresMarkup}</div>

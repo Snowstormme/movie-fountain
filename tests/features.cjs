@@ -368,6 +368,10 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("t('cinema_passport')"), "Cinema Passport");
   assert.equal(run("t('shelf_imdb_title')"), "IMDb Top 250");
   assert.equal(run("t('genre_imdb')"), "IMDb Top 250");
+  assert.equal(run("t('editors_choice')"), "Editor's Choice");
+  assert.equal(run("isEditorsChoice(3782)"), true);
+  assert.equal(run("isEditorsChoice(9999999)"), false);
+  assert.equal(run("getEditorsChoiceData(3782)?.title"), "Ikiru");
   assert.equal(run("pluralFilms(1)"), "1 film");
   assert.equal(run("pluralFilms(5)"), "5 films");
   assert.equal(run("getCinephileRank(0)"), "Film Enthusiast");
@@ -382,6 +386,7 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("t('shelf_imdb_title')"), "IMDb Топ-250");
   assert.equal(run("t('genre_imdb')"), "IMDb Топ-250");
   assert.equal(run("t('personal_library')"), "Личная фильмотека");
+  assert.equal(run("t('editors_choice')"), "Выбор редакции");
   assert.equal(run("t('watch_trailer')"), "▶ Смотреть трейлер");
   assert.equal(run("t('close_trailer')"), "Закрыть трейлер");
 
