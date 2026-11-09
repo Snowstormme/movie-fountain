@@ -160,8 +160,7 @@ Movie Fountain ends the bias of single-platform ratings by calculating an aggreg
 Your movie habits, watched diary, and watchlist live in your browser's private storage—no sign-up, no email, no cloud tracking.
 
 <p align="center">
-  <img src="docs/screenshots/cinephile-passport.png" alt="Cinephile Passport Account Area" width="48%">
-  <img src="docs/screenshots/avatar-picker.png" alt="Avatar Customization Modal" width="48%">
+  <img src="docs/screenshots/cinephile-passport.png" alt="Cinephile Passport Account Area" width="95%">
 </p>
 
 - **Dynamic Cinephile Ranks**: Progress automatically as you log films:
