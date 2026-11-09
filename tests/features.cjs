@@ -706,8 +706,40 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   const resInvalid = await onRequestGet({ request: reqInvalid, env: {} });
   assert.equal(resInvalid.status, 400);
 
-  // 5. I18n strings present
+  // 5. Country parameter and pagination
+  const reqGB = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix&country=gb");
+  const resGB = await onRequestGet({ request: reqGB, env: {} });
+  assert.equal(resGB.status, 200);
+  const dataGB = await resGB.json();
+  assert.equal(dataGB.country, "GB");
+  assert.equal(dataGB.page, 1);
+  assert.ok(dataGB.total_pages >= 1);
+  assert.ok(dataGB.total_results > 0);
+
+  // Invalid country defaults to US
+  const reqBadCountry = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix&country=INVALID123");
+  const resBadCountry = await onRequestGet({ request: reqBadCountry, env: {} });
+  const dataBadCountry = await resBadCountry.json();
+  assert.equal(dataBadCountry.country, "US");
+
+  // Page parameter
+  const reqPage2 = new Request("https://movie-fountain.pages.dev/api/streaming?provider=netflix&page=2");
+  const resPage2 = await onRequestGet({ request: reqPage2, env: {} });
+  const dataPage2 = await resPage2.json();
+  assert.equal(dataPage2.page, 2);
+  assert.ok(dataPage2.results.length > 0);
+
+  // 6. I18n strings present in EN and RU
   assert.equal(run("t('nav_streaming')"), "Streaming");
+  assert.equal(run("t('country_label')"), "Catalog Region");
+  assert.equal(run("t('load_more_titles')"), "Load More Titles");
+  assert.equal(run("t('all_titles_loaded')"), "All available titles loaded");
+  assert.equal(run("t('country_gb')"), "United Kingdom");
+
   run("setLang('ru')");
   assert.equal(run("t('nav_streaming')"), "Стриминги");
+  assert.equal(run("t('country_label')"), "Страна каталога");
+  assert.equal(run("t('load_more_titles')"), "Загрузить ещё");
+  assert.equal(run("t('all_titles_loaded')"), "Все доступные тайтлы загружены");
+  assert.equal(run("t('country_gb')"), "Великобритания");
 });

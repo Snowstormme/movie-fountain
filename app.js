@@ -250,10 +250,21 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  const countryBtn = event.target.closest("[data-set-country]");
+  if (countryBtn?.dataset?.setCountry) {
+    changeStreamingCountry(countryBtn.dataset.setCountry);
+    return;
+  }
+
   const streamTab = event.target.closest("[data-stream-tab]");
   if (streamTab?.dataset?.streamTab) {
-    currentStreamingFilter = streamTab.dataset.streamTab;
-    renderStreamingView();
+    changeStreamingFilter(streamTab.dataset.streamTab);
+    return;
+  }
+
+  const loadMoreBtn = event.target.closest("[data-load-more-streaming]");
+  if (loadMoreBtn?.dataset?.loadMoreStreaming !== undefined) {
+    loadMoreStreaming();
     return;
   }
 
@@ -344,6 +355,9 @@ app.addEventListener("change", (event) => {
   if (event.target.matches("[data-streaming-sort]")) {
     currentStreamingSort = event.target.value;
     renderStreamingView();
+  }
+  if (event.target.matches("[data-streaming-country]")) {
+    changeStreamingCountry(event.target.value);
   }
 });
 
@@ -944,28 +958,229 @@ async function editorsChoicePage() {
   });
 }
 
+const streamingCountryKey = "movie-fountain.watch_country.v1";
+
+const STREAMING_COUNTRIES = [
+  { code: "US", name: "United States", flag: "🇺🇸" },
+  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "CA", name: "Canada", flag: "🇨🇦" },
+  { code: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "FR", name: "France", flag: "🇫🇷" },
+  { code: "JP", name: "Japan", flag: "🇯🇵" },
+  { code: "KR", name: "South Korea", flag: "🇰🇷" },
+  { code: "TR", name: "Turkey", flag: "🇹🇷" },
+  { code: "ES", name: "Spain", flag: "🇪🇸" },
+  { code: "IT", name: "Italy", flag: "🇮🇹" },
+  { code: "BR", name: "Brazil", flag: "🇧🇷" },
+  { code: "AU", name: "Australia", flag: "🇦🇺" },
+  { code: "IN", name: "India", flag: "🇮🇳" },
+  { code: "RU", name: "Russia", flag: "🇷🇺" },
+];
+
+function getStreamingCountry() {
+  try {
+    const saved = localStorage.getItem(streamingCountryKey);
+    if (saved && /^[A-Z]{2}$/i.test(saved)) return saved.toUpperCase();
+  } catch {}
+  return detectUserCountry();
+}
+
+function setStreamingCountry(code) {
+  if (!code || !/^[A-Z]{2}$/i.test(code)) return;
+  const upper = code.toUpperCase();
+  currentStreamingCountry = upper;
+  try {
+    localStorage.setItem(streamingCountryKey, upper);
+  } catch {}
+}
+
 let currentStreamingFilter = "all";
 let currentStreamingSort = "default";
+let currentStreamingCountry = getStreamingCountry();
+let currentStreamingPage = 1;
+let streamingTotalPages = 1;
+let streamingTotalResults = 0;
 let streamingItems = [];
+let isLoadingMoreStreaming = false;
 
 async function streamingPage(subFilter = "all") {
   fountainAbort?.abort();
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   currentStreamingFilter = subFilter || "all";
   currentStreamingSort = "default";
+  currentStreamingPage = 1;
 
   try {
-    const data = await api("/api/streaming?provider=netflix");
+    const params = new URLSearchParams({
+      provider: "netflix",
+      country: currentStreamingCountry,
+      type: currentStreamingFilter,
+      page: "1"
+    });
+    const data = await api(`/api/streaming?${params}`);
     if (
       !location.hash.startsWith("#streaming") &&
       !location.hash.startsWith("#netflix")
     )
       return;
     streamingItems = Array.isArray(data.results) ? data.results : [];
+    streamingTotalPages = Number(data.total_pages) || 1;
+    streamingTotalResults = Number(data.total_results) || streamingItems.length;
     renderStreamingView();
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
+}
+
+async function changeStreamingFilter(tab) {
+  if (currentStreamingFilter === tab) return;
+  currentStreamingFilter = tab;
+  currentStreamingPage = 1;
+  await fetchAndRenderStreaming();
+}
+
+async function changeStreamingCountry(code) {
+  if (!code || code === currentStreamingCountry) return;
+  setStreamingCountry(code);
+  currentStreamingPage = 1;
+  await fetchAndRenderStreaming();
+}
+
+async function fetchAndRenderStreaming() {
+  const grid = document.getElementById("streaming-movie-grid");
+  const loadMoreSlot = document.getElementById("streaming-load-more-container");
+  if (grid) {
+    grid.innerHTML = `<div class="loading" style="grid-column: 1 / -1; padding: 48px 0;">${t("loading_short")}</div>`;
+  }
+  if (loadMoreSlot) loadMoreSlot.innerHTML = "";
+
+  try {
+    const params = new URLSearchParams({
+      provider: "netflix",
+      country: currentStreamingCountry,
+      type: currentStreamingFilter,
+      page: "1"
+    });
+    const data = await api(`/api/streaming?${params}`);
+    if (
+      !location.hash.startsWith("#streaming") &&
+      !location.hash.startsWith("#netflix")
+    )
+      return;
+    streamingItems = Array.isArray(data.results) ? data.results : [];
+    streamingTotalPages = Number(data.total_pages) || 1;
+    streamingTotalResults = Number(data.total_results) || streamingItems.length;
+    renderStreamingView();
+  } catch (error) {
+    if (grid) {
+      grid.innerHTML = `<div class="message error" style="grid-column: 1 / -1;">${esc(error.message)}</div>`;
+    }
+  }
+}
+
+async function loadMoreStreaming() {
+  if (isLoadingMoreStreaming || currentStreamingPage >= streamingTotalPages) return;
+  isLoadingMoreStreaming = true;
+
+  const btn = document.querySelector("[data-load-more-streaming]");
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+    const label = btn.querySelector(".load-more-text");
+    if (label) label.textContent = t("loading_more");
+  }
+
+  const nextPage = currentStreamingPage + 1;
+  try {
+    const params = new URLSearchParams({
+      provider: "netflix",
+      country: currentStreamingCountry,
+      type: currentStreamingFilter,
+      page: String(nextPage)
+    });
+    const data = await api(`/api/streaming?${params}`);
+    if (
+      !location.hash.startsWith("#streaming") &&
+      !location.hash.startsWith("#netflix")
+    )
+      return;
+
+    const newItems = Array.isArray(data.results) ? data.results : [];
+    currentStreamingPage = nextPage;
+    streamingTotalPages = Number(data.total_pages) || streamingTotalPages;
+    if (data.total_results) streamingTotalResults = Number(data.total_results);
+
+    // Deduplicate against existing items
+    const existingIds = new Set(streamingItems.map((m) => m.id));
+    const uniqueNew = newItems.filter((m) => !existingIds.has(m.id));
+    streamingItems = [...streamingItems, ...uniqueNew];
+
+    const grid = document.getElementById("streaming-movie-grid");
+    if (grid && uniqueNew.length > 0) {
+      const fragment = document.createDocumentFragment();
+      for (const item of uniqueNew) {
+        const temp = document.createElement("div");
+        temp.innerHTML = streamingCard(item);
+        if (temp.firstElementChild) {
+          fragment.appendChild(temp.firstElementChild);
+        }
+      }
+      grid.appendChild(fragment);
+    }
+
+    updateStreamingCountAndLoadMoreUI();
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove("is-loading");
+      const label = btn.querySelector(".load-more-text");
+      if (label) label.textContent = t("load_more_titles");
+    }
+  } finally {
+    isLoadingMoreStreaming = false;
+  }
+}
+
+function updateStreamingCountAndLoadMoreUI() {
+  const countEl = document.getElementById("streaming-count-display");
+  if (countEl) {
+    countEl.textContent = renderStreamingCountText(
+      streamingItems.length,
+      streamingTotalResults,
+      currentStreamingCountry
+    );
+  }
+  const loadMoreSlot = document.getElementById("streaming-load-more-container");
+  if (loadMoreSlot) {
+    loadMoreSlot.innerHTML = renderStreamingLoadMoreButton();
+  }
+}
+
+function renderStreamingCountText(currentCount, totalCount, countryCode) {
+  const formattedTotal = Number(totalCount) > currentCount ? Number(totalCount).toLocaleString() : null;
+  if (formattedTotal) {
+    return t("stream_count_total")
+      .replace(/\{count\}/g, String(currentCount))
+      .replace(/\{total\}/g, formattedTotal)
+      .replace(/\{country\}/g, countryCode);
+  }
+  return t("stream_count").replace(/\{count\}/g, String(currentCount));
+}
+
+function renderStreamingLoadMoreButton() {
+  if (currentStreamingPage >= streamingTotalPages) {
+    if (streamingItems.length > 0) {
+      return `<p class="streaming-end-note">✓ ${t("all_titles_loaded")}</p>`;
+    }
+    return "";
+  }
+  return `
+    <button type="button" class="btn btn-primary streaming-load-more-btn" data-load-more-streaming>
+      <span class="load-more-spinner" aria-hidden="true"></span>
+      <span class="load-more-text">${t("load_more_titles")}</span>
+      <span class="load-more-count">(${streamingItems.length} / ${streamingTotalResults ? streamingTotalResults.toLocaleString() : "…"})</span>
+    </button>
+  `;
 }
 
 function renderStreamingView() {
@@ -977,6 +1192,14 @@ function renderStreamingView() {
   });
 
   const sorted = sortMovieList(filtered, currentStreamingSort);
+
+  const quickCodes = ["US", "GB", "CA", "DE", "FR", "JP", "KR", "TR"];
+  if (!quickCodes.includes(currentStreamingCountry)) {
+    quickCodes.push(currentStreamingCountry);
+  }
+  const quickCountries = quickCodes
+    .map((code) => STREAMING_COUNTRIES.find((c) => c.code === code))
+    .filter(Boolean);
 
   app.innerHTML = `
     <div class="page-heading streaming-heading">
@@ -1048,6 +1271,33 @@ function renderStreamingView() {
         </div>
       </div>
 
+      <!-- Country / Regional Catalog Selector -->
+      <div class="streaming-country-bar" role="region" aria-label="${t("country_label")}">
+        <div class="streaming-country-select-wrap">
+          <label for="streaming-country-select" class="streaming-country-label">
+            <span class="country-globe-icon" aria-hidden="true">🌍</span>
+            <span>${t("country_label")}:</span>
+          </label>
+          <select id="streaming-country-select" class="streaming-country-select" data-streaming-country aria-label="${t("country_label")}">
+            ${STREAMING_COUNTRIES.map((c) => {
+              const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
+              return `<option value="${c.code}" ${c.code === currentStreamingCountry ? "selected" : ""}>
+                ${c.flag} ${translatedName} (${c.code})
+              </option>`;
+            }).join("")}
+          </select>
+        </div>
+
+        <div class="streaming-country-pills" role="tablist" aria-label="${t("country_label")}">
+          ${quickCountries.map((c) => `
+            <button type="button" class="streaming-country-pill ${c.code === currentStreamingCountry ? "is-active" : ""}" data-set-country="${c.code}" aria-selected="${c.code === currentStreamingCountry}">
+              <span>${c.flag}</span>
+              <span>${c.code}</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+
       <!-- Filter Tabs & Sort Toolbar -->
       <div class="streaming-toolbar">
         <div class="streaming-tabs" role="tablist">
@@ -1058,7 +1308,7 @@ function renderStreamingView() {
         </div>
 
         <div class="streaming-right-tools">
-          <span class="streaming-count-label">${t("stream_count").replace(/\{count\}/g, String(sorted.length))}</span>
+          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry)}</span>
           <label class="list-sort">
             <span>${t("sort_label")}:</span>
             <select data-streaming-sort aria-label="${t("sort_label")}">
@@ -1075,6 +1325,11 @@ function renderStreamingView() {
     <!-- Movie & TV Grid -->
     <div class="movie-grid" id="streaming-movie-grid">
       ${sorted.map((item) => streamingCard(item)).join("")}
+    </div>
+
+    <!-- Pagination / Load More -->
+    <div class="streaming-load-more-wrap" id="streaming-load-more-container">
+      ${renderStreamingLoadMoreButton()}
     </div>
   `;
 }
