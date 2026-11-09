@@ -725,13 +725,27 @@ function homeShelves(data) {
     rating_source: "imdb",
   }));
 
-  return [
+  const shelves = [
     shelf(
       t("shelf_trending_title"),
       t("shelf_trending_sub"),
       takeUnique(data.trending),
       "#trending",
     ),
+  ];
+
+  if (Array.isArray(data.editors_choice) && data.editors_choice.length) {
+    shelves.push(
+      shelf(
+        `★ ${t("shelf_editors_choice_title")}`,
+        t("shelf_editors_choice_sub"),
+        takeUnique(data.editors_choice),
+        "#editors-choice",
+      ),
+    );
+  }
+
+  shelves.push(
     shelf(
       `${LETTERBOXD_LOGO_SVG} ${t("shelf_letterboxd_title")}`,
       t("shelf_letterboxd_sub"),
@@ -750,7 +764,9 @@ function homeShelves(data) {
       takeUnique(data.upcoming),
       "#upcoming",
     ),
-  ].join("");
+  );
+
+  return shelves.join("");
 }
 
 async function home() {
@@ -886,6 +902,23 @@ async function upcomingPage() {
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
+}
+
+async function editorsChoicePage() {
+  const movies =
+    typeof getEditorsChoiceMovies === "function"
+      ? getEditorsChoiceMovies()
+      : [];
+  const subText = t("page_editors_choice_sub").replace(
+    /\{count\}/g,
+    String(movies.length),
+  );
+  renderMovieListPage({
+    eyebrow: t("editors_choice_tag"),
+    title: `★ ${t("page_editors_choice_title")}`,
+    subText,
+    movies,
+  });
 }
 
 async function fountainPage() {
@@ -1261,10 +1294,10 @@ async function movie(id) {
     const edChoice =
       typeof isEditorsChoice === "function" && isEditorsChoice(m.id);
     const edMarkup = edChoice
-      ? `<aside class="detail-editors-choice" aria-label="${t("editors_choice")}">
+      ? `<a href="#editors-choice" class="detail-editors-choice" aria-label="${t("editors_choice")}" title="${t("editors_choice")}">
           <span class="editors-choice-icon" aria-hidden="true">★</span>
           <span class="editors-choice-title">${t("editors_choice")}</span>
-        </aside>`
+        </a>`
       : "";
 
     app.innerHTML = `<article class="detail">
@@ -1435,6 +1468,7 @@ async function route() {
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
   if (kind === "trending") return trendingPage();
+  if (kind === "editors" || kind === "editors-choice") return editorsChoicePage();
   if (kind === "letterboxd") return letterboxdPage();
   if (kind === "imdb" || kind === "imdb250") return imdbPage();
   if (kind === "upcoming") return upcomingPage();

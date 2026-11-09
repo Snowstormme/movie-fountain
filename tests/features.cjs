@@ -377,6 +377,8 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("isEditorsChoice(9999999)"), false);
   assert.equal(run("getEditorsChoiceData(3782)?.title"), "Ikiru");
   assert.equal(run("getEditorsChoiceData(976893)?.title"), "Perfect Days");
+  assert.equal(run("getEditorsChoiceMovies().length"), 5);
+  assert.equal(run("t('page_editors_choice_title')"), "Editor's Choice");
   assert.equal(run("pluralFilms(1)"), "1 film");
   assert.equal(run("pluralFilms(5)"), "5 films");
   assert.equal(run("getCinephileRank(0)"), "Film Enthusiast");

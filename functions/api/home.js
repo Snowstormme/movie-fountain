@@ -1,6 +1,7 @@
 import { tmdb, safeError, extractLang } from "../_lib/tmdb.js";
 import { LETTERBOXD_TOP_500 } from "../_lib/letterboxd500.js";
 import { IMDB_TOP_250 } from "../_lib/imdb250.js";
+import { EDITORS_CHOICE_MOVIES } from "../_lib/editors_choice.js";
 
 function sampleLetterboxdTop(count = 100) {
   const pool = [...LETTERBOXD_TOP_500];
@@ -57,6 +58,7 @@ export async function onRequestGet({ request, env }) {
     );
     lists.letterboxd_top = sampleLetterboxdTop(100);
     lists.imdb_top = sampleImdbTop(100);
+    lists.editors_choice = EDITORS_CHOICE_MOVIES;
 
     return Response.json(lists, {
       headers: {
