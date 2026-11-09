@@ -84,10 +84,14 @@ The core experience of Movie Fountain is an uninterrupted, horizontally moving s
 
 ### 2. Where to Watch (Streaming Providers Hub)
 
-Never wonder where a film is available. Integrated directly with **JustWatch** via TMDB's streaming endpoints, every film detail page reveals real-time regional streaming availability.
+Never wonder where a film is available. Integrated directly with **JustWatch** via TMDB's streaming endpoints, entering any film detail page reveals real-time regional streaming availability alongside trailer controls and ratings.
 
 <p align="center">
-  <img src="docs/screenshots/movie-detail.png" alt="Where to Watch Streaming Providers and Movie Details" width="95%">
+  <img src="docs/screenshots/movie-detail.png" alt="Entering Movie Detail Page with Where to Watch & Multi-Source Ratings" width="95%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/where-to-watch.png" alt="Where to Watch Regional Streaming Providers Hub" width="95%">
 </p>
 
 - **Tiered Categories**: Clear separation between **Stream** (subscription-based like Netflix, Apple TV+, Amazon Prime), **Free** (ad-supported platforms like Pluto TV), and **Rent / Buy** (Apple Store, Google Play, Amazon Video).
