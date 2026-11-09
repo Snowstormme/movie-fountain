@@ -602,3 +602,72 @@ test("safeNumericId and route handlers prevent client-side XSS from URL hash and
   assert.doesNotMatch(stub.innerHTML, /onclick/);
   assert.match(stub.innerHTML, /message error/);
 });
+
+test("watch providers extraction and rendering format streaming services and country switchers cleanly", async () => {
+  const { run } = setup();
+  const movieDetailsModule = await import(
+    path.join(ROOT_DIR, "functions/api/movie/[id].js")
+  );
+  const { extractWatchProviders } = movieDetailsModule;
+
+  // Extracts and sanitizes TMDB watch providers
+  const sampleProviders = {
+    results: {
+      US: {
+        link: "https://www.themoviedb.org/movie/550/watch?locale=US",
+        flatrate: [
+          {
+            provider_id: 8,
+            provider_name: "Netflix",
+            logo_path: "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg",
+          },
+        ],
+        rent: [
+          {
+            provider_id: 2,
+            provider_name: "Apple TV",
+            logo_path: "/2E03q95U877fQoI9mY4i.jpg",
+          },
+        ],
+      },
+      RU: {
+        link: "https://www.themoviedb.org/movie/550/watch?locale=RU",
+        flatrate: [
+          {
+            provider_id: 115,
+            provider_name: "Kinopoisk",
+            logo_path: "/kinopoisk.jpg",
+          },
+          {
+            provider_id: 113,
+            provider_name: "Ivi",
+            logo_path: "/ivi.jpg",
+          },
+        ],
+      },
+    },
+  };
+
+  const extracted = extractWatchProviders(sampleProviders);
+  assert.equal(Boolean(extracted.US), true);
+  assert.equal(extracted.US.flatrate[0].name, "Netflix");
+  assert.equal(extracted.RU.flatrate[0].name, "Kinopoisk");
+  assert.equal(extractWatchProviders(null), null);
+  assert.equal(extractWatchProviders({}), null);
+
+  // Renders watch provider section with country pills and service logos
+  const htmlUS = run(
+    `renderWatchProviders(${JSON.stringify(extracted)}, "US")`,
+  );
+  assert.match(htmlUS, /detail-watch-section/);
+  assert.match(htmlUS, /Netflix/);
+  assert.match(htmlUS, /data-watch-country="US"/);
+  assert.match(htmlUS, /JustWatch/);
+
+  const htmlRU = run(
+    `renderWatchProviders(${JSON.stringify(extracted)}, "RU")`,
+  );
+  assert.match(htmlRU, /Kinopoisk/);
+  assert.match(htmlRU, /Ivi/);
+  assert.match(htmlRU, /data-watch-country="RU"/);
+});

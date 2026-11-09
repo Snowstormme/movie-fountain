@@ -264,3 +264,38 @@ html[data-theme="liquid"] .topbar-avatar{border-color:rgba(255,255,255,0.35);box
 .trailer-player-actions button{min-height:30px;padding:4px 12px;border:1px solid #2e2e35;border-radius:8px;background:#18181c;color:#dcd8d0;font-size:12px}
 .trailer-frame-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000}
 .trailer-frame-wrap iframe{width:100%;height:100%;border:0;display:block}
+
+/* Where to Watch (Streaming Providers via JustWatch) */
+.detail-watch-section{margin-top:24px;padding:20px 24px;border:1px solid #242429;border-radius:14px;background:#101115;box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+html[data-theme="liquid"] .detail-watch-section{border-color:rgba(255,255,255,0.14);background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(0,0,0,0.35));box-shadow:inset 0 1px rgba(255,255,255,0.18),0 12px 28px rgba(0,0,0,0.45);backdrop-filter:blur(20px)}
+.watch-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.watch-title-col{display:flex;align-items:center;gap:10px}
+.watch-icon{font-size:20px;line-height:1}
+.watch-title{margin:0;font-size:16px;font-weight:800;letter-spacing:.02em;color:#f2efe9}
+.watch-country-pills{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);padding:3px;border-radius:999px;border:1px solid rgba(255,255,255,0.1)}
+.watch-country-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;background:transparent;color:#9e9b95;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s ease}
+.watch-country-pill:hover{color:#f2efe9;background:rgba(255,255,255,0.08)}
+.watch-country-pill.is-active{background:#ff5a1f;color:#0a0a0c;box-shadow:0 2px 8px rgba(255,90,31,0.35)}
+html[data-theme="liquid"] .watch-country-pill.is-active{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;box-shadow:0 2px 10px rgba(56,189,248,0.4)}
+.watch-body{display:flex;flex-direction:column;gap:14px}
+.watch-provider-group{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.watch-group-label{font-size:12px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:#ff5a1f;min-width:90px}
+html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
+.watch-provider-list{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.watch-provider-item{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);transition:transform .18s ease,border-color .18s ease}
+.watch-provider-item:hover{transform:translateY(-2px);border-color:rgba(255,90,31,0.45);background:rgba(255,255,255,0.08)}
+.watch-provider-logo{width:32px;height:32px;border-radius:6px;object-fit:cover;flex:none}
+.watch-provider-name{font-size:13px;font-weight:600;color:#f2efe9}
+.watch-empty-note{margin:0;color:#9e9b95;font-size:13px;font-style:italic}
+.watch-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:#7e828d}
+.watch-attribution{color:#6e727c}
+.watch-justwatch-link{color:#9e9b95;text-decoration:none;font-weight:600;transition:color .18s ease}
+.watch-justwatch-link:hover{color:#ff5a1f;text-decoration:underline}
+html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
+@media(max-width:650px){
+  .detail-watch-section{padding:16px 18px;margin-top:20px}
+  .watch-group-label{min-width:100%;margin-bottom:-4px}
+  .watch-provider-item{padding:4px 8px 4px 5px}
+  .watch-provider-logo{width:28px;height:28px}
+  .watch-provider-name{font-size:12px}
+}

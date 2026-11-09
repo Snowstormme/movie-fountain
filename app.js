@@ -1273,6 +1273,158 @@ function renderTrailerEmbed(key, name = "Official Trailer") {
   </section>`;
 }
 
+function countryFlag(code) {
+  if (typeof code !== "string" || code.length !== 2) return "";
+  const base = 127397;
+  return String.fromCodePoint(
+    ...code.toUpperCase().split("").map((c) => base + c.charCodeAt(0)),
+  );
+}
+
+function detectUserCountry() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (
+      tz.includes("Moscow") ||
+      tz.includes("Yekaterinburg") ||
+      tz.includes("Samara") ||
+      tz.includes("Novosibirsk") ||
+      tz.includes("Vladivostok")
+    )
+      return "RU";
+    if (tz.includes("America/") || tz.includes("US/")) return "US";
+    if (tz.includes("London")) return "GB";
+    if (tz.includes("Berlin")) return "DE";
+    if (tz.includes("Paris")) return "FR";
+    if (
+      tz.includes("Toronto") ||
+      tz.includes("Vancouver") ||
+      tz.includes("Montreal")
+    )
+      return "CA";
+  } catch {}
+  return savedLang === "ru" ? "RU" : "US";
+}
+
+function renderWatchProviders(providers, selectedCountry = null) {
+  if (!providers || typeof providers !== "object") return "";
+
+  const availableCodes = Object.keys(providers);
+  if (!availableCodes.length) return "";
+
+  const detected = detectUserCountry();
+  const country =
+    selectedCountry && providers[selectedCountry]
+      ? selectedCountry
+      : providers[detected]
+        ? detected
+        : providers.RU && savedLang === "ru"
+          ? "RU"
+          : providers.US
+            ? "US"
+            : availableCodes[0];
+
+  const data = providers[country];
+  if (!data) return "";
+
+  const flatrate = data.flatrate || [];
+  const free = data.free || [];
+  const rent = data.rent || [];
+  const buy = data.buy || [];
+
+  const renderList = (items) =>
+    items
+      .map(
+        (p) =>
+          `<div class="watch-provider-item" title="${esc(p.name)}">
+            <img class="watch-provider-logo" src="https://image.tmdb.org/t/p/w92${esc(p.logo_path)}" alt="${esc(p.name)}" loading="lazy">
+            <span class="watch-provider-name">${esc(p.name)}</span>
+          </div>`,
+      )
+      .join("");
+
+  let groupsHtml = "";
+  if (flatrate.length) {
+    groupsHtml += `<div class="watch-provider-group">
+      <span class="watch-group-label">${t("provider_stream")}</span>
+      <div class="watch-provider-list">${renderList(flatrate)}</div>
+    </div>`;
+  }
+  if (free.length) {
+    groupsHtml += `<div class="watch-provider-group">
+      <span class="watch-group-label">${t("provider_free")}</span>
+      <div class="watch-provider-list">${renderList(free)}</div>
+    </div>`;
+  }
+  if (!flatrate.length && (rent.length || buy.length)) {
+    const combined = [...rent];
+    buy.forEach((b) => {
+      if (!combined.some((item) => item.id === b.id)) combined.push(b);
+    });
+    groupsHtml += `<div class="watch-provider-group">
+      <span class="watch-group-label">${t("provider_rent_buy")}</span>
+      <div class="watch-provider-list">${renderList(combined.slice(0, 6))}</div>
+    </div>`;
+  }
+
+  const preferred = ["RU", "US", "GB", "DE", "FR", "CA"];
+  const pills = [
+    ...preferred.filter((code) => providers[code]),
+    ...availableCodes.filter((code) => !preferred.includes(code)),
+  ].slice(0, 5);
+
+  const countryPills =
+    pills.length > 1
+      ? `<div class="watch-country-pills" role="tablist" aria-label="${t("where_to_watch")}">
+          ${pills
+            .map(
+              (c) =>
+                `<button type="button" class="watch-country-pill ${c === country ? "is-active" : ""}" data-watch-country="${esc(c)}" aria-label="${c}">
+                  <span>${countryFlag(c)}</span>
+                  <span>${c}</span>
+                </button>`,
+            )
+            .join("")}
+        </div>`
+      : "";
+
+  const justWatchLink = data.link
+    ? `<a class="watch-justwatch-link" href="${esc(data.link)}" target="_blank" rel="noopener noreferrer">${t("view_on_justwatch")} ↗</a>`
+    : "";
+
+  return `<section class="detail-watch-section" id="movie-watch-providers" aria-label="${t("where_to_watch")}">
+    <div class="watch-header">
+      <div class="watch-title-col">
+        <span class="watch-icon" aria-hidden="true">📺</span>
+        <h2 class="watch-title">${t("where_to_watch")}</h2>
+      </div>
+      ${countryPills}
+    </div>
+    <div class="watch-body">
+      ${groupsHtml || `<p class="watch-empty-note">${t("no_stream_in_region")}</p>`}
+    </div>
+    <div class="watch-footer">
+      <span class="watch-attribution">${t("provided_by_justwatch")}</span>
+      ${justWatchLink}
+    </div>
+  </section>`;
+}
+
+function bindWatchProviderEvents(providers) {
+  if (!providers) return;
+  document.querySelectorAll(".watch-country-pill").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const code = btn.dataset.watchCountry;
+      if (!code) return;
+      const section = document.querySelector("#movie-watch-providers");
+      if (section) {
+        section.outerHTML = renderWatchProviders(providers, code);
+        bindWatchProviderEvents(providers);
+      }
+    });
+  });
+}
+
 async function movie(rawId) {
   const validId = safeNumericId(rawId);
   if (!validId) {
@@ -1315,6 +1467,8 @@ async function movie(rawId) {
         </a>`
       : "";
 
+    const watchMarkup = renderWatchProviders(data.watch_providers);
+
     app.innerHTML = `<article class="detail">
       <div>${poster}</div>
       <div class="detail-content">
@@ -1334,11 +1488,14 @@ async function movie(rawId) {
       </div>
     </article>
     <div id="trailer-embed-slot"></div>
+    ${watchMarkup}
     <section class="shelf" id="movie-ratings" aria-label="Ratings">
       ${renderRatingsSection(m, null)}
     </section>
     ${shelf(t("recommendations_title"), t("recommendations_sub"), data.recommendations)}
     ${shelf(data.director ? `${t("more_from_prefix")} ${esc(data.director.name)}` : t("more_from_generic"), t("other_films_director"), data.director_movies)}`;
+
+    bindWatchProviderEvents(data.watch_providers);
 
     const imdbParam = m.imdb_id
       ? `?imdb_id=${encodeURIComponent(m.imdb_id)}`

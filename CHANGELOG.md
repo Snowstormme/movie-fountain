@@ -2,6 +2,10 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.7.0] - 2026-11-09
+
+- Add **Where to Watch** (Streaming Providers) powered by JustWatch and TMDB data: displays real-time streaming options (subscription, rent, buy, free) with authentic provider logos, regional country switchers (e.g., RU, US, GB, DE, FR, CA), and direct links.
+
 ## [0.6.4] - 2026-11-09
 
 - Simplify consensus score verdicts by removing generic tags and exclusively awarding a golden **Masterpiece** verdict badge for films scoring 90 and above.

@@ -130,6 +130,15 @@ const translations = {
     full_cast: "Full cast",
     not_found: "Item not found.",
 
+    // Watch Providers
+    where_to_watch: "Where to Watch",
+    provider_stream: "Stream",
+    provider_free: "Free",
+    provider_rent_buy: "Rent / Buy",
+    no_stream_in_region: "No streaming options currently listed for this region.",
+    view_on_justwatch: "JustWatch",
+    provided_by_justwatch: "Streaming data by JustWatch",
+
     // Ratings & Consensus
     ratings_heading: "Ratings & Consensus",
     ratings_sub:
@@ -344,6 +353,15 @@ const translations = {
     back_to_movie: "Назад к фильму",
     full_cast: "Актёрский состав",
     not_found: "Элемент не найден.",
+
+    // Watch Providers
+    where_to_watch: "Где смотреть",
+    provider_stream: "По подписке",
+    provider_free: "Бесплатно",
+    provider_rent_buy: "В прокате",
+    no_stream_in_region: "В этом регионе пока нет информации о стриминге.",
+    view_on_justwatch: "Все варианты на JustWatch",
+    provided_by_justwatch: "Данные о стриминге: JustWatch",
 
     // Ratings & Consensus
     ratings_heading: "Рейтинги и консенсус",

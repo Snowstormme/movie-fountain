@@ -12,6 +12,45 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
+export function extractWatchProviders(watchData) {
+  const results = watchData?.results;
+  if (!results || typeof results !== "object") return null;
+
+  const sanitizeList = (list) =>
+    (Array.isArray(list) ? list : [])
+      .filter((p) => p && typeof p.provider_name === "string" && p.logo_path)
+      .map((p) => ({
+        id: p.provider_id,
+        name: p.provider_name,
+        logo_path: p.logo_path,
+      }))
+      .slice(0, 8);
+
+  const countries = {};
+  for (const [code, data] of Object.entries(results)) {
+    if (!data || typeof data !== "object") continue;
+    const flatrate = sanitizeList(data.flatrate);
+    const rent = sanitizeList(data.rent);
+    const buy = sanitizeList(data.buy);
+    const free = sanitizeList(data.free || data.ads);
+
+    if (flatrate.length || rent.length || buy.length || free.length) {
+      countries[code] = {
+        link:
+          typeof data.link === "string" && data.link.startsWith("https://")
+            ? data.link
+            : null,
+        flatrate,
+        rent,
+        buy,
+        free,
+      };
+    }
+  }
+
+  return Object.keys(countries).length ? countries : null;
+}
+
 export function pickTrailer(videos) {
   const list = Array.isArray(videos?.results) ? videos.results : [];
   const candidates = list.filter(
@@ -44,7 +83,7 @@ export async function onRequestGet({ request, params, env }) {
     const isRu = language === "ru-RU";
     const movie = await tmdb(`/movie/${id}`, env, {
       language,
-      append_to_response: "credits,recommendations,videos",
+      append_to_response: "credits,recommendations,videos,watch/providers",
     });
 
     if (isRu && (!movie.overview || !pickTrailer(movie.videos))) {
@@ -85,6 +124,9 @@ export async function onRequestGet({ request, params, env }) {
       director_movies: directorMovies,
       cast: (movie.credits?.cast || []).slice(0, 6),
       recommendations: (movie.recommendations?.results || []).slice(0, 6),
+      watch_providers: extractWatchProviders(
+        movie["watch/providers"] || movie.watch_providers,
+      ),
     });
   } catch (error) {
     return safeError(error);
