@@ -4,7 +4,7 @@
 
 [Open the live site](https://movie-fountain.pages.dev/) · [Give feedback](https://github.com/Snowstormme/movie-fountain/issues/new/choose) · [Privacy](https://movie-fountain.pages.dev/privacy.html) · [Contribute](CONTRIBUTING.md)
 
-![Version](https://img.shields.io/badge/version-0.6.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
+![Version](https://img.shields.io/badge/version-0.7.0-ff5a1f) ![Platform](https://img.shields.io/badge/Cloudflare-Pages-f38020) ![Storage](https://img.shields.io/badge/lists-local_only-a7d6d2) ![License](https://img.shields.io/badge/license-Apache_2.0-d6ae61)
 
 ## A movie night, without the endless scrolling
 
@@ -12,11 +12,12 @@ Watch posters flow through the Fountain, narrow the selection by genre or mood, 
 
 | Explore                                                                               | Make it yours                                                              |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Animated Fountain with speed and pause controls                                       | Cinephile Passport account area with ranks, stats & progress               |
-| Dedicated charts: Trending (Top 100), Upcoming (60), IMDb Top 250 & Letterboxd Top 500 | Multi-source ratings with official IMDb & Letterboxd logos + Fountain Score |
+| Animated Fountain with speed and pause controls                                       | Where to Watch streaming providers (JustWatch) with regional flag switchers |
+| Curated Editor's Choice collection (34 films) with dedicated shelf & chart             | Cinephile Passport account area with ranks, stats & progress               |
+| Dedicated charts: Trending (Top 100), Upcoming (60), IMDb Top 250 & Letterboxd Top 500 | Multi-source ratings with official vector logos & Masterpiece consensus badge |
 | Multi-criteria in-list sorting (by rating, release date, and title) on all charts     | Customizable profile picture avatar with client-side Canvas compression    |
 | Search movies, directors, and actors with full filmographies                          | Watch official YouTube trailers in an inline privacy-first modal           |
-| Curated IMDb Top 250 and Letterboxd Top 500 shelves and Fountain filter modes         | Dual appearance: Classic Flame Orange and Liquid Glass Midnight Sapphire   |
+| Curated IMDb Top 250, Letterboxd Top 500 & Editor's Choice shelves                    | Dual appearance: Classic Flame Orange and Liquid Glass Midnight Sapphire   |
 
 ### How to use it
 
