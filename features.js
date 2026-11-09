@@ -786,6 +786,53 @@ function getEditorsChoiceData(movieId) {
   return editorsPicks[Number(movieId)] || null;
 }
 
+const KNOWN_LETTERBOXD_SCORES = {
+  3782: 4.51,
+  976893: 4.32,
+  235: 4.2,
+  30020: 4.32,
+  334541: 4.13,
+  14537: 4.69,
+  389: 4.63,
+  598: 4.57,
+  12493: 4.61,
+  240: 4.59,
+  25237: 4.62,
+  346: 4.6,
+  122: 4.56,
+  278: 4.53,
+  238: 4.57,
+  155: 4.48,
+  680: 4.46,
+  550: 4.27,
+  129: 4.52,
+  496243: 4.56,
+  157336: 4.41,
+  27205: 4.25,
+  769: 4.47,
+  424: 4.51,
+  603: 4.41,
+  807: 4.35,
+  274: 4.34,
+  637: 4.38,
+  857: 4.28,
+  497: 4.39,
+  289: 4.36,
+  244786: 4.4,
+  1124: 4.24,
+  98: 4.18,
+  1422: 4.31,
+  348: 4.35,
+  539: 4.4,
+  11216: 4.48,
+  68718: 4.22,
+  872585: 4.23,
+  693134: 4.43,
+  1398: 4.43,
+  843: 4.41,
+  18148: 4.43,
+};
+
 function renderRatingBadge(movie) {
   if (!movie) return "";
 
@@ -796,7 +843,10 @@ function renderRatingBadge(movie) {
   }
 
   if (movie.rating_source === "letterboxd") {
-    const val = (Number(movie.vote_average || 0) / 2).toFixed(1);
+    const knownLb = KNOWN_LETTERBOXD_SCORES[movie.id];
+    const val = knownLb
+      ? Number(knownLb).toFixed(1)
+      : (Number(movie.vote_average || 0) / 2).toFixed(1);
     if (!Number(val)) return "";
     return `<strong class="rating-badge rating-badge--letterboxd" title="Letterboxd: ${val}/5">${LETTERBOXD_LOGO_SVG} ${val}</strong>`;
   }

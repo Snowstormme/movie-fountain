@@ -1061,32 +1061,39 @@ function renderRatingsSection(m, ratings = null) {
 
   const tmdbScore = m.vote_count
     ? `<strong class="score-value">${Number(m.vote_average || 0).toFixed(1)}<small>/10</small></strong>`
-    : '<span class="score-unavailable">No rating yet</span>';
-  const tmdbVotes = `${Number(m.vote_count || 0).toLocaleString("en-US")} votes`;
+    : `<span class="score-unavailable">${t("no_rating_yet")}</span>`;
+  const tmdbVotes = `${Number(m.vote_count || 0).toLocaleString("en-US")} ${t("votes")}`;
 
-  let imdbScore = '<span class="score-unavailable">No rating yet</span>';
+  let imdbScore = `<span class="score-unavailable">${t("no_rating_yet")}</span>`;
   if (typeof r.imdb === "number") {
     imdbScore = `<strong class="score-value">${r.imdb.toFixed(1)}<small>/10</small></strong>`;
   } else if (r.imdb_rating) {
     imdbScore = `<strong class="score-value">${esc(r.imdb_rating)}</strong>`;
   } else if (loading) {
-    imdbScore = '<span class="score-unavailable">Loading…</span>';
+    imdbScore = `<span class="score-unavailable">${t("loading_short")}</span>`;
+  } else if (m.rating_source === "imdb" && m.vote_average) {
+    imdbScore = `<strong class="score-value">${Number(m.vote_average).toFixed(1)}<small>/10</small></strong>`;
   }
 
-  let letterboxdScore = '<span class="score-unavailable">No rating yet</span>';
+  let letterboxdScore = `<span class="score-unavailable">${t("no_rating_yet")}</span>`;
   if (typeof r.letterboxd === "number") {
     letterboxdScore = `<strong class="score-value">${r.letterboxd.toFixed(2)}<small>/5</small></strong>`;
   } else if (loading) {
-    letterboxdScore = '<span class="score-unavailable">Loading…</span>';
+    letterboxdScore = `<span class="score-unavailable">${t("loading_short")}</span>`;
+  } else if (
+    typeof KNOWN_LETTERBOXD_SCORES !== "undefined" &&
+    KNOWN_LETTERBOXD_SCORES[m.id]
+  ) {
+    letterboxdScore = `<strong class="score-value">${Number(KNOWN_LETTERBOXD_SCORES[m.id]).toFixed(2)}<small>/5</small></strong>`;
   }
 
-  let rottenScore = '<span class="score-unavailable">No rating yet</span>';
+  let rottenScore = `<span class="score-unavailable">${t("no_rating_yet")}</span>`;
   if (typeof r.rotten === "number") {
     rottenScore = `<strong class="score-value">${Math.round(r.rotten)}<small>%</small></strong>`;
   } else if (r.rotten_rating) {
     rottenScore = `<strong class="score-value">${esc(r.rotten_rating)}</strong>`;
   } else if (loading) {
-    rottenScore = '<span class="score-unavailable">Loading…</span>';
+    rottenScore = `<span class="score-unavailable">${t("loading_short")}</span>`;
   }
 
   const rottenAudience =

@@ -1,4 +1,6 @@
 import { numericId, safeError } from "../../../_lib/tmdb.js";
+import { IMDB_TOP_250 } from "../../../_lib/imdb250.js";
+import { RATINGS_SNAPSHOT } from "../../../_lib/ratings_snapshot.js";
 
 const RATINGS_API_URL = "https://whatson-api.onrender.com";
 const OMDB_API_URL = "https://www.omdbapi.com/";
@@ -156,10 +158,29 @@ export async function onRequestGet({ request, params, env }) {
       ? queryImdbId
       : "";
 
-    const ratings = { ...(await fetchWhatson(id)) };
+    // 1. Fetch live ratings from What's on? API
+    let ratings = { ...(await fetchWhatson(id)) };
+
+    // 2. Snapshot fallback for popular/curated films when external API is down or rate-limited
+    const snapshot = RATINGS_SNAPSHOT[id];
+    if (snapshot) {
+      ratings = { ...snapshot, ...ratings };
+    }
+
+    // 3. Fallback to IMDb Top 250 curated rating if IMDb score is missing
+    if (ratings.imdb === undefined) {
+      const imdbEntry = IMDB_TOP_250.find((m) => Number(m.id) === Number(id));
+      if (imdbEntry && typeof imdbEntry.vote_average === "number") {
+        ratings.imdb = imdbEntry.vote_average;
+      }
+    }
+
     const imdbId = ratings.imdb_id || validQueryImdbId;
     if (!ratings.imdb_url && imdbId) {
       ratings.imdb_url = `https://www.imdb.com/title/${imdbId}/`;
+    }
+    if (!ratings.letterboxd_url) {
+      ratings.letterboxd_url = `https://letterboxd.com/tmdb/${id}/`;
     }
 
     if (
@@ -188,7 +209,7 @@ export async function onRequestGet({ request, params, env }) {
         headers: {
           "Cache-Control": hasScores
             ? "public, max-age=3600, s-maxage=3600, stale-while-revalidate=600"
-            : "public, max-age=300, s-maxage=300",
+            : "no-store, no-cache, must-revalidate",
         },
       },
     );
