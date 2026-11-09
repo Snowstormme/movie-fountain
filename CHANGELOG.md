@@ -2,6 +2,10 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.6.3] - 2026-11-09
+
+- Remove redundant YouTube external link from movie detail action buttons, streamlining movie actions to the primary inline trailer button and localized full cast link.
+
 ## [0.6.2] - 2026-11-09
 
 - Expand **Editor's Choice** collection to 34 cinema masterpieces, adding *Eyes Wide Shut*, *Life, and Nothing More...*, *Blade Runner 2049*, *Where Is The Friend's House?*, *Good Will Hunting*, *Once Upon a Time in America*, *A Bronx Tale*, *Through the Olive Trees*, *The Green Mile*, *Primal Fear*, *GoodFellas*, *Oppenheimer*, *Interstellar*, *The Dark Knight*, *The Wind Will Carry Us*, *Donnie Darko*, *Requiem for a Dream*, *Scent of a Woman*, *Home Alone 2: Lost in New York*, and *Papillon*.

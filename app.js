@@ -1240,8 +1240,7 @@ function renderTrailerControls(m, trailer) {
     const label = trailer?.name || t("official_trailer");
     return `<div class="detail-links">
       <button type="button" class="trailer-button" data-trailer-key="${esc(key)}" data-trailer-name="${esc(label)}" aria-expanded="false">${t("watch_trailer")}</button>
-      <a class="text-link" href="https://www.youtube.com/watch?v=${esc(key)}" target="_blank" rel="noopener noreferrer">YouTube</a>
-      <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
+      <a class="text-link" href="#cast/${Number(m.id)}">${t("full_cast")}</a>
     </div>`;
   }
   const query = encodeURIComponent(
@@ -1249,7 +1248,7 @@ function renderTrailerControls(m, trailer) {
   );
   return `<div class="detail-links">
     <a class="trailer-button" href="https://www.youtube.com/results?search_query=${query}" target="_blank" rel="noopener noreferrer">${t("watch_trailer")}</a>
-    <a class="text-link" href="#cast/${Number(m.id)}">View full cast</a>
+    <a class="text-link" href="#cast/${Number(m.id)}">${t("full_cast")}</a>
   </div>`;
 }
 

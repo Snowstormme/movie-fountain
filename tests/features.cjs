@@ -336,10 +336,8 @@ test("trailer selection and embed rendering validate YouTube keys and fallback c
     `renderTrailerControls({id: 550, title: 'Fight Club', release_date: '1999-10-15'}, {key: 'qtRKdVHc-cE', name: 'Official Trailer'})`,
   );
   assert.match(controlsHtml, /data-trailer-key="qtRKdVHc-cE"/);
-  assert.match(
-    controlsHtml,
-    /https:\/\/www\.youtube\.com\/watch\?v=qtRKdVHc-cE/,
-  );
+  assert.match(controlsHtml, /href="#cast\/550"/);
+  assert.doesNotMatch(controlsHtml, />YouTube<\/a>/);
 
   const fallbackHtml = run(
     `renderTrailerControls({id: 550, title: 'Fight Club', release_date: '1999-10-15'}, null)`,
