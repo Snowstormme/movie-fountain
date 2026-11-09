@@ -103,11 +103,7 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
 
 <p align="center">
-  <img src="docs/screenshots/streaming-hub.png" alt="Dedicated Streaming Catalog Hub with Netflix Originals and TV Series" width="95%">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/streaming-apple-tv.png" alt="Apple TV+ Streaming Catalog with Titanium Glow and Custom Badges" width="95%">
+  <img src="docs/screenshots/streaming-apple-tv.png" alt="Apple TV+ & Netflix Streaming Catalog with Titanium Glow and Custom Badges" width="95%">
 </p>
 
 - **Dual Flagship Streaming Hub**: Switch with a single click between **Netflix** (*Roma*, *The Irishman*, *Stranger Things*, *Dark*, *Squid Game*, *Arcane*) and **Apple TV+** (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*), complete with platform-customized glow palettes (crimson neon vs. titanium silver) and official vector brand logos.
