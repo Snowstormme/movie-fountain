@@ -2,6 +2,11 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.6.1] - 2026-11-09
+
+- Expand **Editor's Choice** collection to 14 films, adding *The Irishman*, *The Shawshank Redemption*, *Close-Up*, *10 Things I Hate About You*, *Batman Begins*, *2001: A Space Odyssey*, *Arrival*, *The Godfather*, and *The Prestige* with full metadata, verified external ratings snapshot, and interactive badges.
+- Resolve GitHub CodeQL security alert for Client-side XSS (`js/xss`) with strict numeric identifier validation and route error handling.
+
 ## [0.6.0] - 2026-11-08
 
 - Add curated **IMDb Top 250** dataset (`functions/_lib/imdb250.js`) with a dedicated full-page chart (`#imdb`), homepage shelf, and streaming Fountain filter mode (`?source=imdb`).

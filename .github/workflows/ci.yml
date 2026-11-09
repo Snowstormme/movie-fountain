@@ -27,8 +27,10 @@ jobs:
           node --check features.js
           node --check functions/_lib/tmdb.js
           node --check functions/_lib/letterboxd500.js
+          node --check functions/_lib/editors_choice.js
           node --check functions/api/discover.js
           node --check functions/api/home.js
+          node --check functions/api/editors.js
           node --check functions/api/letterboxd.js
           node --check functions/api/search.js
           node --check "functions/api/movie/[id].js"
