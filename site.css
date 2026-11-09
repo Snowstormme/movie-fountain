@@ -511,12 +511,6 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
   margin-top: 14px;
 }
 
-.streaming-country-select-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .streaming-country-label {
   display: inline-flex;
   align-items: center;
@@ -529,24 +523,6 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
 
 .country-globe-icon {
   font-size: 15px;
-}
-
-.streaming-country-select {
-  background: #1b1b22;
-  border: 1px solid #33333d;
-  color: #f2efe9;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  transition: border-color .15s ease;
-}
-
-.streaming-country-select:hover,
-.streaming-country-select:focus {
-  border-color: #e50914;
 }
 
 .streaming-country-pills {
@@ -755,8 +731,5 @@ html[data-theme="liquid"] .streaming-end-note {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-  }
-  .streaming-country-select-wrap {
-    justify-content: space-between;
   }
 }

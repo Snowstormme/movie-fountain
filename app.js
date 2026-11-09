@@ -1193,14 +1193,6 @@ function renderStreamingView() {
 
   const sorted = sortMovieList(filtered, currentStreamingSort);
 
-  const quickCodes = ["US", "GB", "CA", "DE", "FR", "JP", "KR", "TR"];
-  if (!quickCodes.includes(currentStreamingCountry)) {
-    quickCodes.push(currentStreamingCountry);
-  }
-  const quickCountries = quickCodes
-    .map((code) => STREAMING_COUNTRIES.find((c) => c.code === code))
-    .filter(Boolean);
-
   app.innerHTML = `
     <div class="page-heading streaming-heading">
       <p class="eyebrow">🌐 ${t("streaming_tag")}</p>
@@ -1273,28 +1265,19 @@ function renderStreamingView() {
 
       <!-- Country / Regional Catalog Selector -->
       <div class="streaming-country-bar" role="region" aria-label="${t("country_label")}">
-        <div class="streaming-country-select-wrap">
-          <label for="streaming-country-select" class="streaming-country-label">
-            <span class="country-globe-icon" aria-hidden="true">🌍</span>
-            <span>${t("country_label")}:</span>
-          </label>
-          <select id="streaming-country-select" class="streaming-country-select" data-streaming-country aria-label="${t("country_label")}">
-            ${STREAMING_COUNTRIES.map((c) => {
-              const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
-              return `<option value="${c.code}" ${c.code === currentStreamingCountry ? "selected" : ""}>
-                ${c.flag} ${translatedName} (${c.code})
-              </option>`;
-            }).join("")}
-          </select>
-        </div>
+        <span class="streaming-country-label">
+          <span class="country-globe-icon" aria-hidden="true">🌍</span>
+          <span>${t("country_label")}:</span>
+        </span>
 
         <div class="streaming-country-pills" role="tablist" aria-label="${t("country_label")}">
-          ${quickCountries.map((c) => `
-            <button type="button" class="streaming-country-pill ${c.code === currentStreamingCountry ? "is-active" : ""}" data-set-country="${c.code}" aria-selected="${c.code === currentStreamingCountry}">
+          ${STREAMING_COUNTRIES.map((c) => {
+            const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
+            return `<button type="button" class="streaming-country-pill ${c.code === currentStreamingCountry ? "is-active" : ""}" data-set-country="${c.code}" aria-selected="${c.code === currentStreamingCountry}" title="${esc(translatedName)}">
               <span>${c.flag}</span>
               <span>${c.code}</span>
-            </button>
-          `).join("")}
+            </button>`;
+          }).join("")}
         </div>
       </div>
 
