@@ -528,3 +528,36 @@ test("sortMovieList and list page rendering sort by rating, release date, and ti
   assert.match(lbBadge, /4\.3/);
   assert.match(lbBadge, /Letterboxd: 4\.3\/5/);
 });
+
+test("safeNumericId and route handlers prevent client-side XSS from URL hash and unescaped inputs", async () => {
+  const { run, stub } = setup();
+
+  // Valid numbers
+  assert.equal(run("safeNumericId(550)"), 550);
+  assert.equal(run("safeNumericId('550')"), 550);
+  assert.equal(run("safeNumericId(' 12345 ')"), 12345);
+
+  // Rejects XSS injection and invalid formats
+  assert.equal(run("safeNumericId('550\" onerror=\"alert(1)\"')"), null);
+  assert.equal(run("safeNumericId('<script>alert(1)</script>')"), null);
+  assert.equal(run("safeNumericId('javascript:alert(1)')"), null);
+  assert.equal(run("safeNumericId(-10)"), null);
+  assert.equal(run("safeNumericId('abc')"), null);
+  assert.equal(run("safeNumericId(null)"), null);
+  assert.equal(run("safeNumericId(undefined)"), null);
+
+  // cast handler with malicious ID safely rejects without injecting XSS into DOM
+  await run("cast('123\" onmouseover=\"alert(1)\"')");
+  assert.doesNotMatch(stub.innerHTML, /onmouseover/);
+  assert.match(stub.innerHTML, /message error/);
+
+  // movie handler with malicious ID safely rejects without injecting XSS into DOM
+  await run("movie('999<script>alert(1)</script>')");
+  assert.doesNotMatch(stub.innerHTML, /<script>/);
+  assert.match(stub.innerHTML, /message error/);
+
+  // person handler with malicious ID safely rejects without injecting XSS into DOM
+  await run("person('100\" onclick=\"alert(1)\"')");
+  assert.doesNotMatch(stub.innerHTML, /onclick/);
+  assert.match(stub.innerHTML, /message error/);
+});

@@ -14,6 +14,17 @@ const esc = (value) =>
   );
 const year = (date) => (date ? date.slice(0, 4) : "Year unknown");
 
+function safeNumericId(val) {
+  if (typeof val === "number" && Number.isFinite(val) && val > 0) {
+    return Math.floor(val);
+  }
+  if (typeof val === "string" && /^\d{1,10}$/.test(val.trim())) {
+    const num = Number(val.trim());
+    if (num > 0 && Number.isSafeInteger(num)) return num;
+  }
+  return null;
+}
+
 const genreIds = {
   action: 28,
   comedy: 35,
@@ -425,6 +436,7 @@ document.addEventListener(
 
 function card(movie, decorative = false, eagerPoster = false) {
   movieCache.set(String(movie.id), movie);
+  const movieId = safeNumericId(movie.id) || 0;
   const loadingAttr = eagerPoster ? "" : ' loading="lazy"';
   const poster = movie.poster_path
     ? `<img src="${image(movie.poster_path)}" alt="Poster for ${esc(movie.title)}"${loadingAttr} decoding="async">`
@@ -433,7 +445,7 @@ function card(movie, decorative = false, eagerPoster = false) {
   if (decorative === true) {
     const saved = savedMovies.some((m) => m.id === movie.id);
     return `<div class="movie-tile">
-      <a class="movie-card" href="#movie/${movie.id}" tabindex="-1">
+      <a class="movie-card" href="#movie/${movieId}" tabindex="-1">
         ${poster}
         ${renderRatingBadge(movie)}
         <div class="card-copy">
@@ -451,7 +463,7 @@ function card(movie, decorative = false, eagerPoster = false) {
 
   const isWatched = watched.has(movie.id);
   return `<div class="movie-tile">
-    <a class="movie-card" href="#movie/${movie.id}">
+    <a class="movie-card" href="#movie/${movieId}">
       ${poster}
       ${renderRatingBadge(movie)}
       ${isWatched ? `<strong class="watched-badge">${t("watched")}</strong>` : ""}
@@ -1264,7 +1276,13 @@ function renderTrailerEmbed(key, name = "Official Trailer") {
   </section>`;
 }
 
-async function movie(id) {
+async function movie(rawId) {
+  const validId = safeNumericId(rawId);
+  if (!validId) {
+    app.innerHTML = `<div class="message error">${esc(t("not_found"))}</div>`;
+    return;
+  }
+  const id = String(validId);
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const target = `#movie/${id}`;
@@ -1355,30 +1373,41 @@ async function movie(id) {
   }
 }
 
-async function cast(id) {
-  lastMovieId = String(id);
-  const data = await api(`/api/movie/${id}/cast`);
-  const castMarkup = data.cast
-    .map((person) => {
-      const photo = person.profile_path
-        ? `<img src="${image(person.profile_path)}" alt="">`
-        : '<div class="cast-photo">?</div>';
-      return `<a class="cast-card" href="#person/${person.id}">
-        ${photo}
-        <span>
-          <strong>${esc(person.name)}</strong>
-          <small>${esc(person.character || "Cast")}</small>
-        </span>
-      </a>`;
-    })
-    .join("");
+async function cast(rawId) {
+  const validId = safeNumericId(rawId);
+  if (!validId) {
+    app.innerHTML = `<div class="message error">${esc(t("not_found"))}</div>`;
+    return;
+  }
+  const id = String(validId);
+  lastMovieId = id;
+  try {
+    const data = await api(`/api/movie/${id}/cast`);
+    const castMarkup = (data.cast || [])
+      .map((person) => {
+        const photo = person.profile_path
+          ? `<img src="${image(person.profile_path)}" alt="">`
+          : '<div class="cast-photo">?</div>';
+        const pId = safeNumericId(person.id) || 0;
+        return `<a class="cast-card" href="#person/${pId}">
+          ${photo}
+          <span>
+            <strong>${esc(person.name)}</strong>
+            <small>${esc(person.character || "Cast")}</small>
+          </span>
+        </a>`;
+      })
+      .join("");
 
-  app.innerHTML = `<a class="back" href="#movie/${id}">Back to movie</a>
-  <div class="page-heading">
-    <p class="eyebrow">Full cast</p>
-    <h1>${esc(data.movie.title)}</h1>
-  </div>
-  <div class="cast-grid">${castMarkup}</div>`;
+    app.innerHTML = `<a class="back" href="#movie/${esc(id)}">${t("back_to_movie")}</a>
+    <div class="page-heading">
+      <p class="eyebrow">${t("full_cast")}</p>
+      <h1>${esc(data.movie?.title || "")}</h1>
+    </div>
+    <div class="cast-grid">${castMarkup}</div>`;
+  } catch (error) {
+    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
+  }
 }
 
 function filmographySection(title, subtitle, movies) {
@@ -1394,7 +1423,13 @@ function filmographySection(title, subtitle, movies) {
   </section>`;
 }
 
-async function person(id) {
+async function person(rawId) {
+  const validId = safeNumericId(rawId);
+  if (!validId) {
+    app.innerHTML = `<div class="message error">${esc(t("not_found"))}</div>`;
+    return;
+  }
+  const id = String(validId);
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const data = await api(`/api/person/${id}`);
@@ -1408,8 +1443,9 @@ async function person(id) {
     const photo = p.profile_path
       ? `<img class="person-photo" src="${image(p.profile_path)}" alt="Photo of ${esc(p.name)}">`
       : '<div class="person-photo no-poster">No photo</div>';
-    const backMarkup = lastMovieId
-      ? `<a class="back" href="#movie/${esc(lastMovieId)}">${t("back_to_movie")}</a>`
+    const backId = safeNumericId(lastMovieId);
+    const backMarkup = backId
+      ? `<a class="back" href="#movie/${backId}">${t("back_to_movie")}</a>`
       : "";
 
     const metaParts = [];
@@ -1464,7 +1500,9 @@ async function person(id) {
 
 async function route() {
   fountainAbort?.abort();
-  const [kind, id] = location.hash.slice(1).split("/");
+  const rawHash = location.hash.slice(1);
+  const [kind, ...rest] = rawHash.split("/");
+  const rawId = rest.join("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
   if (kind === "trending") return trendingPage();
@@ -1472,11 +1510,19 @@ async function route() {
   if (kind === "letterboxd") return letterboxdPage();
   if (kind === "imdb" || kind === "imdb250") return imdbPage();
   if (kind === "upcoming") return upcomingPage();
-  if (kind === "search") return search(decodeURIComponent(id || ""));
+  if (kind === "search") {
+    let cleanQuery = "";
+    try {
+      cleanQuery = decodeURIComponent(rawId || "");
+    } catch {
+      cleanQuery = rawId || "";
+    }
+    return search(cleanQuery);
+  }
   if (kind === "fountain") return fountainPage();
-  if (kind === "movie") return movie(id);
-  if (kind === "cast") return cast(id);
-  if (kind === "person") return person(id);
+  if (kind === "movie") return movie(rawId);
+  if (kind === "cast") return cast(rawId);
+  if (kind === "person") return person(rawId);
   return home();
 }
 

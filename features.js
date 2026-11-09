@@ -127,6 +127,8 @@ const translations = {
     more_from_generic: "More from this director",
     other_films_director: "Other films by this director",
     back_to_movie: "Back to movie",
+    full_cast: "Full cast",
+    not_found: "Item not found.",
 
     // Ratings & Consensus
     ratings_heading: "Ratings & Consensus",
@@ -339,6 +341,8 @@ const translations = {
     more_from_generic: "Другие фильмы режиссёра",
     other_films_director: "Работы того же режиссёра",
     back_to_movie: "Назад к фильму",
+    full_cast: "Актёрский состав",
+    not_found: "Элемент не найден.",
 
     // Ratings & Consensus
     ratings_heading: "Рейтинги и консенсус",
