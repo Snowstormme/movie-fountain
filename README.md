@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/hero.png" alt="Movie Fountain — Live Hero Showcase" width="100%">
+  <img src="docs/hero-fountain.gif" alt="Movie Fountain — Live Animated Discovery Stream" width="100%">
 </p>
 
 # 🍿 Movie Fountain
@@ -66,7 +66,7 @@ All with **zero accounts, zero ads, zero trackers, and zero telemetry**.
 
 ### 1. Continuous Fountain Discovery Stream
 
-The core experience of Movie Fountain is an uninterrupted, horizontally moving stream of curated cinematic posters.
+The core experience of Movie Fountain is an uninterrupted, vertically flowing stream of curated cinematic posters.
 
 <p align="center">
   <img src="docs/screenshots/fountain-flow.png" alt="Movie Fountain Continuous Flow" width="95%">
