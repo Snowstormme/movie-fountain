@@ -732,6 +732,18 @@ function homeShelves(data) {
       takeUnique(data.trending),
       "#trending",
     ),
+    shelf(
+      `${LETTERBOXD_LOGO_SVG} ${t("shelf_letterboxd_title")}`,
+      t("shelf_letterboxd_sub"),
+      letterboxdMovies,
+      "#letterboxd",
+    ),
+    shelf(
+      `${IMDB_LOGO_SVG} ${t("shelf_imdb_title")}`,
+      t("shelf_imdb_sub"),
+      imdbMovies,
+      "#imdb",
+    ),
   ];
 
   if (Array.isArray(data.editors_choice) && data.editors_choice.length) {
@@ -746,18 +758,6 @@ function homeShelves(data) {
   }
 
   shelves.push(
-    shelf(
-      `${LETTERBOXD_LOGO_SVG} ${t("shelf_letterboxd_title")}`,
-      t("shelf_letterboxd_sub"),
-      letterboxdMovies,
-      "#letterboxd",
-    ),
-    shelf(
-      `${IMDB_LOGO_SVG} ${t("shelf_imdb_title")}`,
-      t("shelf_imdb_sub"),
-      imdbMovies,
-      "#imdb",
-    ),
     shelf(
       t("shelf_upcoming_title"),
       t("shelf_upcoming_sub"),
