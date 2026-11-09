@@ -1252,19 +1252,11 @@ async function movie(id) {
         : "";
 
     const edChoice =
-      typeof getEditorsChoiceData === "function"
-        ? getEditorsChoiceData(m.id)
-        : null;
+      typeof isEditorsChoice === "function" && isEditorsChoice(m.id);
     const edMarkup = edChoice
       ? `<aside class="detail-editors-choice" aria-label="${t("editors_choice")}">
-          <div class="editors-choice-badge">
-            <span class="editors-choice-icon" aria-hidden="true">★</span>
-            <div class="editors-choice-titles">
-              <span class="editors-choice-title">${t("editors_choice")}</span>
-              <span class="editors-choice-sub">${t("editors_choice_tag")}</span>
-            </div>
-          </div>
-          <p class="editors-choice-note">“${esc(savedLang === "ru" ? edChoice.note_ru : edChoice.note_en)}”</p>
+          <span class="editors-choice-icon" aria-hidden="true">★</span>
+          <span class="editors-choice-title">${t("editors_choice")}</span>
         </aside>`
       : "";
 
