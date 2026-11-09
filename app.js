@@ -1167,12 +1167,10 @@ function renderRatingsSection(m, ratings = null) {
   const fountain = computeFountainScore(m, r);
   let fountainCard = "";
   if (fountain) {
-    let tag = t("score_recommended");
-    if (fountain.score >= 85) tag = t("score_acclaim");
-    else if (fountain.score >= 75) tag = t("score_highly_rated");
-    else if (fountain.score >= 60) tag = t("score_favorable");
-    else if (fountain.score >= 45) tag = t("score_mixed");
-    else tag = t("score_underwhelming");
+    const isMasterpiece = fountain.score >= 90;
+    const tagMarkup = isMasterpiece
+      ? `<span class="fountain-score-tag fountain-score-tag--masterpiece">${t("score_masterpiece")}</span>`
+      : "";
 
     const desc = loading
       ? t("consensus_initial")
@@ -1188,7 +1186,7 @@ function renderRatingsSection(m, ratings = null) {
       <div class="fountain-score-info">
         <div class="fountain-score-title">
           <span class="fountain-score-label">${t("fountain_score_label")}</span>
-          <span class="fountain-score-tag">${tag}</span>
+          ${tagMarkup}
         </div>
         <p class="fountain-score-desc">${esc(desc)}</p>
       </div>

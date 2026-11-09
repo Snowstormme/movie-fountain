@@ -135,6 +135,7 @@ const translations = {
     ratings_sub:
       "Weighted consensus score and direct links across movie databases",
     fountain_score_label: "Fountain Score",
+    score_masterpiece: "Masterpiece",
     score_recommended: "Recommended",
     score_acclaim: "Universal Acclaim",
     score_highly_rated: "Highly Rated",
@@ -348,6 +349,7 @@ const translations = {
     ratings_heading: "Рейтинги и консенсус",
     ratings_sub: "Взвешенный консенсус и прямые ссылки на кинобазы",
     fountain_score_label: "Fountain Score",
+    score_masterpiece: "Шедевр",
     score_recommended: "Рекомендуется",
     score_acclaim: "Всеобщее признание",
     score_highly_rated: "Высокая оценка",

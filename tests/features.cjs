@@ -207,8 +207,17 @@ test("renderRatingsSection renders multi-source ratings, OMDb fallback, and esca
   assert.match(loadedMarkup, /Updated 2026-11-01/);
   assert.match(loadedMarkup, /Fountain Score/);
   assert.match(loadedMarkup, /86<\/span>/);
-  assert.match(loadedMarkup, /Universal Acclaim/);
+  assert.doesNotMatch(loadedMarkup, /fountain-score-tag/);
   assert.match(loadedMarkup, /4 sources/);
+
+  const masterpieceMarkup = run(
+    `renderRatingsSection(
+      {id:278,title:'The Shawshank Redemption',vote_average:8.7,vote_count:30000},
+      {imdb: 9.3, letterboxd: 4.53, rotten: 91, rotten_audience: 98}
+    )`,
+  );
+  assert.match(masterpieceMarkup, /fountain-score-tag--masterpiece/);
+  assert.match(masterpieceMarkup, /Masterpiece/);
 
   const omdbMarkup = run(
     `renderRatingsSection(

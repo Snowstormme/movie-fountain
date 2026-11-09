@@ -2,6 +2,10 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.6.4] - 2026-11-09
+
+- Simplify consensus score verdicts by removing generic tags and exclusively awarding a golden **Masterpiece** verdict badge for films scoring 90 and above.
+
 ## [0.6.3] - 2026-11-09
 
 - Remove redundant YouTube external link from movie detail action buttons, streamlining movie actions to the primary inline trailer button and localized full cast link.
