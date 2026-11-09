@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="Movie Fountain Banner" width="100%">
+  <img src="docs/hero.png" alt="Movie Fountain — Live Hero Showcase" width="100%">
 </p>
 
 # 🍿 Movie Fountain
