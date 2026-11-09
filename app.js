@@ -1292,7 +1292,16 @@ async function movie(id) {
       .then((res) => {
         const ratingsEl = document.querySelector?.("#movie-ratings");
         if (ratingsEl && location.hash === `#movie/${id}`) {
-          ratingsEl.innerHTML = renderRatingsSection(m, res.ratings || {});
+          const rData = res.ratings || {};
+          ratingsEl.innerHTML = renderRatingsSection(m, rData);
+          const computed = computeFountainScore(m, rData);
+          if (computed?.score) {
+            const topScoreEl = document.querySelector?.(".detail-fountain-score");
+            if (topScoreEl) {
+              topScoreEl.innerHTML = `⛲ ${computed.score}/100`;
+              topScoreEl.title = `${t("fountain_score_label")}: ${computed.score}/100`;
+            }
+          }
         }
       })
       .catch(() => {
