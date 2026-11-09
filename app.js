@@ -250,6 +250,12 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  const providerBtn = event.target.closest("[data-provider]");
+  if (providerBtn?.dataset?.provider && !providerBtn.classList?.contains?.("is-disabled")) {
+    changeStreamingProvider(providerBtn.dataset.provider);
+    return;
+  }
+
   const countryBtn = event.target.closest("[data-set-country]");
   if (countryBtn?.dataset?.setCountry) {
     changeStreamingCountry(countryBtn.dataset.setCountry);
@@ -994,6 +1000,25 @@ function setStreamingCountry(code) {
   } catch {}
 }
 
+const streamingProviderKey = "movie-fountain.streaming_provider.v1";
+
+function getStreamingProvider() {
+  try {
+    const saved = localStorage.getItem(streamingProviderKey);
+    if (saved === "apple" || saved === "netflix") return saved;
+  } catch {}
+  return "netflix";
+}
+
+function setStreamingProvider(provider) {
+  if (provider !== "netflix" && provider !== "apple") return;
+  currentStreamingProvider = provider;
+  try {
+    localStorage.setItem(streamingProviderKey, provider);
+  } catch {}
+}
+
+let currentStreamingProvider = getStreamingProvider();
 let currentStreamingFilter = "all";
 let currentStreamingSort = "default";
 let currentStreamingCountry = getStreamingCountry();
@@ -1003,16 +1028,22 @@ let streamingTotalResults = 0;
 let streamingItems = [];
 let isLoadingMoreStreaming = false;
 
-async function streamingPage(subFilter = "all") {
+async function streamingPage(subFilter = "all", providerOverride = null) {
   fountainAbort?.abort();
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   currentStreamingFilter = subFilter || "all";
   currentStreamingSort = "default";
   currentStreamingPage = 1;
+  if (providerOverride === "apple" || providerOverride === "netflix") {
+    currentStreamingProvider = providerOverride;
+    try {
+      localStorage.setItem(streamingProviderKey, providerOverride);
+    } catch {}
+  }
 
   try {
     const params = new URLSearchParams({
-      provider: "netflix",
+      provider: currentStreamingProvider,
       country: currentStreamingCountry,
       type: currentStreamingFilter,
       page: "1"
@@ -1020,7 +1051,9 @@ async function streamingPage(subFilter = "all") {
     const data = await api(`/api/streaming?${params}`);
     if (
       !location.hash.startsWith("#streaming") &&
-      !location.hash.startsWith("#netflix")
+      !location.hash.startsWith("#netflix") &&
+      !location.hash.startsWith("#appletv") &&
+      !location.hash.startsWith("#apple")
     )
       return;
     streamingItems = Array.isArray(data.results) ? data.results : [];
@@ -1030,6 +1063,13 @@ async function streamingPage(subFilter = "all") {
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
+}
+
+async function changeStreamingProvider(provider) {
+  if (!provider || provider === currentStreamingProvider) return;
+  setStreamingProvider(provider);
+  currentStreamingPage = 1;
+  await fetchAndRenderStreaming();
 }
 
 async function changeStreamingFilter(tab) {
@@ -1056,7 +1096,7 @@ async function fetchAndRenderStreaming() {
 
   try {
     const params = new URLSearchParams({
-      provider: "netflix",
+      provider: currentStreamingProvider,
       country: currentStreamingCountry,
       type: currentStreamingFilter,
       page: "1"
@@ -1064,7 +1104,9 @@ async function fetchAndRenderStreaming() {
     const data = await api(`/api/streaming?${params}`);
     if (
       !location.hash.startsWith("#streaming") &&
-      !location.hash.startsWith("#netflix")
+      !location.hash.startsWith("#netflix") &&
+      !location.hash.startsWith("#appletv") &&
+      !location.hash.startsWith("#apple")
     )
       return;
     streamingItems = Array.isArray(data.results) ? data.results : [];
@@ -1093,7 +1135,7 @@ async function loadMoreStreaming() {
   const nextPage = currentStreamingPage + 1;
   try {
     const params = new URLSearchParams({
-      provider: "netflix",
+      provider: currentStreamingProvider,
       country: currentStreamingCountry,
       type: currentStreamingFilter,
       page: String(nextPage)
@@ -1101,7 +1143,9 @@ async function loadMoreStreaming() {
     const data = await api(`/api/streaming?${params}`);
     if (
       !location.hash.startsWith("#streaming") &&
-      !location.hash.startsWith("#netflix")
+      !location.hash.startsWith("#netflix") &&
+      !location.hash.startsWith("#appletv") &&
+      !location.hash.startsWith("#apple")
     )
       return;
 
@@ -1147,7 +1191,8 @@ function updateStreamingCountAndLoadMoreUI() {
     countEl.textContent = renderStreamingCountText(
       streamingItems.length,
       streamingTotalResults,
-      currentStreamingCountry
+      currentStreamingCountry,
+      currentStreamingProvider
     );
   }
   const loadMoreSlot = document.getElementById("streaming-load-more-container");
@@ -1156,15 +1201,19 @@ function updateStreamingCountAndLoadMoreUI() {
   }
 }
 
-function renderStreamingCountText(currentCount, totalCount, countryCode) {
+function renderStreamingCountText(currentCount, totalCount, countryCode, provider) {
+  const providerName = provider === "apple" ? "Apple TV+" : "Netflix";
   const formattedTotal = Number(totalCount) > currentCount ? Number(totalCount).toLocaleString() : null;
   if (formattedTotal) {
     return t("stream_count_total")
       .replace(/\{count\}/g, String(currentCount))
       .replace(/\{total\}/g, formattedTotal)
+      .replace(/\{provider\}/g, providerName)
       .replace(/\{country\}/g, countryCode);
   }
-  return t("stream_count").replace(/\{count\}/g, String(currentCount));
+  return t("stream_count")
+    .replace(/\{count\}/g, String(currentCount))
+    .replace(/\{provider\}/g, providerName);
 }
 
 function renderStreamingLoadMoreButton() {
@@ -1187,7 +1236,7 @@ function renderStreamingView() {
   const filtered = streamingItems.filter((item) => {
     if (currentStreamingFilter === "movie") return item.media_type === "movie";
     if (currentStreamingFilter === "tv") return item.media_type === "tv";
-    if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 8.0;
+    if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 7.8;
     return true;
   });
 
@@ -1201,31 +1250,35 @@ function renderStreamingView() {
 
       <!-- Provider Selector -->
       <div class="streaming-providers" role="tablist" aria-label="Streaming Providers">
-        <button type="button" class="streaming-provider is-active" data-provider="netflix" role="tab" aria-selected="true">
+        <!-- Netflix -->
+        <button type="button" class="streaming-provider ${currentStreamingProvider === "netflix" ? "is-active" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
           <span class="provider-icon provider-icon--netflix" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="#e50914"><path d="M5.398 0v24c1.815-.224 3.655-.494 5.503-.807V9.775l5.244 13.064c1.94-.356 3.864-.734 5.753-1.139V0h-5.264v14.492L6.46 1.49C6.103.987 5.75.49 5.398 0z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_netflix")}</strong>
-              <span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>
+              ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>` : ""}
             </div>
             <span class="provider-desc">${esc(t("provider_netflix_sub"))}</span>
           </div>
         </button>
 
-        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+        <!-- Apple TV+ -->
+        <button type="button" class="streaming-provider ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
           <span class="provider-icon provider-icon--apple" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
-              <strong>Apple TV+</strong>
-              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+              <strong>${t("provider_apple")}</strong>
+              ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>` : ""}
             </div>
+            <span class="provider-desc">${esc(t("provider_apple_sub"))}</span>
           </div>
-        </div>
+        </button>
 
+        <!-- Max (HBO) -->
         <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--max" aria-hidden="true">
             <strong style="color:#2b59ff;font-family:sans-serif;font-weight:900;font-size:14px;letter-spacing:-0.03em;">MAX</strong>
@@ -1238,6 +1291,7 @@ function renderStreamingView() {
           </div>
         </div>
 
+        <!-- Prime Video -->
         <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--prime" aria-hidden="true">
             <strong style="color:#00a8e1;font-family:sans-serif;font-weight:900;font-size:13px;">prime</strong>
@@ -1250,6 +1304,7 @@ function renderStreamingView() {
           </div>
         </div>
 
+        <!-- Kinopoisk -->
         <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--kp" aria-hidden="true">
             <strong style="color:#ff6600;font-family:sans-serif;font-weight:900;font-size:13px;">Кино</strong>
@@ -1291,7 +1346,7 @@ function renderStreamingView() {
         </div>
 
         <div class="streaming-right-tools">
-          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry)}</span>
+          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry, currentStreamingProvider)}</span>
           <label class="list-sort">
             <span>${t("sort_label")}:</span>
             <select data-streaming-sort aria-label="${t("sort_label")}">
@@ -1325,12 +1380,16 @@ function streamingCard(item) {
     : '<div class="no-poster">No poster</div>';
   const isWatched = watched.has(item.id);
   const mediaLabel = item.media_type === "tv" ? t("media_tv") : t("media_movie");
+  const isApple = item.provider === "apple" || currentStreamingProvider === "apple";
+  const providerChip = isApple
+    ? `<span class="apple-chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV+</span>`
+    : `<span class="netflix-chip">NETFLIX</span>`;
 
-  return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}">
+  return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}" data-provider="${isApple ? "apple" : "netflix"}">
     <a class="movie-card" href="#movie/${movieId}">
       ${poster}
       <div class="streaming-card-badges">
-        <span class="netflix-chip">NETFLIX</span>
+        ${providerChip}
         <span class="media-type-chip">${mediaLabel}</span>
       </div>
       ${renderRatingBadge(item)}
@@ -2074,7 +2133,10 @@ async function route() {
   const rawId = rest.join("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
-  if (kind === "streaming" || kind === "netflix") return streamingPage(rawId);
+  if (kind === "streaming" || kind === "netflix" || kind === "apple" || kind === "appletv") {
+    const prov = (kind === "apple" || kind === "appletv") ? "apple" : (rawId === "apple" ? "apple" : (rawId === "netflix" ? "netflix" : null));
+    return streamingPage("all", prov);
+  }
   if (kind === "trending") return trendingPage();
   if (kind === "editors" || kind === "editors-choice") return editorsChoicePage();
   if (kind === "letterboxd") return letterboxdPage();

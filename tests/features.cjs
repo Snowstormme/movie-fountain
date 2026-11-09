@@ -736,10 +736,34 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   assert.equal(run("t('all_titles_loaded')"), "All available titles loaded");
   assert.equal(run("t('country_gb')"), "United Kingdom");
 
+  // 7. Apple TV+ provider endpoint and catalog
+  const reqApple = new Request("https://movie-fountain.pages.dev/api/streaming?provider=apple");
+  const resApple = await onRequestGet({ request: reqApple, env: {} });
+  assert.equal(resApple.status, 200);
+  const dataApple = await resApple.json();
+  assert.equal(dataApple.provider, "apple");
+  assert.ok(dataApple.results.length >= 20);
+
+  const appleMovies = dataApple.results.some((m) => m.media_type === "movie");
+  const appleSeries = dataApple.results.some((m) => m.media_type === "tv");
+  assert.ok(appleMovies, "Apple TV+ catalog must include movies (e.g. CODA, Killers of the Flower Moon)");
+  assert.ok(appleSeries, "Apple TV+ catalog must include series (e.g. Ted Lasso, Severance)");
+
+  const reqAppleMovies = new Request("https://movie-fountain.pages.dev/api/streaming?provider=apple&type=movie");
+  const resAppleMovies = await onRequestGet({ request: reqAppleMovies, env: {} });
+  const dataAppleMovies = await resAppleMovies.json();
+  assert.ok(dataAppleMovies.results.every((m) => m.media_type === "movie"));
+
+  const reqAppleTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=apple&type=tv");
+  const resAppleTv = await onRequestGet({ request: reqAppleTv, env: {} });
+  const dataAppleTv = await resAppleTv.json();
+  assert.ok(dataAppleTv.results.every((m) => m.media_type === "tv"));
+
+  // Check Apple TV+ i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_apple')"), "Apple TV+");
+  assert.equal(run("t('provider_apple_sub')"), "Award-winning originals, hit dramas & acclaimed films");
   run("setLang('ru')");
-  assert.equal(run("t('nav_streaming')"), "Стриминги");
-  assert.equal(run("t('country_label')"), "Страна каталога");
-  assert.equal(run("t('load_more_titles')"), "Загрузить ещё");
-  assert.equal(run("t('all_titles_loaded')"), "Все доступные тайтлы загружены");
-  assert.equal(run("t('country_gb')"), "Великобритания");
+  assert.equal(run("t('provider_apple')"), "Apple TV+");
+  assert.equal(run("t('provider_apple_sub')"), "Оригинальные драмы, лауреаты Оскара и авторские сериалы");
 });

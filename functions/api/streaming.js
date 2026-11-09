@@ -1,7 +1,25 @@
 import { tmdb, extractLang } from "../_lib/tmdb.js";
 import { NETFLIX_CATALOG } from "../_lib/netflix_catalog.js";
+import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
 
-function normalizeMediaItem(item, defaultType = "movie") {
+const PROVIDERS = {
+  netflix: {
+    id: "netflix",
+    name: "Netflix",
+    watchProviderId: "8",
+    networkId: "213",
+    catalog: NETFLIX_CATALOG
+  },
+  apple: {
+    id: "apple",
+    name: "Apple TV+",
+    watchProviderId: "350",
+    networkId: "2552",
+    catalog: APPLE_CATALOG
+  }
+};
+
+function normalizeMediaItem(item, defaultType = "movie", provider = "netflix") {
   if (!item || typeof item !== "object") return null;
   const isTv = defaultType === "tv" || Boolean(item.name && !item.title);
   const title = String(item.title || item.name || item.original_title || item.original_name || "").trim();
@@ -22,13 +40,14 @@ function normalizeMediaItem(item, defaultType = "movie") {
     backdrop_path: backdrop,
     vote_average: score,
     overview: typeof item.overview === "string" ? item.overview : "",
-    provider: "netflix"
+    provider
   };
 }
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
-  const provider = (url.searchParams.get("provider") || "netflix").toLowerCase();
+  const rawProvider = (url.searchParams.get("provider") || "netflix").toLowerCase();
+  const provider = rawProvider === "appletv" || rawProvider === "apple_tv" ? "apple" : rawProvider;
   const type = (url.searchParams.get("type") || "all").toLowerCase();
   const sort = (url.searchParams.get("sort") || "popular").toLowerCase();
   const rawCountry = (url.searchParams.get("country") || "US").toUpperCase().trim();
@@ -36,9 +55,10 @@ export async function onRequestGet({ request, env }) {
   const rawPage = parseInt(url.searchParams.get("page") || "1", 10);
   const page = Number.isInteger(rawPage) && rawPage >= 1 ? Math.min(rawPage, 50) : 1;
 
-  if (provider !== "netflix") {
+  const config = PROVIDERS[provider];
+  if (!config) {
     return Response.json(
-      { error: "Currently only Netflix catalog is supported", supported: ["netflix"] },
+      { error: "Currently supported streaming providers: netflix, apple", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }
@@ -69,20 +89,20 @@ export async function onRequestGet({ request, env }) {
       if (type === "all" || type === "movie" || type === "top") {
         requests.push(
           tmdb("/discover/movie", env, {
-            with_watch_providers: "8",
+            with_watch_providers: config.watchProviderId,
             watch_region: country,
             sort_by: movieSortBy,
-            "vote_count.gte": type === "top" ? "100" : "20",
+            "vote_count.gte": type === "top" ? "100" : "15",
             language,
             page: String(page)
           }).then(async (res) => {
             if (res?.results && res.results.length > 0) return res;
             if (country !== "US") {
               return tmdb("/discover/movie", env, {
-                with_watch_providers: "8",
+                with_watch_providers: config.watchProviderId,
                 watch_region: "US",
                 sort_by: movieSortBy,
-                "vote_count.gte": type === "top" ? "100" : "20",
+                "vote_count.gte": type === "top" ? "100" : "15",
                 language,
                 page: String(page)
               }).catch(() => null);
@@ -97,18 +117,18 @@ export async function onRequestGet({ request, env }) {
       if (type === "all" || type === "tv" || type === "top") {
         requests.push(
           tmdb("/discover/tv", env, {
-            with_watch_providers: "8",
+            with_watch_providers: config.watchProviderId,
             watch_region: country,
             sort_by: tvSortBy,
-            "vote_count.gte": type === "top" ? "100" : "20",
+            "vote_count.gte": type === "top" ? "100" : "15",
             language,
             page: String(page)
           }).then(async (res) => {
             if (res?.results && res.results.length > 0) return res;
             return tmdb("/discover/tv", env, {
-              with_networks: "213",
+              with_networks: config.networkId,
               sort_by: tvSortBy,
-              "vote_count.gte": type === "top" ? "100" : "20",
+              "vote_count.gte": type === "top" ? "100" : "15",
               language,
               page: String(page)
             }).catch(() => null);
@@ -123,7 +143,7 @@ export async function onRequestGet({ request, env }) {
       const liveMovies = [];
       if (resMovie?.results && Array.isArray(resMovie.results)) {
         for (const raw of resMovie.results) {
-          const norm = normalizeMediaItem(raw, "movie");
+          const norm = normalizeMediaItem(raw, "movie", config.id);
           if (norm) liveMovies.push(norm);
         }
       }
@@ -131,7 +151,7 @@ export async function onRequestGet({ request, env }) {
       const liveTv = [];
       if (resTv?.results && Array.isArray(resTv.results)) {
         for (const raw of resTv.results) {
-          const norm = normalizeMediaItem(raw, "tv");
+          const norm = normalizeMediaItem(raw, "tv", config.id);
           if (norm) liveTv.push(norm);
         }
       }
@@ -164,15 +184,15 @@ export async function onRequestGet({ request, env }) {
     }
   }
 
-  // Fallback to static curated catalog if no live items returned (e.g. offline dev / unit tests)
+  // Fallback to static curated catalog if no live items returned (offline dev / unit tests)
   if (items.length === 0) {
-    let catalog = [...NETFLIX_CATALOG];
+    let catalog = [...config.catalog];
     if (type === "movie") {
       catalog = catalog.filter((m) => m.media_type === "movie");
     } else if (type === "tv") {
       catalog = catalog.filter((m) => m.media_type === "tv");
     } else if (type === "top") {
-      catalog = catalog.filter((m) => (m.vote_average || 0) >= 8.0);
+      catalog = catalog.filter((m) => (m.vote_average || 0) >= 7.8);
     } else {
       const catMovies = catalog.filter((m) => m.media_type === "movie");
       const catTv = catalog.filter((m) => m.media_type === "tv");
@@ -204,8 +224,8 @@ export async function onRequestGet({ request, env }) {
 
   return Response.json(
     {
-      provider: "netflix",
-      provider_name: "Netflix",
+      provider: config.id,
+      provider_name: config.name,
       country,
       page,
       total_pages: totalPages,
