@@ -90,10 +90,6 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
   <img src="docs/screenshots/movie-detail.png" alt="Entering Movie Detail Page with Where to Watch & Multi-Source Ratings" width="95%">
 </p>
 
-<p align="center">
-  <img src="docs/screenshots/where-to-watch.png" alt="Where to Watch Regional Streaming Providers Hub" width="95%">
-</p>
-
 - **Tiered Categories**: Clear separation between **Stream** (subscription-based like Netflix, Apple TV+, Amazon Prime), **Free** (ad-supported platforms like Pluto TV), and **Rent / Buy** (Apple Store, Google Play, Amazon Video).
 - **Official Brand Logos**: High-fidelity 32×32 vector and raster badges with crisp hover states and accessible tooltips.
 - **Interactive Regional Switcher**: Rapidly switch between major regions (`🇷🇺 RU`, `🇺🇸 US`, `🇬🇧 GB`, `🇩🇪 DE`, `🇫🇷 FR`, `🇨🇦 CA`) with automatic timezone and language detection.
@@ -106,11 +102,15 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 Beyond algorithmic discovery, Movie Fountain includes curated, offline-ready cinematic canons and edge-cached charts.
 
 <p align="center">
-  <img src="docs/screenshots/editors-choice.png" alt="Curated Editor's Choice Chart with Sorting" width="95%">
+  <img src="docs/screenshots/editors-choice.png" alt="Curated Editor's Choice Chart with In-List Sorting" width="95%">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/home-shelves.png" alt="Curated Homepage Shelves" width="95%">
+  <img src="docs/screenshots/imdb-top-250.png" alt="Curated IMDb Top 250 Chart with Vector Logo Badges" width="95%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/letterboxd-top-500.png" alt="Curated Letterboxd Top 500 Chart with Real-Time Sorting" width="95%">
 </p>
 
 - **Editor's Choice (34 Masterpieces)**: A hand-curated catalog featuring cinema milestones spanning world cinema (*The Godfather*, *2001: A Space Odyssey*, *Close-Up*, *Taste of Cherry*, *The Green Mile*, *GoodFellas*, *The Shawshank Redemption*, *Arrival*, *Blade Runner 2049*, *Oppenheimer*, *Interstellar*, *Papillon*).
