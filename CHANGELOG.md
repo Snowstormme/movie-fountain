@@ -2,6 +2,15 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.8.0] - 2026-11-09
+
+- Add full **Apple TV+** streaming integration (`#streaming/apple`, `#apple`, `#appletv`): explore acclaimed Apple Original movies and series (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*, *Bad Sisters*, *Wolfwalkers*, *Pachinko*), powered by TMDB provider ID 350 and network ID 2552 with dedicated offline catalog fallback (`functions/_lib/apple_catalog.js`).
+- Add active **Streaming Provider Switcher**: one-click toggling between Netflix and Apple TV+ with custom theme glow styling (crimson neon for Netflix, titanium silver for Apple TV+), official SVG logos, and persistent preference stored in `localStorage`.
+- Add **Regional Country Selector Bar**: rapid one-click selection across 14 global streaming regions (`🇺🇸 US`, `🇬🇧 GB`, `🇨🇦 CA`, `🇩🇪 DE`, `🇫🇷 FR`, `🇯🇵 JP`, `🇰🇷 KR`, `🇹🇷 TR`, `🇪🇸 ES`, `🇮🇹 IT`, `🇧🇷 BR`, `🇦🇺 AU`, `🇮🇳 IN`, `🇷🇺 RU`) with localized flag pills and immediate catalog refetch.
+- Add dynamic **Pagination & Incremental Loading**: "Load More Titles" button with real-time count indicator (`Showing X of Y titles`), background chunk requests, and robust deduplication.
+- Enhance streaming movie cards with vertically stacked platform chip (` Apple TV+` / `NETFLIX`) and media type badge (`Movie` / `Series`), eliminating overlap with watchlist action buttons.
+- Bump asset cache key to `v55`.
+
 ## [0.7.0] - 2026-11-09
 
 - Add **Streaming Services Hub** with dedicated Netflix catalog (`#streaming` / `#netflix`): explore acclaimed Netflix original and licensed films and series (*Stranger Things*, *Squid Game*, *Dark*, *Mindhunter*, *The Queen's Gambit*, *Wednesday*, *Roma*, *The Irishman*, *All Quiet on the Western Front*), with one-click type filtering (`All`, `Movies`, `TV Series`, `Top Rated`) and integrated watchlist controls.

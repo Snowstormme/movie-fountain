@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.0-ff5a1f?style=flat-square" alt="Version 0.7.0">
+  <img src="https://img.shields.io/badge/version-0.8.0-ff5a1f?style=flat-square" alt="Version 0.8.0">
   <img src="https://img.shields.io/badge/Cloudflare-Pages%20Functions-f38020?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare Pages">
   <img src="https://img.shields.io/badge/tests-11%2F11%20passing-3fb950?style=flat-square&logo=node.js&logoColor=white" alt="Unit Tests Passing">
   <img src="https://img.shields.io/badge/CodeQL-0%20alerts-3fb950?style=flat-square&logo=github&logoColor=white" alt="CodeQL Clean">
@@ -98,7 +98,7 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 
 ---
 
-### 3. Dedicated Streaming Catalog (Netflix & Beyond)
+### 3. Dedicated Streaming Catalog (Netflix, Apple TV+ & Beyond)
 
 Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
 
@@ -106,12 +106,16 @@ Browse exclusive movies and binge-worthy TV series available on your favorite st
   <img src="docs/screenshots/streaming-hub.png" alt="Dedicated Streaming Catalog Hub with Netflix Originals and TV Series" width="95%">
 </p>
 
-- **Flagship Netflix Catalog**: Explore acclaimed Netflix original and licensed films (*Roma*, *The Irishman*, *All Quiet on the Western Front*, *Society of the Snow*) and iconic TV series (*Stranger Things*, *Squid Game*, *Dark*, *Mindhunter*, *The Queen's Gambit*, *Wednesday*, *Arcane*).
-- **Regional Country Selection (`watch_region`)**: Seamlessly switch between major regional Netflix libraries (`🇺🇸 US`, `🇬🇧 GB`, `🇨🇦 CA`, `🇩🇪 DE`, `🇫🇷 FR`, `🇯🇵 JP`, `🇰🇷 KR`, `🇹🇷 TR`, and more) with your preference automatically persisted in `localStorage`.
+<p align="center">
+  <img src="docs/screenshots/streaming-apple-tv.png" alt="Apple TV+ Streaming Catalog with Titanium Glow and Custom Badges" width="95%">
+</p>
+
+- **Dual Flagship Streaming Hub**: Switch with a single click between **Netflix** (*Roma*, *The Irishman*, *Stranger Things*, *Dark*, *Squid Game*, *Arcane*) and **Apple TV+** (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*), complete with platform-customized glow palettes (crimson neon vs. titanium silver) and official vector brand logos.
+- **Regional Country Selection (`watch_region`)**: Rapidly switch across 14 major regional streaming catalogs (`🇺🇸 US`, `🇬🇧 GB`, `🇨🇦 CA`, `🇩🇪 DE`, `🇫🇷 FR`, `🇯🇵 JP`, `🇰🇷 KR`, `🇹🇷 TR`, `🇪🇸 ES`, `🇮🇹 IT`, `🇧🇷 BR`, `🇦🇺 AU`, `🇮🇳 IN`, `🇷🇺 RU`) with immediate catalog refetching and preferences persisted in `localStorage`.
 - **Dynamic Pagination & "Load More"**: Browse beyond initial snapshots with on-demand chunk loading (`Load More Titles`), giving direct access to thousands of regional titles indexed via TMDB.
 - **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **🎬 Movies**, **📺 TV Series**, and **★ Top Rated / Masterpieces** ($\ge 8.0$).
-- **Integrated Watchlist Actions**: Save any Netflix movie or series directly to your local Cinephile Passport with real-time feedback.
-- **Extensible Provider Architecture**: Designed with active provider selection (Netflix) and upcoming teaser slots for Apple TV+, Max (HBO), Amazon Prime Video, and Kinopoisk.
+- **Integrated Watchlist Actions**: Save any Netflix or Apple TV+ movie or series directly to your local Cinephile Passport with real-time feedback and clean, non-overlapping badge layout.
+- **Extensible Provider Architecture**: Active support for Netflix and Apple TV+, with upcoming teaser slots for Max (HBO), Amazon Prime Video, and Kinopoisk.
 
 ---
 
@@ -306,7 +310,7 @@ movie-fountain/
 ├── CHANGELOG.md                   # Chronological changelog
 ├── LICENSE                        # Apache License 2.0
 ├── README.md                      # Comprehensive project documentation
-└── VERSION                        # Semantic version marker (0.7.0)
+└── VERSION                        # Semantic version marker (0.8.0)
 ```
 
 ---
