@@ -383,12 +383,34 @@ test("i18n and language switching in Account and cards", () => {
   assert.equal(run("isEditorsChoice(329865)"), true);
   assert.equal(run("isEditorsChoice(238)"), true);
   assert.equal(run("isEditorsChoice(1124)"), true);
+  assert.equal(run("isEditorsChoice(345)"), true); // Eyes Wide Shut
+  assert.equal(run("isEditorsChoice(83761)"), true); // Life, and Nothing More...
+  assert.equal(run("isEditorsChoice(335984)"), true); // Blade Runner 2049
+  assert.equal(run("isEditorsChoice(49964)"), true); // Where Is The Friend's House?
+  assert.equal(run("isEditorsChoice(489)"), true); // Good Will Hunting
+  assert.equal(run("isEditorsChoice(311)"), true); // Once Upon a Time in America
+  assert.equal(run("isEditorsChoice(1607)"), true); // A Bronx Tale
+  assert.equal(run("isEditorsChoice(47104)"), true); // Through the Olive Trees
+  assert.equal(run("isEditorsChoice(497)"), true); // The Green Mile
+  assert.equal(run("isEditorsChoice(1592)"), true); // Primal Fear
+  assert.equal(run("isEditorsChoice(769)"), true); // GoodFellas
+  assert.equal(run("isEditorsChoice(872585)"), true); // Oppenheimer
+  assert.equal(run("isEditorsChoice(157336)"), true); // Interstellar
+  assert.equal(run("isEditorsChoice(155)"), true); // The Dark Knight
+  assert.equal(run("isEditorsChoice(43423)"), true); // The Wind Will Carry Us
+  assert.equal(run("isEditorsChoice(141)"), true); // Donnie Darko
+  assert.equal(run("isEditorsChoice(641)"), true); // Requiem for a Dream
+  assert.equal(run("isEditorsChoice(9475)"), true); // Scent of a Woman
+  assert.equal(run("isEditorsChoice(772)"), true); // Home Alone 2
+  assert.equal(run("isEditorsChoice(5924)"), true); // Papillon
   assert.equal(run("isEditorsChoice(9999999)"), false);
   assert.equal(run("getEditorsChoiceData(3782)?.title"), "Ikiru");
   assert.equal(run("getEditorsChoiceData(976893)?.title"), "Perfect Days");
   assert.equal(run("getEditorsChoiceData(398978)?.title"), "The Irishman");
   assert.equal(run("getEditorsChoiceData(278)?.title"), "The Shawshank Redemption");
-  assert.equal(run("getEditorsChoiceMovies().length"), 14);
+  assert.equal(run("getEditorsChoiceData(345)?.title"), "Eyes Wide Shut");
+  assert.equal(run("getEditorsChoiceData(83761)?.title"), "Life, and Nothing More...");
+  assert.equal(run("getEditorsChoiceMovies().length"), 34);
   assert.equal(run("t('page_editors_choice_title')"), "Editor's Choice");
   assert.equal(run("pluralFilms(1)"), "1 film");
   assert.equal(run("pluralFilms(5)"), "5 films");

@@ -139,4 +139,204 @@ export const EDITORS_CHOICE_MOVIES = [
       "A mysterious story of two magicians whose intense rivalry leads them on a life-long battle for supremacy -- full of obsession, deceit and jealousy with dangerous and deadly consequences.",
     genre_ids: [18, 9648, 878],
   },
+  {
+    id: 345,
+    title: "Eyes Wide Shut",
+    poster_path: "/knEIz1eNGl5MQDbrEAVWA7iRqF9.jpg",
+    release_date: "1999-07-16",
+    vote_average: 7.5,
+    overview:
+      "After Dr. Bill Harford's wife, Alice, admits to having sexual fantasies about a man she met, Bill becomes obsessed with having a sexual encounter. He discovers an underground sexual group and attends one of their meetings -- and quickly discovers that he is in over his head.",
+    genre_ids: [18, 53, 9648],
+  },
+  {
+    id: 83761,
+    title: "Life, and Nothing More...",
+    poster_path: "/gACM5Mdj4EDXppy5WcVt1DINGnp.jpg",
+    release_date: "1992-10-21",
+    vote_average: 7.7,
+    overview:
+      "After the earthquake of Guilan, a film director and his son travel to the devastated area to search for the actors from the movie the director made there a few years previously. In their search, they see how people who have lost everything in the earthquake still have hope and try to live life to the fullest.",
+    genre_ids: [18],
+  },
+  {
+    id: 335984,
+    title: "Blade Runner 2049",
+    poster_path: "/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
+    release_date: "2017-10-04",
+    vote_average: 7.6,
+    overview:
+      "Thirty years after the events of the first film, a new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what's left of society into chaos. K's discovery leads him on a quest to find Rick Deckard, a former LAPD blade runner who has been missing for 30 years.",
+    genre_ids: [878, 18],
+  },
+  {
+    id: 49964,
+    title: "Where Is The Friend's House?",
+    poster_path: "/xt7eYl1kFZO0ULyegrLLoNRw6DJ.jpg",
+    release_date: "1987-07-01",
+    vote_average: 7.9,
+    overview:
+      "An 8-year-old boy must return his friend's notebook he took by mistake, lest his friend be punished by expulsion from school.",
+    genre_ids: [18, 12],
+  },
+  {
+    id: 489,
+    title: "Good Will Hunting",
+    poster_path: "/z2FnLKpFi1HPO7BEJxdkv6hpJSU.jpg",
+    release_date: "1997-12-05",
+    vote_average: 8.2,
+    overview:
+      "Will Hunting is a headstrong, working-class genius who is failing the lessons of life. After one too many run-ins with the law, Will's last chance is a psychology professor, who might be the only man who can reach him.",
+    genre_ids: [18],
+  },
+  {
+    id: 311,
+    title: "Once Upon a Time in America",
+    poster_path: "/i0enkzsL5dPeneWnjl1fCWm6L7k.jpg",
+    release_date: "1984-05-23",
+    vote_average: 8.4,
+    overview:
+      "A former Prohibition-era Jewish gangster returns to the Lower East Side of Manhattan over thirty years later, where he once again must confront the ghosts and regrets of his old life.",
+    genre_ids: [18, 80],
+  },
+  {
+    id: 1607,
+    title: "A Bronx Tale",
+    poster_path: "/7Obzc6svsHSR1za0LqzkpwFsEhw.jpg",
+    release_date: "1993-10-01",
+    vote_average: 7.9,
+    overview:
+      "Set in the Bronx during the tumultuous 1960s, an adolescent boy is torn between his honest, working-class father and a violent yet charismatic crime boss. Complicating matters is the youngster's growing attraction - forbidden in his neighborhood - for a beautiful black girl.",
+    genre_ids: [18, 80],
+  },
+  {
+    id: 47104,
+    title: "Through the Olive Trees",
+    poster_path: "/6YTFB34QqK06OBm5GDOsnROsNUo.jpg",
+    release_date: "1994-12-02",
+    vote_average: 7.5,
+    overview:
+      "When the actor in a scene for his film Life And Nothing More… has to quit, a film director casts another man for the part. However, complications arise since the man and the woman who was cast for the scene know each other.",
+    genre_ids: [18],
+  },
+  {
+    id: 497,
+    title: "The Green Mile",
+    poster_path: "/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg",
+    release_date: "1999-12-10",
+    vote_average: 8.5,
+    overview:
+      "A supernatural tale set on death row in a Southern prison, where gentle giant John Coffey possesses the mysterious power to heal people's ailments. When the cell block's head guard, Paul Edgecomb, recognizes Coffey's miraculous gift, he tries desperately to help stave off the condemned man's execution.",
+    genre_ids: [14, 18, 80],
+  },
+  {
+    id: 1592,
+    title: "Primal Fear",
+    poster_path: "/qJf2TzE8nRTFbFMPJNW6c8mI0KU.jpg",
+    release_date: "1996-04-03",
+    vote_average: 7.7,
+    overview:
+      "Defense attorney Martin Vail takes on jobs for money and prestige rather than any sense of the greater good. His latest case involves an altar boy, accused of brutally murdering the archbishop of Chicago. Vail finds himself up against his ex-pupil and ex-lover, but as the case progresses and the Church's dark secrets are revealed, Vail finds that what appeared a simple case takes on a darker, more dangerous aspect.",
+    genre_ids: [80, 18, 53],
+  },
+  {
+    id: 769,
+    title: "GoodFellas",
+    poster_path: "/9OkCLM73MIU2CrKZbqiT8Ln1wY2.jpg",
+    release_date: "1990-09-12",
+    vote_average: 8.5,
+    overview:
+      "The true story of Henry Hill, a half-Irish, half-Sicilian Brooklyn kid who is adopted by neighbourhood gangsters at an early age and climbs the ranks of a Mafia family under the guidance of Jimmy Conway.",
+    genre_ids: [18, 80],
+  },
+  {
+    id: 872585,
+    title: "Oppenheimer",
+    poster_path: "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+    release_date: "2023-07-19",
+    vote_average: 8.0,
+    overview:
+      "The story of J. Robert Oppenheimer's role in the development of the atomic bomb during World War II.",
+    genre_ids: [18, 36, 10752],
+  },
+  {
+    id: 157336,
+    title: "Interstellar",
+    poster_path: "/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
+    release_date: "2014-11-04",
+    vote_average: 8.5,
+    overview:
+      "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+    genre_ids: [12, 18, 878],
+  },
+  {
+    id: 155,
+    title: "The Dark Knight",
+    poster_path: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+    release_date: "2008-07-16",
+    vote_average: 8.5,
+    overview:
+      "Batman raises the stakes in his war on crime. With the help of Lt. Jim Gordon and District Attorney Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets. The partnership proves to be effective, but they soon find themselves prey to a reign of chaos unleashed by a rising criminal mastermind known to the terrified citizens of Gotham as the Joker.",
+    genre_ids: [28, 53, 80],
+  },
+  {
+    id: 43423,
+    title: "The Wind Will Carry Us",
+    poster_path: "/tzrqZungDYA3Djp61NWUm7DtxNI.jpg",
+    release_date: "1999-09-23",
+    vote_average: 7.1,
+    overview:
+      "Irreverent city engineer Behzad comes to a rural Kurdish village in Iran to keep vigil for a dying relative. In the meanwhile the film follows his efforts to fit in with the local community and how he changes his own attitudes as a result.",
+    genre_ids: [18],
+  },
+  {
+    id: 141,
+    title: "Donnie Darko",
+    poster_path: "/j2AtZFsflxiluaNtajMTI0Avm8C.jpg",
+    release_date: "2001-01-19",
+    vote_average: 7.8,
+    overview:
+      "After narrowly escaping a bizarre accident, a troubled teenager is plagued by visions of a large bunny rabbit that manipulates him to commit a series of crimes.",
+    genre_ids: [14, 18, 9648],
+  },
+  {
+    id: 641,
+    title: "Requiem for a Dream",
+    poster_path: "/9BTwsLaMVHOGFlmsSlx5QYCaXb.jpg",
+    release_date: "2000-10-06",
+    vote_average: 8.0,
+    overview:
+      "The drug-induced utopias of four Coney Island residents are shattered when their addictions run deep.",
+    genre_ids: [18],
+  },
+  {
+    id: 9475,
+    title: "Scent of a Woman",
+    poster_path: "/4adI7IaveWb7EidYXfLb3MK3CgO.jpg",
+    release_date: "1992-12-23",
+    vote_average: 7.8,
+    overview:
+      "Charlie Simms is a student at a private preparatory school who comes from a poor family. To earn the money for his flight home to Gresham, Oregon for Christmas, Charlie takes a job over Thanksgiving looking after retired U.S. Army officer Lieutenant Colonel Frank Slade, a cantankerous middle-aged man who lives with his niece and her family.",
+    genre_ids: [18],
+  },
+  {
+    id: 772,
+    title: "Home Alone 2: Lost in New York",
+    poster_path: "/uuitWHpJwxD1wruFl2nZHIb4UGN.jpg",
+    release_date: "1992-11-15",
+    vote_average: 6.8,
+    overview:
+      "Instead of flying to Florida with his folks, Kevin ends up alone in New York, where he gets a hotel room with his dad's credit card—despite problems from a clerk and meddling bellboy. But when Kevin runs into his old nemeses, the Wet Bandits, he's determined to foil their plans to rob a toy store on Christmas Eve.",
+    genre_ids: [35, 10751, 12],
+  },
+  {
+    id: 5924,
+    title: "Papillon",
+    poster_path: "/356oqQpug682OERsWV0bGZ0YxwQ.jpg",
+    release_date: "1973-12-16",
+    vote_average: 7.8,
+    overview:
+      "A man befriends a fellow criminal as the two of them begin serving their sentence on a dreadful prison island, which inspires the man to plot his escape.",
+    genre_ids: [80, 18],
+  },
 ];

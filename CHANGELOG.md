@@ -2,6 +2,11 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.6.2] - 2026-11-09
+
+- Expand **Editor's Choice** collection to 34 cinema masterpieces, adding *Eyes Wide Shut*, *Life, and Nothing More...*, *Blade Runner 2049*, *Where Is The Friend's House?*, *Good Will Hunting*, *Once Upon a Time in America*, *A Bronx Tale*, *Through the Olive Trees*, *The Green Mile*, *Primal Fear*, *GoodFellas*, *Oppenheimer*, *Interstellar*, *The Dark Knight*, *The Wind Will Carry Us*, *Donnie Darko*, *Requiem for a Dream*, *Scent of a Woman*, *Home Alone 2: Lost in New York*, and *Papillon*.
+- Include verified multi-source rating snapshots and instant interactive Editor's Choice badges.
+
 ## [0.6.1] - 2026-11-09
 
 - Expand **Editor's Choice** collection to 14 films, adding *The Irishman*, *The Shawshank Redemption*, *Close-Up*, *10 Things I Hate About You*, *Batman Begins*, *2001: A Space Odyssey*, *Arrival*, *The Godfather*, and *The Prestige* with full metadata, verified external ratings snapshot, and interactive badges.
