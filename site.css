@@ -303,75 +303,262 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
 }
 
 /* ==========================================================================
-   Streaming Hub & Providers Catalog
+   Streaming Hub & Providers Catalog - Unique Provider Designs
    ========================================================================== */
 .streaming-heading {
+  position: relative;
   padding-bottom: 15px;
+}
+
+.streaming-ambient-glow {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 780px);
+  height: 160px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(48px);
+  opacity: 0.55;
+  transition: background 0.4s ease, opacity 0.4s ease;
+  z-index: 0;
+}
+
+[data-active-provider="netflix"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(229, 9, 20, 0.4), transparent 70%);
+}
+
+[data-active-provider="apple"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.28), transparent 70%);
 }
 
 .streaming-providers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
   margin: 22px 0 28px;
+  position: relative;
+  z-index: 1;
 }
 
 .streaming-provider,
 html[data-theme="current"] .streaming-provider {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 18px;
-  border: 1px solid #282830;
+  padding: 16px 18px;
   border-radius: 16px;
-  background: #131317;
   color: #e6e2da;
   text-align: left;
   cursor: pointer;
-  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  overflow: hidden;
+  transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), border-color .25s ease, box-shadow .25s ease, background .25s ease;
 }
 
-.streaming-provider:hover:not(.is-disabled),
-html[data-theme="current"] .streaming-provider:hover:not(.is-disabled) {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.35);
-  background: #191920;
+.provider-accent-rail {
+  position: absolute;
+  bottom: 0;
+  left: 18px;
+  right: 18px;
+  height: 2.5px;
+  border-radius: 3px 3px 0 0;
+  opacity: 0.6;
+  transition: opacity .25s ease, height .25s ease;
+  pointer-events: none;
 }
 
-.streaming-provider.is-active[data-provider="netflix"],
-html[data-theme="current"] .streaming-provider.is-active[data-provider="netflix"] {
+.streaming-provider:hover:not(.is-disabled) .provider-accent-rail,
+.streaming-provider.is-active .provider-accent-rail {
+  opacity: 1;
+  height: 3px;
+}
+
+/* 1. NETFLIX UNIQUE DESIGN */
+.streaming-provider--netflix,
+button.streaming-provider--netflix,
+html[data-theme="current"] .streaming-provider--netflix,
+html[data-theme="current"] button.streaming-provider--netflix {
+  border: 1.5px solid rgba(229, 9, 20, 0.38);
+  background: radial-gradient(circle at top right, rgba(229, 9, 20, 0.16), transparent 60%),
+              linear-gradient(160deg, #170a0c 0%, #0d0d10 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.streaming-provider--netflix .provider-icon--netflix {
+  background: #000;
+  border: 1.5px solid #e50914;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.35);
+}
+.streaming-provider--netflix .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #e50914, transparent);
+}
+.streaming-provider--netflix:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--netflix:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(229, 9, 20, 0.7);
+  background: radial-gradient(circle at top right, rgba(229, 9, 20, 0.22), transparent 60%),
+              linear-gradient(160deg, #1f0c0f 0%, #111015 100%);
+  box-shadow: 0 14px 30px rgba(229, 9, 20, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.streaming-provider--netflix.is-active,
+button.streaming-provider--netflix.is-active,
+html[data-theme="current"] .streaming-provider--netflix.is-active,
+html[data-theme="current"] button.streaming-provider--netflix.is-active {
   border-color: #e50914;
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.22), rgba(229, 9, 20, 0.06));
-  box-shadow: 0 0 25px rgba(229, 9, 20, 0.28), inset 0 1px rgba(255, 255, 255, 0.15);
+  background: radial-gradient(circle at top right, rgba(229, 9, 20, 0.28), transparent 65%),
+              linear-gradient(160deg, #220a0d 0%, #110809 100%);
+  box-shadow: 0 0 35px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 120, 120, 0.35);
 }
 
-.streaming-provider.is-active[data-provider="apple"],
-html[data-theme="current"] .streaming-provider.is-active[data-provider="apple"] {
+/* 2. APPLE TV+ UNIQUE DESIGN */
+.streaming-provider--apple,
+button.streaming-provider--apple,
+html[data-theme="current"] .streaming-provider--apple,
+html[data-theme="current"] button.streaming-provider--apple {
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 60%),
+              linear-gradient(160deg, #1b1b22 0%, #0e0e12 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.streaming-provider--apple .provider-icon--apple {
+  background: linear-gradient(135deg, #2c2c34 0%, #15151a 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+.streaming-provider--apple .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #ffffff, transparent);
+}
+.streaming-provider--apple:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--apple:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 60%),
+              linear-gradient(160deg, #22222a 0%, #121217 100%);
+  box-shadow: 0 14px 30px rgba(255, 255, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.streaming-provider--apple.is-active,
+button.streaming-provider--apple.is-active,
+html[data-theme="current"] .streaming-provider--apple.is-active,
+html[data-theme="current"] button.streaming-provider--apple.is-active {
   border-color: #ffffff;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.25), inset 0 1px rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 65%),
+              linear-gradient(160deg, #252530 0%, #131318 100%);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* 3. MAX (HBO) UNIQUE DESIGN */
+.streaming-provider--max {
+  border: 1.5px solid rgba(0, 43, 231, 0.4);
+  background: radial-gradient(circle at top right, rgba(0, 43, 231, 0.18), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(121, 40, 202, 0.14), transparent 60%),
+              linear-gradient(160deg, #0d0f24 0%, #080914 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(100, 150, 255, 0.18);
+}
+.streaming-provider--max .provider-icon--max {
+  background: linear-gradient(135deg, #002be7 0%, #4f14a8 100%);
+  border: 1.5px solid rgba(130, 160, 255, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 43, 231, 0.35);
+}
+.streaming-provider--max .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #002be7, #7928ca, transparent);
+}
+
+/* 4. PRIME VIDEO UNIQUE DESIGN */
+.streaming-provider--prime {
+  border: 1.5px solid rgba(0, 168, 225, 0.35);
+  background: radial-gradient(circle at top right, rgba(0, 168, 225, 0.16), transparent 60%),
+              linear-gradient(160deg, #071624 0%, #050e18 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(0, 168, 225, 0.18);
+}
+.streaming-provider--prime .provider-icon--prime {
+  background: linear-gradient(135deg, #0a253a 0%, #001220 100%);
+  border: 1.5px solid rgba(0, 168, 225, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 168, 225, 0.25);
+}
+.streaming-provider--prime .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #00a8e1, transparent);
+}
+
+/* 5. KINOPOISK UNIQUE DESIGN */
+.streaming-provider--kp {
+  border: 1.5px solid rgba(255, 102, 0, 0.4);
+  background: radial-gradient(circle at top right, rgba(255, 102, 0, 0.18), transparent 60%),
+              linear-gradient(160deg, #1c1008 0%, #0f0a07 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 140, 50, 0.2);
+}
+.streaming-provider--kp .provider-icon--kp {
+  background: linear-gradient(135deg, #ff6600 0%, #cc3300 100%);
+  border: 1.5px solid rgba(255, 180, 100, 0.45);
+  box-shadow: 0 4px 14px rgba(255, 102, 0, 0.35);
+}
+.streaming-provider--kp .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #ff6600, transparent);
+}
+
+.provider-status-badge {
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #24242b;
+  color: #9e9b95;
+}
+
+.provider-status-badge.provider-status-badge--netflix {
+  background: #e50914;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.5);
+}
+
+.provider-status-badge.provider-status-badge--apple {
+  background: #ffffff;
+  color: #09090b;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.45);
+}
+
+.provider-status-badge.provider-status-badge--max {
+  background: linear-gradient(135deg, rgba(0, 43, 231, 0.85), rgba(121, 40, 202, 0.85));
+  color: #fff;
+  border: 1px solid rgba(150, 180, 255, 0.3);
+}
+
+.provider-status-badge.provider-status-badge--prime {
+  background: #00a8e1;
+  color: #050e18;
+  font-weight: 800;
+}
+
+.provider-status-badge.provider-status-badge--kp {
+  background: linear-gradient(135deg, #ff6600, #ff3300);
+  color: #fff;
+}
+
+/* Common Ready / Inactive Badge */
+.provider-status-badge.provider-status-badge--ready {
+  background: rgba(255, 255, 255, 0.12);
+  color: #cac5bc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .streaming-provider.is-disabled {
-  opacity: 0.5;
+  opacity: 0.65;
   cursor: not-allowed;
-  border-style: dashed;
-  background: #0e0e11;
+  filter: grayscale(18%);
 }
 
 .provider-icon {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
   background: #1c1c22;
   flex: none;
-}
-
-.provider-icon--netflix {
-  background: #000;
-  border: 1px solid rgba(229, 9, 20, 0.4);
 }
 
 .provider-meta {
@@ -403,11 +590,6 @@ html[data-theme="current"] .streaming-provider.is-active[data-provider="apple"] 
   border-radius: 999px;
   background: #24242b;
   color: #9e9b95;
-}
-
-.provider-status-badge--active {
-  background: #e50914;
-  color: #fff;
 }
 
 .provider-desc {
@@ -453,7 +635,7 @@ html[data-theme="current"] .streaming-provider.is-active[data-provider="apple"] 
 }
 
 .streaming-tab:hover {
-  border-color: #e50914;
+  border-color: rgba(255, 255, 255, 0.4);
   color: #fff;
 }
 
@@ -462,6 +644,28 @@ html[data-theme="current"] .streaming-provider.is-active[data-provider="apple"] 
   background: #e50914;
   color: #fff;
   box-shadow: 0 4px 16px rgba(229, 9, 20, 0.4);
+}
+
+[data-active-provider="netflix"] .streaming-tab:hover {
+  border-color: #e50914;
+  color: #fff;
+}
+[data-active-provider="netflix"] .streaming-tab.is-active {
+  border-color: #e50914;
+  background: #e50914;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.45);
+}
+
+[data-active-provider="apple"] .streaming-tab:hover {
+  border-color: #ffffff;
+  color: #fff;
+}
+[data-active-provider="apple"] .streaming-tab.is-active {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #09090b;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.35);
 }
 
 .streaming-right-tools {
@@ -672,12 +876,14 @@ html[data-theme="liquid"] .streaming-provider:hover:not(.is-disabled) {
   background: linear-gradient(145deg, #ffffff32, #ffffff10 48%, #00000024);
 }
 
+html[data-theme="liquid"] .streaming-provider--netflix.is-active,
 html[data-theme="liquid"] .streaming-provider.is-active[data-provider="netflix"] {
   border-color: rgba(229, 9, 20, 0.85);
   background: linear-gradient(145deg, rgba(229, 9, 20, 0.32), rgba(229, 9, 20, 0.08) 55%, #00000020);
   box-shadow: inset 0 1px rgba(255, 120, 120, 0.5), 0 0 28px rgba(229, 9, 20, 0.35);
 }
 
+html[data-theme="liquid"] .streaming-provider--apple.is-active,
 html[data-theme="liquid"] .streaming-provider.is-active[data-provider="apple"] {
   border-color: rgba(255, 255, 255, 0.9);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 55%, #00000020);
@@ -696,10 +902,19 @@ html[data-theme="liquid"] .streaming-tab:hover {
   background: linear-gradient(145deg, #ffffff35, #ffffff12);
 }
 
-html[data-theme="liquid"] .streaming-tab.is-active {
+html[data-theme="liquid"] .streaming-tab.is-active,
+html[data-theme="liquid"] [data-active-provider="netflix"] .streaming-tab.is-active {
   border-color: rgba(229, 9, 20, 0.9);
   background: linear-gradient(135deg, #e50914, #b20710);
   box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
+  color: #fff;
+}
+
+html[data-theme="liquid"] [data-active-provider="apple"] .streaming-tab.is-active {
+  border-color: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, #ffffff, #dcdcdc);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+  color: #09090b;
 }
 
 html[data-theme="liquid"] .streaming-country-bar {

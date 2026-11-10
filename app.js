@@ -1243,7 +1243,8 @@ function renderStreamingView() {
   const sorted = sortMovieList(filtered, currentStreamingSort);
 
   app.innerHTML = `
-    <div class="page-heading streaming-heading">
+    <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
+      <div class="streaming-ambient-glow" aria-hidden="true"></div>
       <p class="eyebrow">🌐 ${t("streaming_tag")}</p>
       <h1>${t("streaming_title")}</h1>
       <p class="hero-copy">${esc(t("streaming_sub"))}</p>
@@ -1251,70 +1252,78 @@ function renderStreamingView() {
       <!-- Provider Selector -->
       <div class="streaming-providers" role="tablist" aria-label="Streaming Providers">
         <!-- Netflix -->
-        <button type="button" class="streaming-provider ${currentStreamingProvider === "netflix" ? "is-active" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
+        <button type="button" class="streaming-provider streaming-provider--netflix ${currentStreamingProvider === "netflix" ? "is-active" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
           <span class="provider-icon provider-icon--netflix" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="#e50914"><path d="M5.398 0v24c1.815-.224 3.655-.494 5.503-.807V9.775l5.244 13.064c1.94-.356 3.864-.734 5.753-1.139V0h-5.264v14.492L6.46 1.49C6.103.987 5.75.49 5.398 0z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_netflix")}</strong>
-              ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>` : ""}
+              ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--netflix">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
             <span class="provider-desc">${esc(t("provider_netflix_sub"))}</span>
           </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
         <!-- Apple TV+ -->
-        <button type="button" class="streaming-provider ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
+        <button type="button" class="streaming-provider streaming-provider--apple ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
           <span class="provider-icon provider-icon--apple" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_apple")}</strong>
-              ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--active">${t("provider_active")}</span>` : ""}
+              ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--apple">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
             <span class="provider-desc">${esc(t("provider_apple_sub"))}</span>
           </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
         <!-- Max (HBO) -->
-        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+        <div class="streaming-provider streaming-provider--max is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--max" aria-hidden="true">
-            <strong style="color:#2b59ff;font-family:sans-serif;font-weight:900;font-size:14px;letter-spacing:-0.03em;">MAX</strong>
+            <strong style="color:#ffffff;font-family:sans-serif;font-weight:900;font-size:14px;letter-spacing:-0.03em;">MAX</strong>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>Max (HBO)</strong>
-              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+              <span class="provider-status-badge provider-status-badge--max">${t("provider_coming_soon")}</span>
             </div>
+            <span class="provider-desc">Warner & HBO Originals</span>
           </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
         </div>
 
         <!-- Prime Video -->
-        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+        <div class="streaming-provider streaming-provider--prime is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--prime" aria-hidden="true">
             <strong style="color:#00a8e1;font-family:sans-serif;font-weight:900;font-size:13px;">prime</strong>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>Prime Video</strong>
-              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+              <span class="provider-status-badge provider-status-badge--prime">${t("provider_coming_soon")}</span>
             </div>
+            <span class="provider-desc">Amazon Originals & MGM</span>
           </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
         </div>
 
         <!-- Kinopoisk -->
-        <div class="streaming-provider is-disabled" title="${t("provider_coming_soon")}">
+        <div class="streaming-provider streaming-provider--kp is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--kp" aria-hidden="true">
-            <strong style="color:#ff6600;font-family:sans-serif;font-weight:900;font-size:13px;">Кино</strong>
+            <strong style="color:#ffffff;font-family:sans-serif;font-weight:900;font-size:13px;">Кино</strong>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>Кинопоиск</strong>
-              <span class="provider-status-badge">${t("provider_coming_soon")}</span>
+              <span class="provider-status-badge provider-status-badge--kp">${t("provider_coming_soon")}</span>
             </div>
+            <span class="provider-desc">Плюс Мульти & Эксклюзивы</span>
           </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
         </div>
       </div>
 
