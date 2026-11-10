@@ -523,8 +523,8 @@ function shelf(title, subtitle, movies, href = "") {
         <p>${subtitle}</p>
       </div>
     </div>
-    <div class="movie-row">${movies
-      .slice(0, 12)
+    <div class="movie-grid">${movies
+      .slice(0, 6)
       .map((movie) => card(movie))
       .join("")}</div>
   </section>`;
@@ -756,7 +756,7 @@ function homeShelves(data) {
   const takeUnique = (list) => {
     const items = (list || [])
       .filter((movie) => !seen.has(movie.id))
-      .slice(0, 12);
+      .slice(0, 6);
     items.forEach((movie) => seen.add(movie.id));
     return items;
   };
