@@ -1245,7 +1245,7 @@ function renderStreamingView() {
   app.innerHTML = `
     <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
       <div class="streaming-ambient-glow" aria-hidden="true"></div>
-      <p class="eyebrow">🌐 ${t("streaming_tag")}</p>
+      <p class="eyebrow">${t("streaming_tag")}</p>
       <h1>${t("streaming_title")}</h1>
       <p class="hero-copy">${esc(t("streaming_sub"))}</p>
 
@@ -1330,7 +1330,7 @@ function renderStreamingView() {
       <!-- Country / Regional Catalog Selector -->
       <div class="streaming-country-bar" role="region" aria-label="${t("country_label")}">
         <span class="streaming-country-label">
-          <span class="country-globe-icon" aria-hidden="true">🌍</span>
+          <span class="country-globe-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
           <span>${t("country_label")}:</span>
         </span>
 
@@ -1338,8 +1338,7 @@ function renderStreamingView() {
           ${STREAMING_COUNTRIES.map((c) => {
             const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
             return `<button type="button" class="streaming-country-pill ${c.code === currentStreamingCountry ? "is-active" : ""}" data-set-country="${c.code}" aria-selected="${c.code === currentStreamingCountry}" title="${esc(translatedName)}">
-              <span>${c.flag}</span>
-              <span>${c.code}</span>
+              <span class="country-code-pill">${c.code}</span>
             </button>`;
           }).join("")}
         </div>
@@ -1672,7 +1671,7 @@ function renderRatingsSection(m, ratings = null) {
           ${tagMarkup}
         </div>
         <p class="fountain-score-desc">${esc(desc)}</p>
-        <p class="fountain-score-formula"><span class="formula-icon" aria-hidden="true">⚖️</span> <span>${esc(t("fountain_score_formula"))}</span></p>
+        <p class="fountain-score-formula"><span class="formula-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span> <span>${esc(t("fountain_score_formula"))}</span></p>
       </div>
     </div>`;
   }
@@ -1879,7 +1878,7 @@ function renderWatchProviders(providers, selectedCountry = null) {
   return `<section class="detail-watch-section" id="movie-watch-providers" aria-label="${t("where_to_watch")}">
     <div class="watch-header">
       <div class="watch-title-col">
-        <span class="watch-icon" aria-hidden="true">📺</span>
+        <span class="watch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M17 2l-5 5-5-5"></path></svg></span>
         <h2 class="watch-title">${t("where_to_watch")}</h2>
       </div>
       ${countryPills}
@@ -1994,7 +1993,7 @@ async function movie(rawId) {
           if (computed?.score) {
             const topScoreEl = document.querySelector?.(".detail-fountain-score");
             if (topScoreEl) {
-              topScoreEl.innerHTML = `⛲ ${computed.score}/100`;
+              topScoreEl.innerHTML = `<span class="score-fountain-label">Fountain</span> ${computed.score}/100`;
               topScoreEl.title = `${t("fountain_score_label")}: ${computed.score}/100`;
             }
           }
@@ -2178,4 +2177,38 @@ document.querySelector("#search-form").addEventListener("submit", (event) => {
 });
 
 window.addEventListener("hashchange", route);
+
+window.addEventListener("keydown", (event) => {
+  const activeEl = document.activeElement;
+  const isInput = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable);
+
+  // Press "/" to focus search
+  if (event.key === "/" && !isInput) {
+    event.preventDefault();
+    const searchInput = document.getElementById("search");
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.select();
+    }
+    return;
+  }
+
+  // Press "Escape" to dismiss trailer, modal or search
+  if (event.key === "Escape") {
+    const closeTrailer = document.querySelector("[data-close-trailer]");
+    if (closeTrailer) {
+      closeTrailer.click();
+      return;
+    }
+    const avatarModal = document.getElementById("avatar-modal");
+    if (avatarModal && !avatarModal.hidden) {
+      avatarModal.hidden = true;
+      return;
+    }
+    if (isInput) {
+      activeEl.blur();
+    }
+  }
+});
+
 route();

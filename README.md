@@ -2,68 +2,61 @@
   <img src="docs/hero-fountain.gif" alt="Movie Fountain — Live Animated Discovery Stream" width="100%">
 </p>
 
-# 🍿 Movie Fountain
+# Movie Fountain
 
 <p align="center">
-  <strong>An expressive, privacy-first film discovery engine and cinephile companion powered by Cloudflare Pages & edge functions.</strong>
+  <strong>A fluid cinema discovery stream and cinephile companion powered by Cloudflare Pages edge functions.</strong>
 </p>
 
 <p align="center">
-  <a href="https://movie-fountain.pages.dev/"><img src="https://img.shields.io/badge/Live_App-movie--fountain.pages.dev-ff5a1f?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live App"></a>
-  <a href="https://github.com/Snowstormme/movie-fountain"><img src="https://img.shields.io/badge/GitHub-Repository-111827?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository"></a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/version-0.8.0-ff5a1f?style=flat-square" alt="Version 0.8.0">
-  <img src="https://img.shields.io/badge/Cloudflare-Pages%20Functions-f38020?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare Pages">
-  <img src="https://img.shields.io/badge/tests-11%2F11%20passing-3fb950?style=flat-square&logo=node.js&logoColor=white" alt="Unit Tests Passing">
-  <img src="https://img.shields.io/badge/CodeQL-0%20alerts-3fb950?style=flat-square&logo=github&logoColor=white" alt="CodeQL Clean">
-  <img src="https://img.shields.io/badge/privacy-100%25_local_only-a7d6d2?style=flat-square" alt="Private Storage">
+  <a href="https://movie-fountain.pages.dev/"><img src="https://img.shields.io/badge/Live_App-movie--fountain.pages.dev-ff5a1f?style=flat-square" alt="Live App"></a>
+  <a href="https://github.com/Snowstormme/movie-fountain"><img src="https://img.shields.io/badge/GitHub-Repository-111827?style=flat-square&logo=github&logoColor=white" alt="GitHub Repository"></a>
+  <img src="https://img.shields.io/badge/version-0.9.0-ff5a1f?style=flat-square" alt="Version 0.9.0">
   <img src="https://img.shields.io/badge/license-Apache_2.0-d6ae61?style=flat-square" alt="Apache 2.0 License">
 </p>
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
-- [The Mission: A Movie Night Without Endless Scrolling](#-the-mission-a-movie-night-without-endless-scrolling)
-- [✨ Key Visual Showcase & Features](#-key-visual-showcase--features)
+- [Overview](#overview)
+- [Features](#features)
   - [1. Continuous Fountain Discovery Stream](#1-continuous-fountain-discovery-stream)
   - [2. Where to Watch (Streaming Providers Hub)](#2-where-to-watch-streaming-providers-hub)
-  - [3. Dedicated Streaming Catalog (Netflix & Beyond)](#3-dedicated-streaming-catalog-netflix--beyond)
+  - [3. Dedicated Streaming Catalog (Netflix & Apple TV+)](#3-dedicated-streaming-catalog-netflix--apple-tv)
   - [4. Editorial Canon & Curated Charts](#4-editorial-canon--curated-charts)
-  - [5. Multi-Source Ratings & Masterpiece Verdict](#5-multi-source-ratings--masterpiece-verdict)
+  - [5. Multi-Source Ratings & Consensus](#5-multi-source-ratings--consensus)
   - [6. Cinephile Passport & Custom Avatars](#6-cinephile-passport--custom-avatars)
   - [7. Dual Aesthetic Design System](#7-dual-aesthetic-design-system)
-- [🏗️ System Architecture & Data Flow](#️-system-architecture--data-flow)
-- [💻 Technology Stack](#-technology-stack)
-- [📁 Repository Structure](#-repository-structure)
-- [⚡ Getting Started & Local Development](#-getting-started--local-development)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [Local Development](#local-development)
   - [Prerequisites](#prerequisites)
   - [Running Unit Tests](#running-unit-tests)
   - [Local Edge Server (Wrangler)](#local-edge-server-wrangler)
   - [Environment Configuration](#environment-configuration)
-- [🛡️ Security, Privacy & Third-Party Data](#️-security-privacy--third-party-data)
-- [📄 License & Contributing](#-license--contributing)
+- [Security & Privacy](#security--privacy)
+- [License & Contributing](#license--contributing)
 
 ---
 
-## 🎯 The Mission: A Movie Night Without Endless Scrolling
+## Overview
 
 Movie night shouldn't begin with twenty minutes of decision paralysis, clicking through dense grids and stale algorithmic suggestions.
 
-**Movie Fountain** reimagines movie discovery as a fluid, animated stream:
+**Movie Fountain** reimagines movie discovery as a fluid, curated stream:
 - **Watch posters gently flow across your screen** at your preferred cadence.
-- **Filter intuitively on the fly** by mood, genre, release era (from classic Hollywood to 2020s), and runtime cap.
-- **Instantly see where to stream or rent** across international platforms (Netflix, Apple TV, Amazon Prime, Okko, Kinopoisk, Ivi, Pluto TV) with country flag switchers.
-- **Consult a synthesized multi-source consensus** (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience, and TMDB) topped by an exclusive golden **Masterpiece** verdict.
+- **Filter on the fly** by mood, genre, release era (from classic Hollywood to 2020s), and runtime cap.
+- **Instantly see where to stream or rent** across international platforms (Netflix, Apple TV, Amazon Prime, Okko, Kinopoisk, Ivi) with region switchers.
+- **Consult a multi-source consensus** (IMDb, Letterboxd, Rotten Tomatoes Critics & Audience, and TMDB) topped by an editorial **Masterpiece** verdict.
 - **Track your journey** with a local **Cinephile Passport**, custom avatars, and offline-first watchlist management.
 
 All with **zero accounts, zero ads, zero trackers, and zero telemetry**.
 
 ---
 
-## ✨ Key Visual Showcase & Features
+## Features
 
 ### 1. Continuous Fountain Discovery Stream
 
@@ -93,12 +86,12 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 
 - **Tiered Categories**: Clear separation between **Stream** (subscription-based like Netflix, Apple TV+, Amazon Prime), **Free** (ad-supported platforms like Pluto TV), and **Rent / Buy** (Apple Store, Google Play, Amazon Video).
 - **Official Brand Logos**: High-fidelity 32×32 vector and raster badges with crisp hover states and accessible tooltips.
-- **Interactive Regional Switcher**: Rapidly switch between major regions (`🇷🇺 RU`, `🇺🇸 US`, `🇬🇧 GB`, `🇩🇪 DE`, `🇫🇷 FR`, `🇨🇦 CA`) with automatic timezone and language detection.
+- **Interactive Regional Switcher**: Rapidly switch between major regions (`RU`, `US`, `GB`, `DE`, `FR`, `CA`) with automatic timezone and language detection.
 - **Direct JustWatch Deep Link**: One-click jump to full pricing breakdown, 4K HDR badges, and provider details.
 
 ---
 
-### 3. Dedicated Streaming Catalog (Netflix, Apple TV+ & Beyond)
+### 3. Dedicated Streaming Catalog (Netflix & Apple TV+)
 
 Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
 
@@ -107,9 +100,9 @@ Browse exclusive movies and binge-worthy TV series available on your favorite st
 </p>
 
 - **Dual Flagship Streaming Hub**: Switch with a single click between **Netflix** (*Roma*, *The Irishman*, *Stranger Things*, *Dark*, *Squid Game*, *Arcane*) and **Apple TV+** (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*), complete with platform-customized glow palettes (crimson neon vs. titanium silver) and official vector brand logos.
-- **Regional Country Selection (`watch_region`)**: Rapidly switch across 14 major regional streaming catalogs (`🇺🇸 US`, `🇬🇧 GB`, `🇨🇦 CA`, `🇩🇪 DE`, `🇫🇷 FR`, `🇯🇵 JP`, `🇰🇷 KR`, `🇹🇷 TR`, `🇪🇸 ES`, `🇮🇹 IT`, `🇧🇷 BR`, `🇦🇺 AU`, `🇮🇳 IN`, `🇷🇺 RU`) with immediate catalog refetching and preferences persisted in `localStorage`.
+- **Regional Country Selection (`watch_region`)**: Rapidly switch across 14 major regional streaming catalogs (`US`, `GB`, `CA`, `DE`, `FR`, `JP`, `KR`, `TR`, `ES`, `IT`, `BR`, `AU`, `IN`, `RU`) with immediate catalog refetching and preferences persisted in `localStorage`.
 - **Dynamic Pagination & "Load More"**: Browse beyond initial snapshots with on-demand chunk loading (`Load More Titles`), giving direct access to thousands of regional titles indexed via TMDB.
-- **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **🎬 Movies**, **📺 TV Series**, and **★ Top Rated / Masterpieces** ($\ge 8.0$).
+- **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **Movies**, **Series**, and **Top Rated / Masterpieces** ($\ge 8.0$).
 - **Integrated Watchlist Actions**: Save any Netflix or Apple TV+ movie or series directly to your local Cinephile Passport with real-time feedback and clean, non-overlapping badge layout.
 - **Extensible Provider Architecture**: Active support for Netflix and Apple TV+, with upcoming teaser slots for Max (HBO), Amazon Prime Video, and Kinopoisk.
 
@@ -247,7 +240,7 @@ flowchart TD
 
 ---
 
-## 💻 Technology Stack
+## Technology Stack
 
 | Layer | Technologies | Purpose |
 | :--- | :--- | :--- |
@@ -256,11 +249,11 @@ flowchart TD
 | **Edge Hosting** | Cloudflare Pages & Pages Functions | Worldwide sub-50ms latency edge execution and CDN distribution |
 | **Data Providers** | TMDB API v3, JustWatch API, What's on? API, OMDb API | Film catalogs, streaming availability, director credits, and ratings |
 | **Media Player** | YouTube Privacy-Enhanced Player (`youtube-nocookie.com`) | Safe trailer playback in an inline modal without third-party tracking |
-| **Quality & CI/CD** | Node.js Test Runner (`node:test`), GitHub Actions, CodeQL | Automated syntax verification, 10 unit tests, and security scans |
+| **Quality & CI/CD** | Node.js Test Runner (`node:test`), GitHub Actions, CodeQL | Automated syntax verification, 11 unit tests, and security scans |
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 movie-fountain/
@@ -300,9 +293,10 @@ movie-fountain/
 │       ├── movie/[id]/ratings.js  # Multi-source external consensus calculator
 │       └── person/[id].js         # Person biography & directed filmographies
 ├── tests/
-│   └── features.cjs               # Comprehensive 10-suite unit test suite
+│   └── features.cjs               # Comprehensive 11-suite unit test suite
 ├── _headers                       # Cloudflare Pages security headers & strict CSP
 ├── .node-version                  # Node 20 runtime pinning for Cloudflare builds
+├── package.json                   # Project metadata, scripts, and dependencies
 ├── app.js                         # SPA controller, hash routing, Fountain engine & UI
 ├── features.js                    # Watchlist storage, ratings rendering, i18n & filters
 ├── site.css                       # Complete cinema & liquid glass style system
@@ -311,12 +305,12 @@ movie-fountain/
 ├── CHANGELOG.md                   # Chronological changelog
 ├── LICENSE                        # Apache License 2.0
 ├── README.md                      # Comprehensive project documentation
-└── VERSION                        # Semantic version marker (0.8.0)
+└── VERSION                        # Semantic version marker (0.9.0)
 ```
 
 ---
 
-## ⚡ Getting Started & Local Development
+## Local Development
 
 ### Prerequisites
 
@@ -334,7 +328,7 @@ git clone https://github.com/Snowstormme/movie-fountain.git
 cd movie-fountain
 
 # Execute all automated tests
-node --test tests/features.cjs
+npm test
 ```
 
 The test runner verifies:
@@ -358,7 +352,7 @@ cp .env.example .dev.vars
 echo "TMDB_API_KEY=your_tmdb_api_key_here" >> .dev.vars
 
 # 3. Launch Cloudflare Pages dev server
-npx wrangler pages dev .
+npm run dev
 ```
 
 Navigate to `http://localhost:8788` in your browser.
@@ -375,7 +369,7 @@ Navigate to `http://localhost:8788` in your browser.
 
 ---
 
-## 🛡️ Security, Privacy & Third-Party Data
+## Security & Privacy
 
 - **Privacy by Design**:
   - Movie Fountain does not set tracking cookies, load analytics scripts, or require accounts.
@@ -390,7 +384,7 @@ Navigate to `http://localhost:8788` in your browser.
 
 ---
 
-## 📄 License & Contributing
+## License & Contributing
 
 Distributed under the **Apache License 2.0**. See [`LICENSE`](./LICENSE) for full details.
 
