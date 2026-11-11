@@ -267,8 +267,21 @@ app.addEventListener("click", (event) => {
     return;
   }
 
-  const countryBtn = event.target.closest("[data-set-country]");
+  const regionTrigger = event.target?.closest?.("[data-streaming-region-trigger]");
+  if (regionTrigger?.dataset?.streamingRegionTrigger !== undefined) {
+    const menu = document.querySelector?.("#streaming-region-menu");
+    if (menu) {
+      const isHidden = menu.hidden;
+      menu.hidden = !isHidden;
+      regionTrigger.setAttribute?.("aria-expanded", String(isHidden));
+    }
+    return;
+  }
+
+  const countryBtn = event.target?.closest?.("[data-set-country]");
   if (countryBtn?.dataset?.setCountry) {
+    const menu = document.querySelector?.("#streaming-region-menu");
+    if (menu) menu.hidden = true;
     changeStreamingCountry(countryBtn.dataset.setCountry);
     return;
   }
@@ -1255,6 +1268,8 @@ function renderStreamingView() {
   });
 
   const sorted = sortMovieList(filtered, currentStreamingSort);
+  const currentCountryObj = STREAMING_COUNTRIES.find((c) => c.code === currentStreamingCountry) || STREAMING_COUNTRIES[0];
+  const currentCountryName = t("country_" + currentCountryObj.code.toLowerCase()) || currentCountryObj.name;
 
   app.innerHTML = `
     <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
@@ -1268,7 +1283,11 @@ function renderStreamingView() {
         <!-- Netflix -->
         <button type="button" class="streaming-provider streaming-provider--netflix ${currentStreamingProvider === "netflix" ? "is-active" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
           <span class="provider-icon provider-icon--netflix" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="#e50914"><path d="M5.398 0v24c1.815-.224 3.655-.494 5.503-.807V9.775l5.244 13.064c1.94-.356 3.864-.734 5.753-1.139V0h-5.264v14.492L6.46 1.49C6.103.987 5.75.49 5.398 0z"/></svg>
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path fill="#b81d24" d="M4.5 0h4.8v24H4.5z"/>
+              <path fill="#b81d24" d="M14.7 0h4.8v24h-4.8z"/>
+              <path fill="#e50914" d="M4.5 0h4.8l10.2 24h-4.8z" style="filter:drop-shadow(-2px 0 2px rgba(0,0,0,0.5));"/>
+            </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
@@ -1283,7 +1302,13 @@ function renderStreamingView() {
         <!-- Apple TV+ -->
         <button type="button" class="streaming-provider streaming-provider--apple ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
           <span class="provider-icon provider-icon--apple" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>
+            <svg viewBox="0 0 46 20" width="34" height="15" fill="currentColor" aria-hidden="true">
+              <path d="M9.8 1.9c.4-.6.7-1.4.6-2-.7 0-1.5.4-2 .9-.4.5-.7 1.3-.6 2 .8.1 1.5-.3 2-.9z"/>
+              <path d="M11.4 7.2c-.5 0-1.3-.3-2-.3-1 0-1.9.5-2.4 1.4-1 1.8-.9 4.3.9 6.8.6.7 1.2 1.5 2 1.5.7 0 1.1-.5 2-.5s1.2.5 2 .5c.8 0 1.4-.7 2-1.5.6-.8 1-1.7 1-1.8 0 0-1.6-.6-1.6-2.5 0-1.5 1.2-2.2 1.3-2.3-.7-1-1.8-1.1-2.2-1.1-1-.1-2 .7-2.4.7z"/>
+              <path d="M19.8 4.8v2.8h-1.8v2h1.8v5.6c0 1.6.7 2.3 2.3 2.3h1.3v-2h-.9c-.7 0-1-.3-1-1v-4.9h2.1V7.6h-2.1V4.8h-1.7z"/>
+              <path d="M25 7.6l2.9 9.8h2.1l2.9-9.8h-2.2l-1.8 6.7-1.8-6.7H25z"/>
+              <path d="M36.2 5.8h1.8v2.8h2.8v1.8H38v2.8h-1.8v-2.8h-2.8V8.6h2.8V5.8z"/>
+            </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
@@ -1298,7 +1323,13 @@ function renderStreamingView() {
         <!-- Max (HBO) -->
         <div class="streaming-provider streaming-provider--max is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--max" aria-hidden="true">
-            <strong style="color:#ffffff;font-family:sans-serif;font-weight:900;font-size:14px;letter-spacing:-0.03em;">MAX</strong>
+            <svg viewBox="0 0 52 18" width="34" height="13" fill="#ffffff" aria-hidden="true">
+              <path d="M1.5 1h3.6l4.9 7.4L14.9 1h3.6v16h-3.6V7.8l-4.9 7.4h-.2L4.9 7.8V17H1.5V1z"/>
+              <path d="M20.2 17L25.4 1h4.2l5.2 16h-3.7l-1-3.4h-5.9l-1 3.4h-3zm5.7-6.2h4l-2-6.5-2 6.5z"/>
+              <circle cx="27.5" cy="11.2" r="1.3" fill="#002be7"/>
+              <circle cx="27.5" cy="11.2" r="0.6" fill="#ffffff"/>
+              <path d="M36.5 1h3.8l3.1 5.3L46.5 1h3.8l-5 8 5.2 8h-3.9l-3.3-5.5-3.3 5.5h-3.9l5.2-8-4.7-8z"/>
+            </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
@@ -1313,7 +1344,10 @@ function renderStreamingView() {
         <!-- Prime Video -->
         <div class="streaming-provider streaming-provider--prime is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--prime" aria-hidden="true">
-            <strong style="color:#00a8e1;font-family:sans-serif;font-weight:900;font-size:13px;">prime</strong>
+            <svg viewBox="0 0 54 22" width="34" height="15" aria-hidden="true">
+              <path fill="#ffffff" d="M3 4.2h2.5v1.8c.6-1.3 1.9-2 3.3-2 2.5 0 4.1 1.8 4.1 4.6 0 2.8-1.7 4.6-4.1 4.6-1.4 0-2.7-.7-3.3-2v5.4H3V4.2zm2.5 4.4c0 1.6 1 2.6 2.3 2.6 1.3 0 2.4-1 2.4-2.6s-1-2.6-2.4-2.6c-1.3 0-2.3 1-2.3 2.6zM14.2 4.2h2.5v1.9c.5-1.3 1.7-2.1 3-2.1h.8v2.7h-1.1c-1.6 0-2.7 1-2.7 2.8v3.7h-2.5V4.2zM22 4.2h2.5v9h-2.5v-9zm0-4h2.5v2.5H22V.2zM26 4.2h2.5v1.6c.5-1.1 1.6-1.8 2.8-1.8 1.3 0 2.2.6 2.6 1.8.6-1.1 1.8-1.8 3-1.8 1.9 0 3.3 1.4 3.3 3.6v5.6h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5H26V4.2zM41.8 9h6.2c-.2-2.8-1.7-5-4.4-5-2.8 0-4.6 2-4.6 4.6 0 2.7 1.8 4.7 4.7 4.7 1.8 0 3.3-.8 4-2.1l-1.8-1.1c-.5.7-1.3 1.1-2.2 1.1-1.3 0-2.2-.7-2.3-2.3zm-.1-1.8c.2-1.1 1-1.8 2.1-1.8 1 0 1.8.7 2 1.8h-4.1z"/>
+              <path fill="#00a8e1" d="M3.8 16.2c7 3.6 20.8 4 29.8-1.2l-1-.9c2.3.2 4.4.4 6-.2-.8 1.3-1.9 2.8-2.6 4.3l-1-.9c-8.6 4.8-22 4.4-28.5-1l-2.7-.1z"/>
+            </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
@@ -1328,7 +1362,15 @@ function renderStreamingView() {
         <!-- Kinopoisk -->
         <div class="streaming-provider streaming-provider--kp is-disabled" title="${t("provider_coming_soon")}">
           <span class="provider-icon provider-icon--kp" aria-hidden="true">
-            <strong style="color:#ffffff;font-family:sans-serif;font-weight:900;font-size:13px;">Кино</strong>
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path fill="#ffffff" d="M3 2h5.5l-.8 6.5H3z"/>
+              <path fill="#ffffff" d="M3 9.5h4.6l-.3 5H3z"/>
+              <path fill="#ffffff" d="M3 15.5h4.2L6.5 22H3z"/>
+              <path fill="#ffffff" d="M12.5 9.8l5.8-7.8h4.2l-7.2 8.5z"/>
+              <path fill="#ffffff" d="M10 11.2l4.8-4.5 2.8 1.8-5.6 4z"/>
+              <path fill="#ffffff" d="M10.2 12.8l5.4 3.8-2.6 2-4.8-4.5z"/>
+              <path fill="#ffffff" d="M15.2 13.5l7.3 8.5h-4.2l-5.8-7.2z"/>
+            </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
@@ -1341,24 +1383,7 @@ function renderStreamingView() {
         </div>
       </div>
 
-      <!-- Country / Regional Catalog Selector -->
-      <div class="streaming-country-bar" role="region" aria-label="${t("country_label")}">
-        <span class="streaming-country-label">
-          <span class="country-globe-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-          <span>${t("country_label")}:</span>
-        </span>
-
-        <div class="streaming-country-pills" role="tablist" aria-label="${t("country_label")}">
-          ${STREAMING_COUNTRIES.map((c) => {
-            const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
-            return `<button type="button" class="streaming-country-pill ${c.code === currentStreamingCountry ? "is-active" : ""}" data-set-country="${c.code}" aria-selected="${c.code === currentStreamingCountry}" title="${esc(translatedName)}">
-              <span class="country-code-pill">${c.code}</span>
-            </button>`;
-          }).join("")}
-        </div>
-      </div>
-
-      <!-- Filter Tabs & Sort Toolbar -->
+      <!-- Filter Tabs & Region / Sort Toolbar -->
       <div class="streaming-toolbar">
         <div class="streaming-tabs" role="tablist">
           <button type="button" class="streaming-tab ${currentStreamingFilter === "all" ? "is-active" : ""}" data-stream-tab="all">${t("tab_stream_all")}</button>
@@ -1368,7 +1393,38 @@ function renderStreamingView() {
         </div>
 
         <div class="streaming-right-tools">
-          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry, currentStreamingProvider)}</span>
+          <!-- Compact Region Picker Dropdown -->
+          <div class="streaming-region-picker" id="streaming-region-picker">
+            <button type="button" class="streaming-region-btn" id="streaming-region-trigger" data-streaming-region-trigger aria-haspopup="listbox" aria-expanded="false" title="${t("country_label")}">
+              <span class="region-globe-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
+              <span class="region-label-prefix">${t("country_label")}:</span>
+              <span class="region-current-name">${esc(currentCountryName)}</span>
+              <span class="country-code-pill">${currentStreamingCountry}</span>
+              <span class="region-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+
+            <!-- Popover Menu -->
+            <div class="streaming-region-menu" id="streaming-region-menu" role="listbox" hidden>
+              <div class="region-menu-header">
+                <span class="region-menu-title">${t("country_label")}</span>
+                <span class="region-menu-hint">${STREAMING_COUNTRIES.length} regions</span>
+              </div>
+              <div class="region-menu-grid">
+                ${STREAMING_COUNTRIES.map((c) => {
+                  const translatedName = t("country_" + c.code.toLowerCase()) || c.name;
+                  const isActive = c.code === currentStreamingCountry;
+                  return `
+                    <button type="button" class="region-menu-item ${isActive ? "is-active" : ""}" data-set-country="${c.code}" role="option" aria-selected="${isActive}">
+                      <span class="region-menu-code">${c.code}</span>
+                      <span class="region-menu-name">${esc(translatedName)}</span>
+                      ${isActive ? `<span class="region-menu-check" aria-hidden="true">✓</span>` : ""}
+                    </button>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          </div>
+
           <label class="list-sort">
             <span>${t("sort_label")}:</span>
             <select data-streaming-sort aria-label="${t("sort_label")}">
@@ -1378,6 +1434,8 @@ function renderStreamingView() {
               <option value="title_asc" ${currentStreamingSort === "title_asc" ? "selected" : ""}>${t("sort_title_asc")}</option>
             </select>
           </label>
+
+          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry, currentStreamingProvider)}</span>
         </div>
       </div>
     </div>
@@ -2223,14 +2281,25 @@ document.querySelector("#search-form").addEventListener("submit", (event) => {
 
 window.addEventListener("hashchange", route);
 
-window.addEventListener("keydown", (event) => {
+if (typeof document !== "undefined" && document !== app && typeof document.addEventListener === "function") {
+  document.addEventListener("click", (event) => {
+    const menu = document.querySelector?.("#streaming-region-menu");
+    const trigger = document.querySelector?.("#streaming-region-trigger");
+    if (menu && !menu.hidden && !menu.contains?.(event.target) && !trigger?.contains?.(event.target)) {
+      menu.hidden = true;
+      trigger?.setAttribute?.("aria-expanded", "false");
+    }
+  });
+}
+
+window.addEventListener?.("keydown", (event) => {
   const activeEl = document.activeElement;
   const isInput = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable);
 
   // Press "/" to focus search
   if (event.key === "/" && !isInput) {
     event.preventDefault();
-    const searchInput = document.getElementById("search");
+    const searchInput = document.querySelector?.("#search");
     if (searchInput) {
       searchInput.focus();
       searchInput.select();
@@ -2238,14 +2307,20 @@ window.addEventListener("keydown", (event) => {
     return;
   }
 
-  // Press "Escape" to dismiss trailer, modal or search
+  // Press "Escape" to dismiss dropdowns, trailer, modal or search
   if (event.key === "Escape") {
-    const closeTrailer = document.querySelector("[data-close-trailer]");
+    const regionMenu = document.querySelector?.("#streaming-region-menu");
+    if (regionMenu && !regionMenu.hidden) {
+      regionMenu.hidden = true;
+      document.querySelector?.("#streaming-region-trigger")?.setAttribute?.("aria-expanded", "false");
+      return;
+    }
+    const closeTrailer = document.querySelector?.("[data-close-trailer]");
     if (closeTrailer) {
       closeTrailer.click();
       return;
     }
-    const avatarModal = document.getElementById("avatar-modal");
+    const avatarModal = document.querySelector?.("#avatar-modal");
     if (avatarModal && !avatarModal.hidden) {
       avatarModal.hidden = true;
       return;
