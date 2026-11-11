@@ -1229,7 +1229,7 @@ function updateStreamingCountAndLoadMoreUI() {
 }
 
 function renderStreamingCountText(currentCount, totalCount, countryCode, provider) {
-  const providerName = provider === "apple" ? "Apple TV+" : "Netflix";
+  const providerName = provider === "apple" ? (t("provider_apple") || "Apple TV") : "Netflix";
   const formattedTotal = Number(totalCount) > currentCount ? Number(totalCount).toLocaleString() : null;
   if (formattedTotal) {
     return t("stream_count_total")
@@ -1299,15 +1299,16 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
-        <!-- Apple TV+ -->
+        <!-- Apple TV -->
         <button type="button" class="streaming-provider streaming-provider--apple ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
           <span class="provider-icon provider-icon--apple" aria-hidden="true">
-            <svg viewBox="0 0 46 20" width="34" height="15" fill="currentColor" aria-hidden="true">
-              <path d="M9.8 1.9c.4-.6.7-1.4.6-2-.7 0-1.5.4-2 .9-.4.5-.7 1.3-.6 2 .8.1 1.5-.3 2-.9z"/>
-              <path d="M11.4 7.2c-.5 0-1.3-.3-2-.3-1 0-1.9.5-2.4 1.4-1 1.8-.9 4.3.9 6.8.6.7 1.2 1.5 2 1.5.7 0 1.1-.5 2-.5s1.2.5 2 .5c.8 0 1.4-.7 2-1.5.6-.8 1-1.7 1-1.8 0 0-1.6-.6-1.6-2.5 0-1.5 1.2-2.2 1.3-2.3-.7-1-1.8-1.1-2.2-1.1-1-.1-2 .7-2.4.7z"/>
-              <path d="M19.8 4.8v2.8h-1.8v2h1.8v5.6c0 1.6.7 2.3 2.3 2.3h1.3v-2h-.9c-.7 0-1-.3-1-1v-4.9h2.1V7.6h-2.1V4.8h-1.7z"/>
-              <path d="M25 7.6l2.9 9.8h2.1l2.9-9.8h-2.2l-1.8 6.7-1.8-6.7H25z"/>
-              <path d="M36.2 5.8h1.8v2.8h2.8v1.8H38v2.8h-1.8v-2.8h-2.8V8.6h2.8V5.8z"/>
+            <svg viewBox="0 0 35 17" width="30" height="15" fill="currentColor" aria-hidden="true">
+              <!-- Apple silhouette -->
+              <path d="M14.7 15.3c-.7 1-1.3 1.9-2.4 1.9-1 0-1.4-.6-2.6-.6-1.2 0-1.6.6-2.6.6-1 0-1.8-1-2.5-2C3.3 13.3 2.3 9.7 3.7 7.3c.7-1.2 1.9-2 3.3-2 1 0 2 .7 2.6.7.6 0 1.8-.8 3-.7.5 0 2 .2 2.9 1.5-.1.1-1.7 1-1.7 3 0 2.4 2.1 3.2 2.1 3.3-.1.1-.3 1.1-1.2 2.2zM12.5 4.9c.5-.6.9-1.5.8-2.3-.8 0-1.7.5-2.2 1.1-.4.5-.8 1.4-.7 2.2.9.1 1.7-.4 2.1-1z"/>
+              <!-- t -->
+              <path d="M19.4 4.8v2.6h-1.6v2.1h1.6v4.6c0 1.8.8 2.5 2.5 2.5h1.2v-2h-.7c-.9 0-1.2-.3-1.2-1v-4.1h2.2V7.4h-2.2V4.8h-1.8z"/>
+              <!-- v -->
+              <path d="M25 7.4l2.8 9.2h2.2l2.8-9.2h-2.3l-1.6 6.3-1.6-6.3H25z"/>
             </svg>
           </span>
           <div class="provider-meta">
@@ -1462,7 +1463,7 @@ function streamingCard(item) {
   const mediaLabel = item.media_type === "tv" ? t("media_tv") : t("media_movie");
   const isApple = item.provider === "apple" || currentStreamingProvider === "apple";
   const providerChip = isApple
-    ? `<span class="apple-chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV+</span>`
+    ? `<span class="apple-chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV</span>`
     : `<span class="netflix-chip">NETFLIX</span>`;
 
   return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}" data-provider="${isApple ? "apple" : "netflix"}">

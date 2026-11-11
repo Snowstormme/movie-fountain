@@ -759,11 +759,11 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   const dataAppleTv = await resAppleTv.json();
   assert.ok(dataAppleTv.results.every((m) => m.media_type === "tv"));
 
-  // Check Apple TV+ i18n
+  // Check Apple TV i18n
   run("setLang('en')");
-  assert.equal(run("t('provider_apple')"), "Apple TV+");
+  assert.equal(run("t('provider_apple')"), "Apple TV");
   assert.equal(run("t('provider_apple_sub')"), "Award-winning originals, hit dramas & acclaimed films");
   run("setLang('ru')");
-  assert.equal(run("t('provider_apple')"), "Apple TV+");
+  assert.equal(run("t('provider_apple')"), "Apple TV");
   assert.equal(run("t('provider_apple_sub')"), "Оригинальные драмы, лауреаты Оскара и авторские сериалы");
 });
