@@ -84,6 +84,7 @@ const translations = {
     theme_btn: "Theme",
     theme_classic: "Classic",
     theme_liquid: "Liquid Glass",
+    grain_btn: "35mm Grain",
     lang_btn: "Language",
     lang_name: "English",
     export_json: "Export",
@@ -349,6 +350,7 @@ const translations = {
     theme_btn: "Тема",
     theme_classic: "Классика",
     theme_liquid: "Жидкое стекло",
+    grain_btn: "Зерно 35мм",
     lang_btn: "Язык",
     lang_name: "Русский",
     export_json: "Экспорт",
@@ -809,6 +811,31 @@ function setTheme(theme) {
   } catch {}
   document.dispatchEvent(new Event("themechange"));
 }
+
+const grainKey = "movie-fountain.grain.v1";
+
+function applyGrain(on) {
+  if (document.documentElement?.dataset) {
+    document.documentElement.dataset.grain = on ? "on" : "off";
+  }
+}
+
+function getGrain() {
+  try {
+    return localStorage.getItem(grainKey) === "on";
+  } catch {
+    return false;
+  }
+}
+
+function setGrain(on) {
+  applyGrain(on);
+  try {
+    localStorage.setItem(grainKey, on ? "on" : "off");
+  } catch {}
+}
+
+applyGrain(getGrain());
 
 function normalizeMovies(data) {
   if (!Array.isArray(data) || data.length > 2000) {

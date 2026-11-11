@@ -112,6 +112,7 @@ function account() {
       <div class="account-hero-actions">
         <button type="button" class="account-hero-btn" data-lang-toggle aria-label="Toggle language">🌐 ${savedLang === "ru" ? "Русский" : "English"}</button>
         <button type="button" class="account-hero-btn" data-open-style>${t("theme_btn")}: ${theme}</button>
+        <button type="button" class="account-hero-btn ${typeof getGrain === "function" && getGrain() ? "is-active" : ""}" data-toggle-grain aria-pressed="${typeof getGrain === "function" && getGrain()}">${typeof getGrain === "function" && getGrain() ? "● " : "○ "}${t("grain_btn")}</button>
         <button type="button" class="account-hero-btn" id="export-list">${t("export_json")}</button>
         <label class="account-hero-btn account-hero-btn--primary">
           ${t("import_json")}
@@ -240,6 +241,16 @@ app.addEventListener("click", (event) => {
   if (styleLink?.dataset?.openStyle !== undefined) {
     event.stopPropagation?.();
     setTheme(savedTheme === "liquid" ? "classic" : "liquid");
+    return;
+  }
+
+  const grainToggle = event.target.closest("[data-toggle-grain]");
+  if (grainToggle?.dataset?.toggleGrain !== undefined) {
+    event.stopPropagation?.();
+    if (typeof setGrain === "function" && typeof getGrain === "function") {
+      setGrain(!getGrain());
+      account();
+    }
     return;
   }
 
@@ -500,7 +511,10 @@ function card(movie, decorative = false, eagerPoster = false) {
       ${isWatched ? `<strong class="watched-badge">${t("watched")}</strong>` : ""}
       <div class="card-copy">
         <h3>${esc(movie.title)}</h3>
-        <div class="card-meta"><span>${year(movie.release_date)}</span></div>
+        <div class="card-meta">
+          <span>${year(movie.release_date)}</span>
+          ${movie.original_title && movie.original_title !== movie.title ? `<span class="card-orig-title" title="${esc(movie.original_title)}">${esc(movie.original_title)}</span>` : ""}
+        </div>
       </div>
       <div class="card-preview">
         <p>${esc(movie.overview || t("no_overview"))}</p>
@@ -1685,22 +1699,53 @@ function renderRatingsSection(m, ratings = null) {
   ${fountainCard}
   <div class="ratings-grid">
     <div class="score-card tmdb-score">
-      <span class="score-source">TMDB</span>
+      <div class="score-source-row">
+        <svg class="score-logo-mark" viewBox="0 0 28 14" width="28" height="14" aria-hidden="true">
+          <defs>
+            <linearGradient id="tmdb-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#90cea1"/>
+              <stop offset="100%" stop-color="#01b4e4"/>
+            </linearGradient>
+          </defs>
+          <rect width="28" height="14" rx="3" fill="url(#tmdb-bar)"/>
+          <text x="14" y="10.5" fill="#0d253f" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="8.5" text-anchor="middle" letter-spacing="-0.4">TMDB</text>
+        </svg>
+        <span class="score-source">TMDB</span>
+      </div>
       ${tmdbScore}
       <span class="score-note">${tmdbVotes} · <a href="https://www.themoviedb.org/movie/${Number(m.id)}" target="_blank" rel="noopener noreferrer">Open</a></span>
     </div>
     <div class="score-card imdb-score">
-      <span class="score-source">IMDb</span>
+      <div class="score-source-row">
+        <svg class="score-logo-mark" viewBox="0 0 32 16" width="32" height="16" aria-hidden="true" style="border-radius:3px;">
+          <rect width="32" height="16" rx="3" fill="#f5c518"/>
+          <text x="16" y="12" fill="#000000" font-family="Impact, sans-serif" font-weight="900" font-size="11" text-anchor="middle" letter-spacing="0.5">IMDb</text>
+        </svg>
+        <span class="score-source">IMDb</span>
+      </div>
       ${imdbScore}
       <span class="score-note">Audience rating · ${imdbUrl ? `<a href="${esc(imdbUrl)}" target="_blank" rel="noopener noreferrer">Open</a>` : "Not listed"}</span>
     </div>
     <div class="score-card letterboxd-score">
-      <span class="score-source">Letterboxd</span>
+      <div class="score-source-row">
+        <svg class="score-logo-mark" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <circle cx="6" cy="12" r="4.6" fill="#00e054"/>
+          <circle cx="12" cy="12" r="4.6" fill="#ff8000"/>
+          <circle cx="18" cy="12" r="4.6" fill="#40bcf4"/>
+        </svg>
+        <span class="score-source">Letterboxd</span>
+      </div>
       ${letterboxdScore}
       <span class="score-note">Member rating · <a href="${esc(letterboxdUrl)}" target="_blank" rel="noopener noreferrer">Open</a></span>
     </div>
     <div class="score-card rotten-score">
-      <span class="score-source">Rotten Tomatoes</span>
+      <div class="score-source-row">
+        <svg class="score-logo-mark" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="#fa320a" d="M12 2c-1.5 1-2.5 2.5-2.5 4-2-.5-4 1-4 3.5C5.5 16 8.5 22 12 22s6.5-6 6.5-12.5c0-2.5-2-4-4-3.5 0-1.5-1-3-2.5-4z"/>
+          <path fill="#46d33a" d="M12 2c-.5 1.5-.5 3-1 4.5 1-.5 2-.5 3-1-.5-1-1.5-2.5-2-3.5z"/>
+        </svg>
+        <span class="score-source">Rotten Tomatoes</span>
+      </div>
       ${rottenScore}
       ${rottenAudience}
       <span class="score-note">Critics · <a href="${esc(rottenUrl)}" target="_blank" rel="noopener noreferrer">Open</a></span>
