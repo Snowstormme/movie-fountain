@@ -1274,9 +1274,6 @@ function renderStreamingView() {
   app.innerHTML = `
     <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
       <div class="streaming-ambient-glow" aria-hidden="true"></div>
-      <p class="eyebrow">${t("streaming_tag")}</p>
-      <h1>${t("streaming_title")}</h1>
-      <p class="hero-copy">${esc(t("streaming_sub"))}</p>
 
       <!-- Provider Selector -->
       <div class="streaming-providers" role="tablist" aria-label="Streaming Providers">

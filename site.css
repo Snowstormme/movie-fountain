@@ -325,7 +325,7 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
    ========================================================================== */
 .streaming-heading {
   position: relative;
-  padding-bottom: 15px;
+  padding: 24px 0 15px;
 }
 
 .streaming-ambient-glow {
