@@ -1258,7 +1258,7 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
   if (provider === "apple") {
     providerName = t("provider_apple") || "Apple TV";
   } else if (provider === "max" || provider === "hbo") {
-    providerName = t("provider_max") || "Max";
+    providerName = t("provider_max") || "HBO Max";
   } else if (provider === "prime" || provider === "amazon") {
     providerName = t("provider_prime") || "Prime Video";
   }
@@ -1348,15 +1348,15 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
-        <!-- Max (HBO) -->
+        <!-- HBO Max -->
         <button type="button" class="streaming-provider streaming-provider--max ${currentStreamingProvider === "max" ? "is-active" : ""}" data-provider="max" role="tab" aria-selected="${currentStreamingProvider === "max"}">
           <span class="provider-icon provider-icon--max" aria-hidden="true">
-            <svg viewBox="0 0 52 18" width="34" height="13" fill="#ffffff" aria-hidden="true">
-              <path d="M1.5 1h3.6l4.9 7.4L14.9 1h3.6v16h-3.6V7.8l-4.9 7.4h-.2L4.9 7.8V17H1.5V1z"/>
-              <path d="M20.2 17L25.4 1h4.2l5.2 16h-3.7l-1-3.4h-5.9l-1 3.4h-3zm5.7-6.2h4l-2-6.5-2 6.5z"/>
-              <circle cx="27.5" cy="11.2" r="1.3" fill="#002be7"/>
-              <circle cx="27.5" cy="11.2" r="0.6" fill="#ffffff"/>
-              <path d="M36.5 1h3.8l3.1 5.3L46.5 1h3.8l-5 8 5.2 8h-3.9l-3.3-5.5-3.3 5.5h-3.9l5.2-8-4.7-8z"/>
+            <svg viewBox="0 0 50 30" width="28" height="17" aria-hidden="true">
+              <path fill="#ffffff" d="M1 1h4.6v6.6h5.2V1h4.6v16h-4.6v-6.1H5.6V17H1V1z"/>
+              <path fill="#ffffff" fill-rule="evenodd" d="M17.4 1h7.6c3.2 0 5.3 1.5 5.3 4.1 0 1.7-.9 2.9-2.4 3.5 1.9.6 2.9 1.9 2.9 3.9 0 2.9-2.2 4.5-5.6 4.5h-7.8V1zm4.4 3.3v3h2.6c1 0 1.6-.6 1.6-1.5s-.6-1.5-1.6-1.5h-2.6zm0 6.1v3.3h2.9c1.2 0 1.8-.6 1.8-1.6 0-1.1-.7-1.7-1.9-1.7h-2.8z"/>
+              <path fill="#ffffff" fill-rule="evenodd" d="M40.3.7c4.9 0 8.5 3.6 8.5 8.3s-3.6 8.3-8.5 8.3-8.5-3.6-8.5-8.3S35.4.7 40.3.7zm0 4.1c-2.3 0-4 1.8-4 4.2s1.7 4.2 4 4.2 4-1.8 4-4.2-1.7-4.2-4-4.2z"/>
+              <circle cx="40.3" cy="9" r="2.2" fill="#ffffff"/>
+              <path fill="#e2d9ff" d="M7.5 21.5h2.2v1c.5-.8 1.2-1.2 2.2-1.2 1 0 1.8.4 2.2 1.2.5-.8 1.4-1.2 2.4-1.2 1.6 0 2.7 1.1 2.7 2.8V29h-2.3v-4.4c0-.9-.5-1.5-1.3-1.5-.8 0-1.4.6-1.4 1.5V29h-2.2v-4.4c0-.9-.5-1.5-1.3-1.5-.8 0-1.4.6-1.4 1.5V29H7.5v-7.5zm14.3 3.7c0-2.3 1.7-3.9 3.8-3.9 1.1 0 2 .5 2.5 1.3v-1.1h2.2V29h-2.2v-1.1c-.6.8-1.4 1.3-2.5 1.3-2.1 0-3.8-1.6-3.8-4zm2.2 0c0 1.1.8 2 1.9 2s2-.8 2-2-.8-2-2-2-1.9.8-1.9 2zm8.4-3.7H35l1.8 2.5 1.8-2.5h2.5l-2.9 3.7 3.1 3.8h-2.6l-2-2.6-2 2.6h-2.5l3.1-3.8-2.9-3.7z"/>
             </svg>
           </span>
           <div class="provider-meta">
@@ -1494,7 +1494,7 @@ function streamingCard(item) {
     providerChip = `<span class="prime-chip" aria-label="Prime Video"><svg viewBox="0 0 62 23" width="38" height="14" aria-hidden="true"><path fill="#ffffff" fill-rule="evenodd" d="M2 4.5h3.2v1.1c.8-.9 1.9-1.4 3.3-1.4 2.8 0 4.8 2.1 4.8 5s-2 5-4.8 5c-1.4 0-2.5-.5-3.3-1.4v4.7H2V4.5zm3.3 4.7c0 1.6 1 2.7 2.4 2.7s2.4-1.1 2.4-2.7-1-2.7-2.4-2.7-2.4 1.1-2.4 2.7zM15.2 4.5h3.2v1.6c.7-1.2 1.8-1.9 3.3-1.9.4 0 .8.1 1.1.2v3c-.4-.1-.8-.1-1.3-.1-1.8 0-3 1-3 3.1V14h-3.3V4.5zm9.2-3.7h3.4v2.6h-3.4V.8zm0 3.7h3.4V14h-3.4V4.5zm5.8 0h3.2v1.3c.7-1 1.8-1.6 3.2-1.6 1.5 0 2.6.6 3.2 1.7.8-1.1 2-1.7 3.5-1.7 2.4 0 4 1.6 4 4.1V14H44V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V4.5zm29.4 5.6h-6.8c.2 1.3 1.2 2 2.7 2 1 0 1.9-.3 2.6-.9l1.4 1.8c-1 .8-2.3 1.3-4.1 1.3-3.4 0-5.8-2.1-5.8-5s2.3-5.1 5.3-5.1c3.1 0 4.9 2.1 4.9 4.9 0 .4 0 .7-.2 1zm-6.8-1.8h4c-.1-1.2-.9-2-2-2-1.1 0-1.8.8-2 2z"/><path fill="#ffffff" d="M11.3 16.4c9.7 4.7 24.1 5 34.4-.5l-1.6-1.1c2.6-.2 5.4-.1 7.1.6-.5 1.9-1.4 4.1-2.6 5.6l-1.3-1.4c-10.8 6.2-26.6 5.7-37.2-.7-.7-.4-.1-1.8 1.2-2.5z"/></svg></span>`;
     providerCode = "prime";
   } else if (isMax) {
-    providerChip = `<span class="max-chip">MAX</span>`;
+    providerChip = `<span class="max-chip" aria-label="HBO Max"><svg viewBox="0 0 92 18" width="54" height="11" aria-hidden="true"><path fill="#ffffff" d="M1 1h4.6v6.6h5.2V1h4.6v16h-4.6v-6.1H5.6V17H1V1z"/><path fill="#ffffff" fill-rule="evenodd" d="M17.4 1h7.6c3.2 0 5.3 1.5 5.3 4.1 0 1.7-.9 2.9-2.4 3.5 1.9.6 2.9 1.9 2.9 3.9 0 2.9-2.2 4.5-5.6 4.5h-7.8V1zm4.4 3.3v3h2.6c1 0 1.6-.6 1.6-1.5s-.6-1.5-1.6-1.5h-2.6zm0 6.1v3.3h2.9c1.2 0 1.8-.6 1.8-1.6 0-1.1-.7-1.7-1.9-1.7h-2.8z"/><path fill="#ffffff" fill-rule="evenodd" d="M40.3.7c4.9 0 8.5 3.6 8.5 8.3s-3.6 8.3-8.5 8.3-8.5-3.6-8.5-8.3S35.4.7 40.3.7zm0 4.1c-2.3 0-4 1.8-4 4.2s1.7 4.2 4 4.2 4-1.8 4-4.2-1.7-4.2-4-4.2z"/><circle cx="40.3" cy="9" r="2.2" fill="#ffffff"/><path fill="#ffffff" fill-rule="evenodd" d="M51.5 5.2h2.7v1.2c.6-.9 1.5-1.4 2.7-1.4 1.3 0 2.2.5 2.7 1.5.7-1 1.7-1.5 3-1.5 2 0 3.3 1.3 3.3 3.5V16h-2.8v-6.9c0-1.1-.6-1.8-1.5-1.8-.9 0-1.6.7-1.6 1.8V16h-2.7V9.1c0-1.1-.6-1.8-1.5-1.8-.9 0-1.6.7-1.6 1.8V16h-2.7V5.2zM67.2 10.6c0-3.2 2.2-5.6 5.1-5.6 1.4 0 2.5.6 3.2 1.6V5.2h2.7V16h-2.7v-1.4c-.7 1-1.8 1.6-3.2 1.6-2.9 0-5.1-2.4-5.1-5.6zm2.7 0c0 1.8 1.1 3.1 2.7 3.1 1.5 0 2.7-1.2 2.7-3.1 0-1.8-1.2-3.1-2.7-3.1-1.6 0-2.7 1.3-2.7 3.1zM80 5.2h3.1l2.4 3.4 2.4-3.4H91l-3.7 5.2L91.2 16h-3.1l-2.6-3.7-2.6 3.7h-3.1l3.9-5.6L80 5.2z"/></svg></span>`;
     providerCode = "max";
   } else if (isApple) {
     providerChip = `<span class="apple-chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV</span>`;

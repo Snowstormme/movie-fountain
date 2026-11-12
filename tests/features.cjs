@@ -803,12 +803,12 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   const dataMaxTv = await resMaxTv.json();
   assert.ok(dataMaxTv.results.every((m) => m.media_type === "tv"));
 
-  // Check Max i18n
+  // Check HBO Max i18n
   run("setLang('en')");
-  assert.equal(run("t('provider_max')"), "Max");
+  assert.equal(run("t('provider_max')"), "HBO Max");
   assert.equal(run("t('provider_max_sub')"), "HBO originals, Warner Bros. cinema & iconic TV");
   run("setLang('ru')");
-  assert.equal(run("t('provider_max')"), "Max");
+  assert.equal(run("t('provider_max')"), "HBO Max");
   assert.equal(run("t('provider_max_sub')"), "Культовые сериалы HBO, премьеры Warner Bros. и классика");
 
   // 9. Prime Video provider endpoint, aliases, and catalog

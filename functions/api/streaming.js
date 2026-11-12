@@ -21,7 +21,7 @@ const PROVIDERS = {
   },
   max: {
     id: "max",
-    name: "Max",
+    name: "HBO Max",
     watchProviderId: "1899|384",
     networkId: "49|3186",
     catalog: MAX_CATALOG
