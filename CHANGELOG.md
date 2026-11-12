@@ -2,6 +2,13 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.1] - 2026-11-12
+
+- Add full **Max (HBO)** streaming integration (`#streaming/max`, `#max`, `#hbo`, `#hbomax`): explore acclaimed HBO original series and Warner Bros. cinema (*Dune: Part Two*, *The Dark Knight*, *The Sopranos*, *Succession*, *The Last of Us*, *Game of Thrones*, *Chernobyl*, *True Detective*, *House of the Dragon*, *The Wire*, *The Penguin*, *Barry*, *Hacks*, *Spirited Away*, *The Matrix*), powered by TMDB provider IDs `1899|384` and network IDs `49|3186` with dedicated curated catalog fallback (`functions/_lib/max_catalog.js`).
+- Add active **Max Provider Switcher & Visual Identity**: signature electric royal blue ambient glow, official Max vector typography with bullseye lettermark, interactive active/ready status pills, and localized EN/RU subtitles.
+- Add **Max Platform Chip**: custom electric royal blue and deep purple gradient chip (`MAX`) on streaming movie and series cards.
+- Add **Route & Storage Persistence**: direct hash navigation (`#max`, `#hbo`, `#hbomax`) automatically activates the Max catalog, stores preferences in `localStorage`, and seamlessly integrates with compact regional country dropdowns and sort options.
+
 ## [0.8.0] - 2026-11-09
 
 - Add full **Apple TV+** streaming integration (`#streaming/apple`, `#apple`, `#appletv`): explore acclaimed Apple Original movies and series (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*, *Bad Sisters*, *Wolfwalkers*, *Pachinko*), powered by TMDB provider ID 350 and network ID 2552 with dedicated offline catalog fallback (`functions/_lib/apple_catalog.js`).

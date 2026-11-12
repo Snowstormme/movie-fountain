@@ -1,6 +1,7 @@
 import { tmdb, extractLang } from "../_lib/tmdb.js";
 import { NETFLIX_CATALOG } from "../_lib/netflix_catalog.js";
 import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
+import { MAX_CATALOG } from "../_lib/max_catalog.js";
 
 const PROVIDERS = {
   netflix: {
@@ -16,6 +17,13 @@ const PROVIDERS = {
     watchProviderId: "350",
     networkId: "2552",
     catalog: APPLE_CATALOG
+  },
+  max: {
+    id: "max",
+    name: "Max",
+    watchProviderId: "1899|384",
+    networkId: "49|3186",
+    catalog: MAX_CATALOG
   }
 };
 
@@ -47,7 +55,12 @@ function normalizeMediaItem(item, defaultType = "movie", provider = "netflix") {
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const rawProvider = (url.searchParams.get("provider") || "netflix").toLowerCase();
-  const provider = rawProvider === "appletv" || rawProvider === "apple_tv" ? "apple" : rawProvider;
+  let provider = rawProvider;
+  if (rawProvider === "appletv" || rawProvider === "apple_tv") {
+    provider = "apple";
+  } else if (rawProvider === "hbo" || rawProvider === "hbomax" || rawProvider === "hbo_max") {
+    provider = "max";
+  }
   const type = (url.searchParams.get("type") || "all").toLowerCase();
   const sort = (url.searchParams.get("sort") || "popular").toLowerCase();
   const rawCountry = (url.searchParams.get("country") || "US").toUpperCase().trim();
@@ -58,7 +71,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }

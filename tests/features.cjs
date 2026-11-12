@@ -766,4 +766,48 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_apple')"), "Apple TV");
   assert.equal(run("t('provider_apple_sub')"), "Оригинальные драмы, лауреаты Оскара и авторские сериалы");
+
+  // 8. Max (HBO) provider endpoint, aliases, and catalog
+  const reqMax = new Request("https://movie-fountain.pages.dev/api/streaming?provider=max");
+  const resMax = await onRequestGet({ request: reqMax, env: {} });
+  assert.equal(resMax.status, 200);
+  const dataMax = await resMax.json();
+  assert.equal(dataMax.provider, "max");
+  assert.ok(dataMax.results.length >= 20);
+
+  const maxMovies = dataMax.results.some((m) => m.media_type === "movie");
+  const maxSeries = dataMax.results.some((m) => m.media_type === "tv");
+  assert.ok(maxMovies, "Max catalog must include movies (e.g. Dune: Part Two, The Dark Knight)");
+  assert.ok(maxSeries, "Max catalog must include series (e.g. The Sopranos, Succession, The Last of Us)");
+
+  // Alias checks (hbo and hbomax)
+  const reqHbo = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hbo");
+  const resHbo = await onRequestGet({ request: reqHbo, env: {} });
+  assert.equal(resHbo.status, 200);
+  const dataHbo = await resHbo.json();
+  assert.equal(dataHbo.provider, "max");
+
+  const reqHboMax = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hbomax");
+  const resHboMax = await onRequestGet({ request: reqHboMax, env: {} });
+  assert.equal(resHboMax.status, 200);
+  const dataHboMax = await resHboMax.json();
+  assert.equal(dataHboMax.provider, "max");
+
+  const reqMaxMovies = new Request("https://movie-fountain.pages.dev/api/streaming?provider=max&type=movie");
+  const resMaxMovies = await onRequestGet({ request: reqMaxMovies, env: {} });
+  const dataMaxMovies = await resMaxMovies.json();
+  assert.ok(dataMaxMovies.results.every((m) => m.media_type === "movie"));
+
+  const reqMaxTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=max&type=tv");
+  const resMaxTv = await onRequestGet({ request: reqMaxTv, env: {} });
+  const dataMaxTv = await resMaxTv.json();
+  assert.ok(dataMaxTv.results.every((m) => m.media_type === "tv"));
+
+  // Check Max i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_max')"), "Max");
+  assert.equal(run("t('provider_max_sub')"), "HBO originals, Warner Bros. cinema & iconic TV");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_max')"), "Max");
+  assert.equal(run("t('provider_max_sub')"), "Культовые сериалы HBO, премьеры Warner Bros. и классика");
 });

@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://movie-fountain.pages.dev/"><img src="https://img.shields.io/badge/Live_App-movie--fountain.pages.dev-ff5a1f?style=flat-square" alt="Live App"></a>
   <a href="https://github.com/Snowstormme/movie-fountain"><img src="https://img.shields.io/badge/GitHub-Repository-111827?style=flat-square&logo=github&logoColor=white" alt="GitHub Repository"></a>
-  <img src="https://img.shields.io/badge/version-0.9.0-ff5a1f?style=flat-square" alt="Version 0.9.0">
+  <img src="https://img.shields.io/badge/version-0.9.1-ff5a1f?style=flat-square" alt="Version 0.9.1">
   <img src="https://img.shields.io/badge/license-Apache_2.0-d6ae61?style=flat-square" alt="Apache 2.0 License">
 </p>
 
@@ -23,7 +23,7 @@
 - [Features](#features)
   - [1. Continuous Fountain Discovery Stream](#1-continuous-fountain-discovery-stream)
   - [2. Where to Watch (Streaming Providers Hub)](#2-where-to-watch-streaming-providers-hub)
-  - [3. Dedicated Streaming Catalog (Netflix & Apple TV+)](#3-dedicated-streaming-catalog-netflix--apple-tv)
+  - [3. Dedicated Streaming Catalog (Netflix, Apple TV+ & Max)](#3-dedicated-streaming-catalog-netflix-apple-tv--max)
   - [4. Editorial Canon & Curated Charts](#4-editorial-canon--curated-charts)
   - [5. Multi-Source Ratings & Consensus](#5-multi-source-ratings--consensus)
   - [6. Cinephile Passport & Custom Avatars](#6-cinephile-passport--custom-avatars)
@@ -91,20 +91,20 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 
 ---
 
-### 3. Dedicated Streaming Catalog (Netflix & Apple TV+)
+### 3. Dedicated Streaming Catalog (Netflix, Apple TV+ & Max)
 
 Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
 
 <p align="center">
-  <img src="docs/screenshots/streaming-apple-tv.png" alt="Apple TV+ & Netflix Streaming Catalog with Titanium Glow and Custom Badges" width="95%">
+  <img src="docs/screenshots/streaming-max.png" alt="Streaming Catalog with Netflix, Apple TV+ & Max and Custom Badges" width="95%">
 </p>
 
-- **Dual Flagship Streaming Hub**: Switch with a single click between **Netflix** (*Roma*, *The Irishman*, *Stranger Things*, *Dark*, *Squid Game*, *Arcane*) and **Apple TV+** (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*), complete with platform-customized glow palettes (crimson neon vs. titanium silver) and official vector brand logos.
+- **Triple Flagship Streaming Hub**: Switch with a single click between **Netflix** (*Roma*, *The Irishman*, *Stranger Things*, *Dark*, *Squid Game*, *Arcane*), **Apple TV+** (*Severance*, *Ted Lasso*, *CODA*, *Killers of the Flower Moon*, *Slow Horses*, *Silo*, *The Morning Show*, *Foundation*), and **Max (HBO)** (*Dune: Part Two*, *The Dark Knight*, *The Sopranos*, *Succession*, *The Last of Us*, *Game of Thrones*, *Chernobyl*, *True Detective*, *House of the Dragon*), complete with platform-customized glow palettes (crimson neon, titanium silver, and electric royal blue) and official vector brand logos.
 - **Regional Country Selection (`watch_region`)**: Rapidly switch across 14 major regional streaming catalogs (`US`, `GB`, `CA`, `DE`, `FR`, `JP`, `KR`, `TR`, `ES`, `IT`, `BR`, `AU`, `IN`, `RU`) with immediate catalog refetching and preferences persisted in `localStorage`.
 - **Dynamic Pagination & "Load More"**: Browse beyond initial snapshots with on-demand chunk loading (`Load More Titles`), giving direct access to thousands of regional titles indexed via TMDB.
 - **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **Movies**, **Series**, and **Top Rated / Masterpieces** ($\ge 8.0$).
-- **Integrated Watchlist Actions**: Save any Netflix or Apple TV+ movie or series directly to your local Cinephile Passport with real-time feedback and clean, non-overlapping badge layout.
-- **Extensible Provider Architecture**: Active support for Netflix and Apple TV+, with upcoming teaser slots for Max (HBO), Amazon Prime Video, and Kinopoisk.
+- **Integrated Watchlist Actions**: Save any Netflix, Apple TV+, or Max movie or series directly to your local Cinephile Passport with real-time feedback and clean, non-overlapping badge layout.
+- **Extensible Provider Architecture**: Active support for Netflix, Apple TV+, and Max (HBO), with upcoming teaser slots for Amazon Prime Video and Kinopoisk.
 
 ---
 
