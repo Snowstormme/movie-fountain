@@ -1032,16 +1032,28 @@ const streamingProviderKey = "movie-fountain.streaming_provider.v1";
 function getStreamingProvider() {
   try {
     const saved = localStorage.getItem(streamingProviderKey);
-    if (saved === "apple" || saved === "netflix" || saved === "max" || saved === "hbo") {
-      return saved === "hbo" ? "max" : saved;
+    if (
+      saved === "apple" ||
+      saved === "netflix" ||
+      saved === "max" ||
+      saved === "hbo" ||
+      saved === "prime" ||
+      saved === "amazon" ||
+      saved === "primevideo"
+    ) {
+      if (saved === "hbo") return "max";
+      if (saved === "amazon" || saved === "primevideo") return "prime";
+      return saved;
     }
   } catch {}
   return "netflix";
 }
 
 function setStreamingProvider(provider) {
-  const norm = provider === "hbo" ? "max" : provider;
-  if (norm !== "netflix" && norm !== "apple" && norm !== "max") return;
+  let norm = provider;
+  if (provider === "hbo") norm = "max";
+  if (provider === "amazon" || provider === "primevideo") norm = "prime";
+  if (norm !== "netflix" && norm !== "apple" && norm !== "max" && norm !== "prime") return;
   currentStreamingProvider = norm;
   try {
     localStorage.setItem(streamingProviderKey, norm);
@@ -1057,7 +1069,10 @@ function isStreamingHash() {
     hash.startsWith("#apple") ||
     hash.startsWith("#max") ||
     hash.startsWith("#hbo") ||
-    hash.startsWith("#hbomax")
+    hash.startsWith("#hbomax") ||
+    hash.startsWith("#prime") ||
+    hash.startsWith("#amazon") ||
+    hash.startsWith("#primevideo")
   );
 }
 
@@ -1082,9 +1097,14 @@ async function streamingPage(subFilter = "all", providerOverride = null) {
     providerOverride === "netflix" ||
     providerOverride === "max" ||
     providerOverride === "hbo" ||
-    providerOverride === "hbomax"
+    providerOverride === "hbomax" ||
+    providerOverride === "prime" ||
+    providerOverride === "amazon" ||
+    providerOverride === "primevideo"
   ) {
-    const norm = (providerOverride === "hbo" || providerOverride === "hbomax") ? "max" : providerOverride;
+    let norm = providerOverride;
+    if (providerOverride === "hbo" || providerOverride === "hbomax") norm = "max";
+    if (providerOverride === "amazon" || providerOverride === "primevideo") norm = "prime";
     currentStreamingProvider = norm;
     try {
       localStorage.setItem(streamingProviderKey, norm);
@@ -1239,6 +1259,8 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
     providerName = t("provider_apple") || "Apple TV";
   } else if (provider === "max" || provider === "hbo") {
     providerName = t("provider_max") || "Max";
+  } else if (provider === "prime" || provider === "amazon") {
+    providerName = t("provider_prime") || "Prime Video";
   }
   const formattedTotal = Number(totalCount) > currentCount ? Number(totalCount).toLocaleString() : null;
   if (formattedTotal) {
@@ -1350,7 +1372,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Prime Video -->
-        <div class="streaming-provider streaming-provider--prime is-disabled" title="${t("provider_coming_soon")}">
+        <button type="button" class="streaming-provider streaming-provider--prime ${currentStreamingProvider === "prime" ? "is-active" : ""}" data-provider="prime" role="tab" aria-selected="${currentStreamingProvider === "prime"}">
           <span class="provider-icon provider-icon--prime" aria-hidden="true">
             <svg viewBox="0 0 54 22" width="34" height="15" aria-hidden="true">
               <path fill="#ffffff" d="M3 4.2h2.5v1.8c.6-1.3 1.9-2 3.3-2 2.5 0 4.1 1.8 4.1 4.6 0 2.8-1.7 4.6-4.1 4.6-1.4 0-2.7-.7-3.3-2v5.4H3V4.2zm2.5 4.4c0 1.6 1 2.6 2.3 2.6 1.3 0 2.4-1 2.4-2.6s-1-2.6-2.4-2.6c-1.3 0-2.3 1-2.3 2.6zM14.2 4.2h2.5v1.9c.5-1.3 1.7-2.1 3-2.1h.8v2.7h-1.1c-1.6 0-2.7 1-2.7 2.8v3.7h-2.5V4.2zM22 4.2h2.5v9h-2.5v-9zm0-4h2.5v2.5H22V.2zM26 4.2h2.5v1.6c.5-1.1 1.6-1.8 2.8-1.8 1.3 0 2.2.6 2.6 1.8.6-1.1 1.8-1.8 3-1.8 1.9 0 3.3 1.4 3.3 3.6v5.6h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5H26V4.2zM41.8 9h6.2c-.2-2.8-1.7-5-4.4-5-2.8 0-4.6 2-4.6 4.6 0 2.7 1.8 4.7 4.7 4.7 1.8 0 3.3-.8 4-2.1l-1.8-1.1c-.5.7-1.3 1.1-2.2 1.1-1.3 0-2.2-.7-2.3-2.3zm-.1-1.8c.2-1.1 1-1.8 2.1-1.8 1 0 1.8.7 2 1.8h-4.1z"/>
@@ -1359,13 +1381,13 @@ function renderStreamingView() {
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
-              <strong>Prime Video</strong>
-              <span class="provider-status-badge provider-status-badge--prime">${t("provider_coming_soon")}</span>
+              <strong>${t("provider_prime")}</strong>
+              ${currentStreamingProvider === "prime" ? `<span class="provider-status-badge provider-status-badge--prime">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
-            <span class="provider-desc">Amazon Originals & MGM</span>
+            <span class="provider-desc">${esc(t("provider_prime_sub"))}</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
-        </div>
+        </button>
 
         <!-- Kinopoisk -->
         <div class="streaming-provider streaming-provider--kp is-disabled" title="${t("provider_coming_soon")}">
@@ -1470,9 +1492,13 @@ function streamingCard(item) {
   const mediaLabel = item.media_type === "tv" ? t("media_tv") : t("media_movie");
   const isApple = item.provider === "apple" || currentStreamingProvider === "apple";
   const isMax = item.provider === "max" || item.provider === "hbo" || currentStreamingProvider === "max";
+  const isPrime = item.provider === "prime" || item.provider === "amazon" || currentStreamingProvider === "prime";
   let providerChip = `<span class="netflix-chip">NETFLIX</span>`;
   let providerCode = "netflix";
-  if (isMax) {
+  if (isPrime) {
+    providerChip = `<span class="prime-chip"><svg viewBox="0 0 24 10" width="13" height="6" fill="#00a8e1" style="vertical-align:1px;margin-right:3px;" aria-hidden="true"><path d="M1 4c5 3 14 3.5 20-1l-.7-.7c1.6.2 3 .3 4.2-.1-.6.9-1.3 2-1.8 3l-.7-.6C16 7.5 7 7.2 2.5 3.3l-1.5.7z"/></svg>PRIME</span>`;
+    providerCode = "prime";
+  } else if (isMax) {
     providerChip = `<span class="max-chip">MAX</span>`;
     providerCode = "max";
   } else if (isApple) {
@@ -2260,12 +2286,25 @@ async function route() {
   const rawId = rest.join("/");
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
-  if (kind === "streaming" || kind === "netflix" || kind === "apple" || kind === "appletv" || kind === "max" || kind === "hbo" || kind === "hbomax") {
+  if (
+    kind === "streaming" ||
+    kind === "netflix" ||
+    kind === "apple" ||
+    kind === "appletv" ||
+    kind === "max" ||
+    kind === "hbo" ||
+    kind === "hbomax" ||
+    kind === "prime" ||
+    kind === "amazon" ||
+    kind === "primevideo"
+  ) {
     let prov = null;
     if (kind === "apple" || kind === "appletv" || rawId === "apple" || rawId === "appletv") {
       prov = "apple";
     } else if (kind === "max" || kind === "hbo" || kind === "hbomax" || rawId === "max" || rawId === "hbo" || rawId === "hbomax") {
       prov = "max";
+    } else if (kind === "prime" || kind === "amazon" || kind === "primevideo" || rawId === "prime" || rawId === "amazon" || rawId === "primevideo") {
+      prov = "prime";
     } else if (kind === "netflix" || rawId === "netflix") {
       prov = "netflix";
     }

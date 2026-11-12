@@ -810,4 +810,48 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_max')"), "Max");
   assert.equal(run("t('provider_max_sub')"), "Культовые сериалы HBO, премьеры Warner Bros. и классика");
+
+  // 9. Prime Video provider endpoint, aliases, and catalog
+  const reqPrime = new Request("https://movie-fountain.pages.dev/api/streaming?provider=prime");
+  const resPrime = await onRequestGet({ request: reqPrime, env: {} });
+  assert.equal(resPrime.status, 200);
+  const dataPrime = await resPrime.json();
+  assert.equal(dataPrime.provider, "prime");
+  assert.ok(dataPrime.results.length >= 20);
+
+  const primeMovies = dataPrime.results.some((m) => m.media_type === "movie");
+  const primeSeries = dataPrime.results.some((m) => m.media_type === "tv");
+  assert.ok(primeMovies, "Prime Video catalog must include movies (e.g. Sound of Metal, Air)");
+  assert.ok(primeSeries, "Prime Video catalog must include series (e.g. The Boys, Fallout, Fleabag)");
+
+  // Alias checks (amazon and primevideo)
+  const reqAmazon = new Request("https://movie-fountain.pages.dev/api/streaming?provider=amazon");
+  const resAmazon = await onRequestGet({ request: reqAmazon, env: {} });
+  assert.equal(resAmazon.status, 200);
+  const dataAmazon = await resAmazon.json();
+  assert.equal(dataAmazon.provider, "prime");
+
+  const reqPrimeVideo = new Request("https://movie-fountain.pages.dev/api/streaming?provider=primevideo");
+  const resPrimeVideo = await onRequestGet({ request: reqPrimeVideo, env: {} });
+  assert.equal(resPrimeVideo.status, 200);
+  const dataPrimeVideo = await resPrimeVideo.json();
+  assert.equal(dataPrimeVideo.provider, "prime");
+
+  const reqPrimeMovies = new Request("https://movie-fountain.pages.dev/api/streaming?provider=prime&type=movie");
+  const resPrimeMovies = await onRequestGet({ request: reqPrimeMovies, env: {} });
+  const dataPrimeMovies = await resPrimeMovies.json();
+  assert.ok(dataPrimeMovies.results.every((m) => m.media_type === "movie"));
+
+  const reqPrimeTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=prime&type=tv");
+  const resPrimeTv = await onRequestGet({ request: reqPrimeTv, env: {} });
+  const dataPrimeTv = await resPrimeTv.json();
+  assert.ok(dataPrimeTv.results.every((m) => m.media_type === "tv"));
+
+  // Check Prime Video i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_prime')"), "Prime Video");
+  assert.equal(run("t('provider_prime_sub')"), "Amazon Originals, blockbuster cinema & hit series");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_prime')"), "Prime Video");
+  assert.equal(run("t('provider_prime_sub')"), "Оригинальные шоу Amazon, блокбастеры и мировые хиты");
 });

@@ -2,6 +2,13 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.2] - 2026-11-12
+
+- Add full **Amazon Prime Video** streaming integration (`#streaming/prime`, `#prime`, `#amazon`, `#primevideo`): explore acclaimed Amazon Originals and cinema (*Sound of Metal*, *Manchester by the Sea*, *Air*, *Saltburn*, *The Boys*, *Fallout*, *Fleabag*, *The Marvelous Mrs. Maisel*, *Reacher*, *Invincible*, *The Rings of Power*, *Good Omens*, *The Expanse*), powered by TMDB watch provider IDs `9|119` and network ID `1024` with dedicated curated catalog fallback (`functions/_lib/prime_catalog.js`).
+- Add active **Prime Video Provider Card & Ambient Palette**: signature Amazon azure cyan ambient glow (`#00a8e1`), official Prime Video smile arrow vector lockup, interactive active/ready status pills, and localized EN/RU subtitles.
+- Add **Prime Video Platform Chip**: custom deep navy and cyan border chip (`PRIME` with vector smile arrow) on streaming movie and series cards.
+- Add **Route & Storage Persistence**: direct hash routes (`#prime`, `#amazon`, `#primevideo`) activate the Prime Video catalog, persist user choice in `localStorage`, and integrate with compact regional country dropdowns and sorting tools.
+
 ## [0.9.1] - 2026-11-12
 
 - Add full **Max (HBO)** streaming integration (`#streaming/max`, `#max`, `#hbo`, `#hbomax`): explore acclaimed HBO original series and Warner Bros. cinema (*Dune: Part Two*, *The Dark Knight*, *The Sopranos*, *Succession*, *The Last of Us*, *Game of Thrones*, *Chernobyl*, *True Detective*, *House of the Dragon*, *The Wire*, *The Penguin*, *Barry*, *Hacks*, *Spirited Away*, *The Matrix*), powered by TMDB provider IDs `1899|384` and network IDs `49|3186` with dedicated curated catalog fallback (`functions/_lib/max_catalog.js`).

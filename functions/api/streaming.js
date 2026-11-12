@@ -2,6 +2,7 @@ import { tmdb, extractLang } from "../_lib/tmdb.js";
 import { NETFLIX_CATALOG } from "../_lib/netflix_catalog.js";
 import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
 import { MAX_CATALOG } from "../_lib/max_catalog.js";
+import { PRIME_CATALOG } from "../_lib/prime_catalog.js";
 
 const PROVIDERS = {
   netflix: {
@@ -24,6 +25,13 @@ const PROVIDERS = {
     watchProviderId: "1899|384",
     networkId: "49|3186",
     catalog: MAX_CATALOG
+  },
+  prime: {
+    id: "prime",
+    name: "Prime Video",
+    watchProviderId: "9|119",
+    networkId: "1024",
+    catalog: PRIME_CATALOG
   }
 };
 
@@ -60,6 +68,13 @@ export async function onRequestGet({ request, env }) {
     provider = "apple";
   } else if (rawProvider === "hbo" || rawProvider === "hbomax" || rawProvider === "hbo_max") {
     provider = "max";
+  } else if (
+    rawProvider === "amazon" ||
+    rawProvider === "primevideo" ||
+    rawProvider === "amazonprime" ||
+    rawProvider === "amazon_prime"
+  ) {
+    provider = "prime";
   }
   const type = (url.searchParams.get("type") || "all").toLowerCase();
   const sort = (url.searchParams.get("sort") || "popular").toLowerCase();
@@ -71,7 +86,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }
