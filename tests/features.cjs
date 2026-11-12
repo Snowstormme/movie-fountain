@@ -707,6 +707,46 @@ test("watch providers extraction and rendering format streaming services and cou
   const renderedEnriched = run(`renderWatchProviders(${JSON.stringify(enrichedKp)}, "RU")`);
   assert.match(renderedEnriched, /href="#streaming\/kinopoisk"/);
   assert.match(renderedEnriched, /Kinopoisk/);
+
+  // Deduplicates redundant ad tiers, kids editions, and channel variants
+  const dupRaw = {
+    results: {
+      US: {
+        flatrate: [
+          { provider_id: 1796, provider_name: "Netflix Standard with Ads", logo_path: "/ads.jpg" },
+          { provider_id: 8, provider_name: "Netflix", logo_path: "/nf.jpg" },
+          { provider_id: 175, provider_name: "Netflix Kids", logo_path: "/nfkids.jpg" },
+          { provider_id: 1825, provider_name: "HBO Max Amazon Channel", logo_path: "/hboc.jpg" },
+          { provider_id: 1899, provider_name: "HBO Max", logo_path: "/hbo.jpg" },
+          { provider_id: 2100, provider_name: "Amazon Prime Video with Ads", logo_path: "/pva.jpg" },
+          { provider_id: 9, provider_name: "Amazon Prime Video", logo_path: "/pv.jpg" },
+          { provider_id: 582, provider_name: "Paramount+ Amazon Channel", logo_path: "/pa.jpg" },
+          { provider_id: 531, provider_name: "Paramount Plus", logo_path: "/pp.jpg" },
+          { provider_id: 2616, provider_name: "Paramount Plus Essential", logo_path: "/pe.jpg" },
+        ],
+      },
+    },
+  };
+  const dedupedExtracted = extractWatchProviders(dupRaw);
+  assert.deepEqual(
+    dedupedExtracted.US.flatrate.map((p) => p.name),
+    ["Netflix", "HBO Max", "Amazon Prime Video", "Paramount Plus"],
+  );
+  const dupClientInput = {
+    US: {
+      flatrate: dupRaw.results.US.flatrate.map((p) => ({
+        id: p.provider_id,
+        name: p.provider_name,
+        logo_path: p.logo_path,
+      })),
+    },
+  };
+  const renderedDeduped = run(`renderWatchProviders(${JSON.stringify(dupClientInput)}, "US")`);
+  assert.doesNotMatch(renderedDeduped, /with Ads|Amazon Channel|Kids|Essential/);
+  assert.match(renderedDeduped, /Netflix/);
+  assert.match(renderedDeduped, /HBO Max/);
+  assert.match(renderedDeduped, /Amazon Prime Video/);
+  assert.match(renderedDeduped, /Paramount Plus/);
 });
 
 test("streaming hub endpoint and catalog serve Netflix movies and series with type filtering", async () => {

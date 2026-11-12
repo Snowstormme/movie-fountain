@@ -110,19 +110,101 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
+const CANONICAL_HUB_IDS = new Set([8, 9, 117, 119, 350, 1899]);
+
+function matchHubKey(provider) {
+  const id = Number(provider?.id);
+  if (id === 8 || id === 175 || id === 1796) return "netflix";
+  if (id === 350 || id === 2 || id === 2243) return "apple";
+  if (id === 1899 || id === 384 || id === 1825 || id === 616) return "max";
+  if (id === 9 || id === 119 || id === 10 || id === 2100 || id === 613) return "prime";
+  if (id === 117 || id === 115) return "kinopoisk";
+  const name = String(provider?.name || "").trim().toLowerCase();
+  if (!name) return null;
+  if (/\bnetflix\b/.test(name)) return "netflix";
+  if (/apple\s*tv/.test(name)) return "apple";
+  if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
+  if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
+  if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
+  return null;
+}
+
+function cleanWatchProviderName(name) {
+  return String(name || "")
+    .replace(/\s+(?:Standard\s+|Free\s+)?with\s+Ads$/i, "")
+    .trim();
+}
+
+function watchProviderBaseKey(provider) {
+  const hub = matchHubKey(provider);
+  if (hub) return `hub:${hub}`;
+
+  let s = String(provider?.name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+  if (!s) return "";
+  s = s.replace(/\s+(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\s*$/i, "");
+  s = s.replace(/\s+(standard\s+with\s+ads|free\s+with\s+ads|with\s+ads|ad[- ]supported|no\s+ads|essential|basic)\s*$/i, "");
+  s = s.replace(/\s+premium(\s+plus)?\s*$/i, "");
+  s = s.replace(/\s*plus\b/gi, "+");
+  s = s.replace(/\s+\+/g, "+");
+  s = s.replace(/[^a-z0-9а-яё+]+/gi, " ").trim();
+  return s;
+}
+
+function watchProviderPenalty(provider) {
+  const name = String(provider?.name || "").trim();
+  const id = Number(provider?.id);
+  if (CANONICAL_HUB_IDS.has(id)) return 0;
+  let penalty = 0;
+  if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
+  if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;
+  if (/\b(kids|essential|basic|standard|no\s+ads|premium\s+plus|store)\b/i.test(name)) penalty += 10;
+  return penalty + name.length * 0.01;
+}
+
+export function dedupeWatchProviders(list) {
+  if (!Array.isArray(list) || !list.length) return [];
+  const winners = new Map();
+  list.forEach((raw, idx) => {
+    if (!raw || typeof raw.name !== "string") return;
+    const key = watchProviderBaseKey(raw);
+    if (!key) return;
+    const penalty = watchProviderPenalty(raw);
+    const cleaned = {
+      ...raw,
+      name: cleanWatchProviderName(raw.name) || raw.name,
+    };
+    const existing = winners.get(key);
+    if (!existing || penalty < existing.penalty) {
+      winners.set(key, {
+        index: existing ? existing.index : idx,
+        penalty,
+        item: cleaned,
+      });
+    }
+  });
+  return [...winners.values()]
+    .sort((a, b) => a.index - b.index)
+    .map((entry) => entry.item);
+}
+
 export function extractWatchProviders(watchData) {
   const results = watchData?.results;
   if (!results || typeof results !== "object") return null;
 
   const sanitizeList = (list) =>
-    (Array.isArray(list) ? list : [])
-      .filter((p) => p && typeof p.provider_name === "string" && p.logo_path)
-      .map((p) => ({
-        id: p.provider_id,
-        name: p.provider_name,
-        logo_path: p.logo_path,
-      }))
-      .slice(0, 8);
+    dedupeWatchProviders(
+      (Array.isArray(list) ? list : [])
+        .filter((p) => p && typeof p.provider_name === "string" && p.logo_path)
+        .map((p) => ({
+          id: p.provider_id,
+          name: p.provider_name,
+          logo_path: p.logo_path,
+        })),
+    ).slice(0, 8);
 
   const countries = {};
   for (const [code, data] of Object.entries(results)) {

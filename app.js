@@ -2012,6 +2012,68 @@ function mergeCachedProviderIntoWatch(providers, cachedProvider) {
   return result;
 }
 
+function cleanWatchProviderName(name) {
+  return String(name || "")
+    .replace(/\s+(?:Standard\s+|Free\s+)?with\s+Ads$/i, "")
+    .trim();
+}
+
+function watchProviderCanonicalKey(provider) {
+  const hub = matchStreamingHubProvider(provider);
+  if (hub) return `hub:${hub}`;
+
+  let s = String(provider?.name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+  if (!s) return "";
+  s = s.replace(/\s+(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\s*$/i, "");
+  s = s.replace(/\s+(standard\s+with\s+ads|free\s+with\s+ads|with\s+ads|ad[- ]supported|no\s+ads|essential|basic)\s*$/i, "");
+  s = s.replace(/\s+premium(\s+plus)?\s*$/i, "");
+  s = s.replace(/\s*plus\b/gi, "+");
+  s = s.replace(/\s+\+/g, "+");
+  s = s.replace(/[^a-z0-9а-яё+]+/gi, " ").trim();
+  return s;
+}
+
+function watchProviderRankPenalty(provider) {
+  const name = String(provider?.name || "").trim();
+  const id = Number(provider?.id);
+  if (id === 8 || id === 9 || id === 117 || id === 119 || id === 350 || id === 1899) return 0;
+  let penalty = 0;
+  if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
+  if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;
+  if (/\b(kids|essential|basic|standard|no\s+ads|premium\s+plus|store)\b/i.test(name)) penalty += 10;
+  return penalty + name.length * 0.01;
+}
+
+function dedupeWatchProviderList(items) {
+  if (!Array.isArray(items) || !items.length) return [];
+  const winners = new Map();
+  items.forEach((raw, idx) => {
+    if (!raw || typeof raw !== "object") return;
+    const key = watchProviderCanonicalKey(raw);
+    if (!key) return;
+    const penalty = watchProviderRankPenalty(raw);
+    const cleaned = {
+      ...raw,
+      name: cleanWatchProviderName(raw.name) || raw.name,
+    };
+    const existing = winners.get(key);
+    if (!existing || penalty < existing.penalty) {
+      winners.set(key, {
+        index: existing ? existing.index : idx,
+        penalty,
+        item: cleaned,
+      });
+    }
+  });
+  return [...winners.values()]
+    .sort((a, b) => a.index - b.index)
+    .map((entry) => entry.item);
+}
+
 function renderWatchProviders(providers, selectedCountry = null) {
   if (!providers || typeof providers !== "object") return "";
 
@@ -2033,8 +2095,8 @@ function renderWatchProviders(providers, selectedCountry = null) {
   const data = providers[country];
   if (!data) return "";
 
-  const flatrate = data.flatrate || [];
-  const free = data.free || [];
+  const flatrate = dedupeWatchProviderList(data.flatrate || []);
+  const free = dedupeWatchProviderList(data.free || []);
   const rent = data.rent || [];
   const buy = data.buy || [];
 
@@ -2071,10 +2133,7 @@ function renderWatchProviders(providers, selectedCountry = null) {
     </div>`;
   }
   if (!flatrate.length && (rent.length || buy.length)) {
-    const combined = [...rent];
-    buy.forEach((b) => {
-      if (!combined.some((item) => item.id === b.id)) combined.push(b);
-    });
+    const combined = dedupeWatchProviderList([...rent, ...buy]);
     groupsHtml += `<div class="watch-provider-group">
       <span class="watch-group-label">${t("provider_rent_buy")}</span>
       <div class="watch-provider-list">${renderList(combined.slice(0, 6))}</div>
