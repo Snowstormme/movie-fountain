@@ -184,6 +184,7 @@ const translations = {
     no_stream_in_region: "No streaming options currently listed for this region.",
     view_on_justwatch: "JustWatch",
     provided_by_justwatch: "Streaming data by JustWatch",
+    watch_open_in_hub: "Open in Streaming Hub",
 
     // Ratings & Consensus
     ratings_heading: "Ratings & Consensus",
@@ -456,6 +457,7 @@ const translations = {
     no_stream_in_region: "В этом регионе пока нет информации о стриминге.",
     view_on_justwatch: "Все варианты на JustWatch",
     provided_by_justwatch: "Данные о стриминге: JustWatch",
+    watch_open_in_hub: "Открыть в Стриминге",
 
     // Ratings & Consensus
     ratings_heading: "Рейтинги и консенсус",

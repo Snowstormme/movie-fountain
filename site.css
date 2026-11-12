@@ -293,19 +293,33 @@ html[data-theme="liquid"] .detail-watch-section{border-color:rgba(255,255,255,0.
 .watch-icon{font-size:20px;line-height:1}
 .watch-title{margin:0;font-size:16px;font-weight:800;letter-spacing:.02em;color:#f2efe9}
 .watch-country-pills{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);padding:3px;border-radius:999px;border:1px solid rgba(255,255,255,0.1)}
-.watch-country-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;background:transparent;color:#9e9b95;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s ease}
-.watch-country-pill:hover{color:#f2efe9;background:rgba(255,255,255,0.08)}
-.watch-country-pill.is-active{background:#ff5a1f;color:#0a0a0c;box-shadow:0 2px 8px rgba(255,90,31,0.35)}
-html[data-theme="liquid"] .watch-country-pill.is-active{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;box-shadow:0 2px 10px rgba(56,189,248,0.4)}
+button.watch-country-pill,html[data-theme="current"] button.watch-country-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;background:transparent;color:#9e9b95;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s ease}
+button.watch-country-pill:hover,html[data-theme="current"] button.watch-country-pill:hover{color:#f2efe9;background:rgba(255,255,255,0.08)}
+button.watch-country-pill.is-active,html[data-theme="current"] button.watch-country-pill.is-active{background:#ff5a1f;color:#0a0a0c;box-shadow:0 2px 8px rgba(255,90,31,0.35)}
+html[data-theme="liquid"] button.watch-country-pill.is-active{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;box-shadow:0 2px 10px rgba(56,189,248,0.4)}
 .watch-body{display:flex;flex-direction:column;gap:14px}
 .watch-provider-group{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
 .watch-group-label{font-size:12px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:#ff5a1f;min-width:90px}
 html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-list{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.watch-provider-item{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);transition:transform .18s ease,border-color .18s ease}
+.watch-provider-item{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.watch-provider-link{text-decoration:none;color:inherit;cursor:pointer}
 .watch-provider-item:hover{transform:translateY(-2px);border-color:rgba(255,90,31,0.45);background:rgba(255,255,255,0.08)}
+.watch-provider-link[data-hub-provider="netflix"]:hover{border-color:rgba(229,9,20,0.7);box-shadow:0 4px 14px rgba(229,9,20,0.22)}
+.watch-provider-link[data-hub-provider="apple"]:hover{border-color:rgba(226,232,240,0.65);box-shadow:0 4px 14px rgba(226,232,240,0.16)}
+.watch-provider-link[data-hub-provider="max"]:hover{border-color:rgba(124,58,237,0.7);box-shadow:0 4px 14px rgba(124,58,237,0.24)}
+.watch-provider-link[data-hub-provider="prime"]:hover{border-color:rgba(0,168,225,0.7);box-shadow:0 4px 14px rgba(0,168,225,0.22)}
+.watch-provider-link[data-hub-provider="kinopoisk"]:hover{border-color:rgba(255,85,0,0.75);box-shadow:0 4px 14px rgba(255,85,0,0.25)}
 .watch-provider-logo{width:32px;height:32px;border-radius:6px;object-fit:cover;flex:none}
+.watch-provider-logo--inline{display:inline-flex;align-items:center;justify-content:center}
+.watch-provider-logo--kp{background:#121215;border:1px solid rgba(255,102,0,0.45)}
+.watch-provider-logo--netflix{background:#141414;border:1px solid rgba(229,9,20,0.4)}
+.watch-provider-logo--apple{background:#1c1c1e;border:1px solid rgba(255,255,255,0.2)}
+.watch-provider-logo--max{background:linear-gradient(135deg,#002be7 0%,#0b1038 100%);border:1px solid rgba(99,102,241,0.45)}
+.watch-provider-logo--prime{background:linear-gradient(135deg,#00a8e1 0%,#0077c8 100%)}
 .watch-provider-name{font-size:13px;font-weight:600;color:#f2efe9}
+.watch-provider-arrow{font-size:12px;font-weight:700;color:#9e9b95;margin-left:2px;transition:transform .18s ease,color .18s ease}
+.watch-provider-link:hover .watch-provider-arrow{transform:translateX(2px);color:#f2efe9}
 .watch-empty-note{margin:0;color:#9e9b95;font-size:13px;font-style:italic}
 .watch-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:#7e828d}
 .watch-attribution{color:#6e727c}

@@ -1,4 +1,102 @@
 import { tmdb, safeError, numericId, extractLang } from "../../_lib/tmdb.js";
+import { NETFLIX_CATALOG } from "../../_lib/netflix_catalog.js";
+import { APPLE_CATALOG } from "../../_lib/apple_catalog.js";
+import { MAX_CATALOG } from "../../_lib/max_catalog.js";
+import { PRIME_CATALOG } from "../../_lib/prime_catalog.js";
+import { KINOPOISK_CATALOG } from "../../_lib/kinopoisk_catalog.js";
+
+const HUB_CATALOGS = [
+  {
+    key: "netflix",
+    region: "US",
+    id: 8,
+    name: "Netflix",
+    logo: "inline:netflix",
+    namePattern: /\bnetflix\b/i,
+    ids: new Set(NETFLIX_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "apple",
+    region: "US",
+    id: 350,
+    name: "Apple TV",
+    logo: "inline:apple",
+    namePattern: /apple\s*tv/i,
+    ids: new Set(APPLE_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "max",
+    region: "US",
+    id: 1899,
+    name: "HBO Max",
+    logo: "inline:max",
+    namePattern: /^(hbo\s*)?max(\b|\s)/i,
+    ids: new Set(MAX_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "prime",
+    region: "US",
+    id: 9,
+    name: "Prime Video",
+    logo: "inline:prime",
+    namePattern: /\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/i,
+    ids: new Set(PRIME_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "kinopoisk",
+    region: "RU",
+    id: 117,
+    name: "Kinopoisk",
+    logo: "inline:kinopoisk",
+    namePattern: /kinopoisk|кинопоиск/i,
+    ids: new Set(KINOPOISK_CATALOG.map((m) => Number(m.id))),
+  },
+];
+
+export function enrichWatchProvidersWithCatalogs(watchProviders, itemId) {
+  const numId = Number(itemId);
+  const base =
+    watchProviders && typeof watchProviders === "object"
+      ? { ...watchProviders }
+      : {};
+
+  for (const hub of HUB_CATALOGS) {
+    if (!hub.ids.has(numId)) continue;
+    const regionData = base[hub.region]
+      ? {
+          ...base[hub.region],
+          flatrate: [...(base[hub.region].flatrate || [])],
+          rent: [...(base[hub.region].rent || [])],
+          buy: [...(base[hub.region].buy || [])],
+          free: [...(base[hub.region].free || [])],
+        }
+      : { link: null, flatrate: [], rent: [], buy: [], free: [] };
+
+    const allInRegion = [
+      ...regionData.flatrate,
+      ...regionData.free,
+      ...regionData.rent,
+      ...regionData.buy,
+    ];
+    const alreadyPresent = allInRegion.some(
+      (p) =>
+        p &&
+        (Number(p.id) === hub.id ||
+          (hub.key === "kinopoisk" && Number(p.id) === 115) ||
+          hub.namePattern.test(String(p.name || ""))),
+    );
+    if (!alreadyPresent) {
+      regionData.flatrate.push({
+        id: hub.id,
+        name: hub.name,
+        logo_path: hub.logo,
+      });
+    }
+    base[hub.region] = regionData;
+  }
+
+  return Object.keys(base).length ? base : null;
+}
 
 function uniqueDirectedMovies(crew, currentMovieId) {
   const seen = new Set([Number(currentMovieId)]);
@@ -157,8 +255,11 @@ export async function onRequestGet({ request, params, env }) {
       director_movies: directorMovies,
       cast: (movie.credits?.cast || []).slice(0, 6),
       recommendations: (movie.recommendations?.results || []).slice(0, 6),
-      watch_providers: extractWatchProviders(
-        movie["watch/providers"] || movie.watch_providers,
+      watch_providers: enrichWatchProvidersWithCatalogs(
+        extractWatchProviders(
+          movie["watch/providers"] || movie.watch_providers,
+        ),
+        id,
       ),
     });
   } catch (error) {

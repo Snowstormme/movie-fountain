@@ -608,7 +608,7 @@ test("watch providers extraction and rendering format streaming services and cou
   const movieDetailsModule = await import(
     path.join(ROOT_DIR, "functions/api/movie/[id].js")
   );
-  const { extractWatchProviders } = movieDetailsModule;
+  const { extractWatchProviders, enrichWatchProvidersWithCatalogs } = movieDetailsModule;
 
   // Extracts and sanitizes TMDB watch providers
   const sampleProviders = {
@@ -670,6 +670,43 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlRU, /Kinopoisk/);
   assert.match(htmlRU, /Ivi/);
   assert.match(htmlRU, /data-watch-country="RU"/);
+  assert.match(htmlUS, /href="#streaming\/netflix"/);
+  assert.match(htmlRU, /href="#streaming\/kinopoisk"/);
+
+  // All 5 streaming hub providers link back to #streaming/<provider>, non-hub providers stay non-links
+  const hubShowcase = {
+    US: {
+      flatrate: [
+        { id: 8, name: "Netflix", logo_path: "/netflix.jpg" },
+        { id: 350, name: "Apple TV+", logo_path: "/apple.jpg" },
+        { id: 1899, name: "Max", logo_path: "/max.jpg" },
+        { id: 119, name: "Amazon Prime Video", logo_path: "/prime.jpg" },
+        { id: 15, name: "Hulu", logo_path: "/hulu.jpg" },
+      ],
+    },
+    RU: {
+      flatrate: [
+        { id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
+      ],
+    },
+  };
+  const htmlAllHubsUS = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "US")`);
+  assert.match(htmlAllHubsUS, /href="#streaming\/netflix"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/apple"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/max"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/prime"/);
+  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*hulu/i);
+
+  const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
+  assert.match(htmlHubRU, /href="#streaming\/kinopoisk"/);
+  assert.match(htmlHubRU, /watch-provider-logo--kp/);
+
+  // Enriches Kinopoisk catalog items (e.g. 586353 The Master and Margarita) even when TMDB returns null
+  const enrichedKp = enrichWatchProvidersWithCatalogs(null, 586353);
+  assert.ok(enrichedKp?.RU?.flatrate?.some((p) => p.name === "Kinopoisk"));
+  const renderedEnriched = run(`renderWatchProviders(${JSON.stringify(enrichedKp)}, "RU")`);
+  assert.match(renderedEnriched, /href="#streaming\/kinopoisk"/);
+  assert.match(renderedEnriched, /Kinopoisk/);
 });
 
 test("streaming hub endpoint and catalog serve Netflix movies and series with type filtering", async () => {

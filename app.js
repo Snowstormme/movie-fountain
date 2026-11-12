@@ -1090,6 +1090,9 @@ let isLoadingMoreStreaming = false;
 
 async function streamingPage(subFilter = "all", providerOverride = null) {
   fountainAbort?.abort();
+  if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
+    window.scrollTo(0, 0);
+  }
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   currentStreamingFilter = subFilter || "all";
   currentStreamingSort = "default";
@@ -1922,6 +1925,93 @@ function detectUserCountry() {
   return savedLang === "ru" ? "RU" : "US";
 }
 
+const STREAMING_HUB_PROVIDER_MAP = {
+  8: "netflix",
+  175: "netflix",
+  1796: "netflix",
+  350: "apple",
+  2: "apple",
+  2243: "apple",
+  1899: "max",
+  384: "max",
+  1825: "max",
+  616: "max",
+  9: "prime",
+  119: "prime",
+  10: "prime",
+  2100: "prime",
+  613: "prime",
+  117: "kinopoisk",
+  115: "kinopoisk",
+};
+
+const HUB_PROVIDER_DEFAULTS = {
+  netflix: { region: "US", id: 8, name: "Netflix", logo_path: "inline:netflix" },
+  apple: { region: "US", id: 350, name: "Apple TV", logo_path: "inline:apple" },
+  max: { region: "US", id: 1899, name: "HBO Max", logo_path: "inline:max" },
+  prime: { region: "US", id: 9, name: "Prime Video", logo_path: "inline:prime" },
+  kinopoisk: { region: "RU", id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
+};
+
+function matchStreamingHubProvider(provider) {
+  if (!provider || typeof provider !== "object") return null;
+  const byId = STREAMING_HUB_PROVIDER_MAP[Number(provider.id)];
+  if (byId) return byId;
+  const name = String(provider.name || "").trim().toLowerCase();
+  if (!name) return null;
+  if (/\bnetflix\b/.test(name)) return "netflix";
+  if (/apple\s*tv/.test(name)) return "apple";
+  if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
+  if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
+  if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
+  return null;
+}
+
+let watchLogoUid = 0;
+
+function renderWatchProviderLogo(provider, hubProvider) {
+  const logoPath = String(provider?.logo_path || "");
+  if (logoPath === "inline:kinopoisk" || hubProvider === "kinopoisk") {
+    watchLogoUid += 1;
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--kp" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><defs><linearGradient id="kpW${watchLogoUid}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff5500"/><stop offset="65%" stop-color="#ff7a00"/><stop offset="100%" stop-color="#bbff00"/></linearGradient></defs><g fill="url(#kpW${watchLogoUid})"><path d="M3 2h5.5l-.8 6.5H3zM3 9.5h4.6l-.3 5H3zM3 15.5h4.2L6.5 22H3zM12.5 9.8l5.8-7.8h4.2l-7.2 8.5zM10 11.2l4.8-4.5 2.8 1.8-5.6 4zM10.2 12.8l5.4 3.8-2.6 2-4.8-4.5zM15.2 13.5l7.3 8.5h-4.2l-5.8-7.2z"/></g></svg></span>`;
+  }
+  if (logoPath === "inline:netflix") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--netflix" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="#e50914" d="M5 2h3.4l5.2 14V2H17v20h-3.3L8.4 7.8V22H5V2z"/></svg></span>`;
+  }
+  if (logoPath === "inline:apple") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--apple" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg></span>`;
+  }
+  if (logoPath === "inline:max") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--max" aria-hidden="true"><svg viewBox="0 0 40 16" width="24" height="10"><path fill="#ffffff" fill-rule="evenodd" d="M2 3h2.3v1c.5-.8 1.3-1.2 2.3-1.2 1.1 0 1.9.4 2.4 1.3.6-.9 1.5-1.3 2.6-1.3 1.7 0 2.9 1.1 2.9 3V13h-2.3V6.9c0-1-.5-1.6-1.3-1.6-.8 0-1.4.6-1.4 1.6V13H7.2V6.9c0-1-.5-1.6-1.3-1.6-.8 0-1.4.6-1.4 1.6V13H2V3zm13.7 5c0-2.8 1.9-5 4.5-5 1.2 0 2.2.5 2.8 1.4V3h2.3v10H23v-1.2c-.6.9-1.6 1.4-2.8 1.4-2.6 0-4.5-2.1-4.5-5zm2.4 0c0 1.6 1 2.8 2.4 2.8 1.3 0 2.4-1.1 2.4-2.8s-1.1-2.8-2.4-2.8c-1.4 0-2.4 1.2-2.4 2.8zM27.3 3H30l2.1 3 2.1-3h2.7L33.6 8l3.5 5h-2.7l-2.3-3.2L29.8 13h-2.7l3.4-5-3.2-5z"/></svg></span>`;
+  }
+  if (logoPath === "inline:prime") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--prime" aria-hidden="true"><svg viewBox="0 0 36 16" width="24" height="11"><path fill="#ffffff" d="M5 10.2c6.8 3.3 16.8 3.5 24-.4l-1.1-.8c1.8-.1 3.8-.1 5 .4-.4 1.3-1 2.9-1.8 3.9l-.9-1C22.6 16.6 11.6 16.3 4.2 11.8c-.5-.3-.1-1.2.8-1.6z"/><text x="4" y="8.5" fill="#ffffff" font-family="system-ui,sans-serif" font-size="8" font-weight="800" letter-spacing="-0.3">prime</text></svg></span>`;
+  }
+  return `<img class="watch-provider-logo" src="https://image.tmdb.org/t/p/w92${esc(logoPath)}" alt="${esc(provider.name)}" loading="lazy">`;
+}
+
+function mergeCachedProviderIntoWatch(providers, cachedProvider) {
+  const key = normalizeStreamingProvider(cachedProvider);
+  const spec = key && HUB_PROVIDER_DEFAULTS[key];
+  if (!spec) return providers;
+  const result = providers && typeof providers === "object" ? { ...providers } : {};
+  const existing = result[spec.region]
+    ? {
+        ...result[spec.region],
+        flatrate: [...(result[spec.region].flatrate || [])],
+        rent: [...(result[spec.region].rent || [])],
+        buy: [...(result[spec.region].buy || [])],
+        free: [...(result[spec.region].free || [])],
+      }
+    : { link: null, flatrate: [], rent: [], buy: [], free: [] };
+  const all = [...existing.flatrate, ...existing.free, ...existing.rent, ...existing.buy];
+  if (!all.some((p) => matchStreamingHubProvider(p) === key)) {
+    existing.flatrate.push({ id: spec.id, name: spec.name, logo_path: spec.logo_path });
+  }
+  result[spec.region] = existing;
+  return result;
+}
+
 function renderWatchProviders(providers, selectedCountry = null) {
   if (!providers || typeof providers !== "object") return "";
 
@@ -1950,13 +2040,21 @@ function renderWatchProviders(providers, selectedCountry = null) {
 
   const renderList = (items) =>
     items
-      .map(
-        (p) =>
-          `<div class="watch-provider-item" title="${esc(p.name)}">
-            <img class="watch-provider-logo" src="https://image.tmdb.org/t/p/w92${esc(p.logo_path)}" alt="${esc(p.name)}" loading="lazy">
+      .map((p) => {
+        const hubProvider = matchStreamingHubProvider(p);
+        const logoMarkup = renderWatchProviderLogo(p, hubProvider);
+        if (hubProvider) {
+          return `<a class="watch-provider-item watch-provider-link" href="#streaming/${hubProvider}" data-hub-provider="${hubProvider}" title="${esc(p.name)} — ${esc(t("watch_open_in_hub"))}">
+            ${logoMarkup}
             <span class="watch-provider-name">${esc(p.name)}</span>
-          </div>`,
-      )
+            <span class="watch-provider-arrow" aria-hidden="true">→</span>
+          </a>`;
+        }
+        return `<div class="watch-provider-item" title="${esc(p.name)}">
+            ${logoMarkup}
+            <span class="watch-provider-name">${esc(p.name)}</span>
+          </div>`;
+      })
       .join("");
 
   let groupsHtml = "";
@@ -2048,10 +2146,12 @@ async function movie(rawId) {
     return;
   }
   const id = String(validId);
+  const cachedEntry = movieCache.get(id);
+  const typeQuery = cachedEntry?.media_type === "tv" ? "?type=tv" : "";
   app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   try {
     const target = `#movie/${id}`;
-    const data = await api(`/api/movie/${id}`);
+    const data = await api(`/api/movie/${id}${typeQuery}`);
     if (location.hash !== target) return;
     const m = data?.movie;
     if (!m?.id) throw new Error("Movie details are unavailable right now.");
@@ -2083,7 +2183,16 @@ async function movie(rawId) {
         </a>`
       : "";
 
-    const watchMarkup = renderWatchProviders(data.watch_providers);
+    const watchProviders = mergeCachedProviderIntoWatch(
+      data.watch_providers,
+      cachedEntry?.provider,
+    );
+    const initialWatchCountry =
+      normalizeStreamingProvider(cachedEntry?.provider) === "kinopoisk" &&
+      watchProviders?.RU
+        ? "RU"
+        : null;
+    const watchMarkup = renderWatchProviders(watchProviders, initialWatchCountry);
 
     app.innerHTML = `<article class="detail">
       <div>${poster}</div>
@@ -2111,7 +2220,7 @@ async function movie(rawId) {
     ${shelf(t("recommendations_title"), t("recommendations_sub"), data.recommendations)}
     ${shelf(data.director ? `${t("more_from_prefix")} ${esc(data.director.name)}` : t("more_from_generic"), t("other_films_director"), data.director_movies)}`;
 
-    bindWatchProviderEvents(data.watch_providers);
+    bindWatchProviderEvents(watchProviders);
 
     const imdbParam = m.imdb_id
       ? `?imdb_id=${encodeURIComponent(m.imdb_id)}`
