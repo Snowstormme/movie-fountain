@@ -359,6 +359,10 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
   background: radial-gradient(ellipse at center, rgba(0, 168, 225, 0.42), rgba(0, 80, 150, 0.25) 45%, transparent 70%);
 }
 
+[data-active-provider="kinopoisk"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(255, 85, 0, 0.42), rgba(204, 51, 0, 0.24) 45%, transparent 70%);
+}
+
 .streaming-providers {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -553,19 +557,41 @@ html[data-theme="current"] button.streaming-provider--prime.is-active {
 }
 
 /* 5. KINOPOISK UNIQUE DESIGN */
-.streaming-provider--kp {
-  border: 1.5px solid rgba(255, 102, 0, 0.4);
-  background: radial-gradient(circle at top right, rgba(255, 102, 0, 0.18), transparent 60%),
+.streaming-provider--kp,
+button.streaming-provider--kp,
+html[data-theme="current"] .streaming-provider--kp,
+html[data-theme="current"] button.streaming-provider--kp {
+  border: 1.5px solid rgba(255, 85, 0, 0.4);
+  background: radial-gradient(circle at top right, rgba(255, 85, 0, 0.18), transparent 60%),
               linear-gradient(160deg, #1c1008 0%, #0f0a07 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 140, 50, 0.2);
 }
 .streaming-provider--kp .provider-icon--kp {
-  background: linear-gradient(135deg, #ff6600 0%, #cc3300 100%);
+  background: linear-gradient(135deg, #ff5500 0%, #cc3300 100%);
   border: 1.5px solid rgba(255, 180, 100, 0.45);
-  box-shadow: 0 4px 14px rgba(255, 102, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 85, 0, 0.35);
 }
 .streaming-provider--kp .provider-accent-rail {
-  background: linear-gradient(90deg, transparent, #ff6600, transparent);
+  background: linear-gradient(90deg, transparent, #ff5500, transparent);
+}
+.streaming-provider--kp:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--kp:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(255, 102, 0, 0.72);
+  background: radial-gradient(circle at top right, rgba(255, 85, 0, 0.26), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(204, 51, 0, 0.2), transparent 60%),
+              linear-gradient(160deg, #27150a 0%, #140c07 100%);
+  box-shadow: 0 14px 30px rgba(255, 85, 0, 0.28), inset 0 1px 0 rgba(255, 175, 110, 0.35);
+}
+.streaming-provider--kp.is-active,
+button.streaming-provider--kp.is-active,
+html[data-theme="current"] .streaming-provider--kp.is-active,
+html[data-theme="current"] button.streaming-provider--kp.is-active {
+  border-color: #ff5500;
+  background: radial-gradient(circle at top right, rgba(255, 85, 0, 0.34), transparent 65%),
+              radial-gradient(circle at bottom left, rgba(204, 51, 0, 0.26), transparent 65%),
+              linear-gradient(160deg, #31190b 0%, #160c06 100%);
+  box-shadow: 0 0 35px rgba(255, 85, 0, 0.45), inset 0 1px 0 rgba(255, 180, 110, 0.5);
 }
 
 .provider-status-badge {
@@ -782,6 +808,21 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-tab.i
   box-shadow: 0 4px 16px rgba(0, 168, 225, 0.45);
 }
 
+[data-active-provider="kinopoisk"] .streaming-tab:hover,
+[data-active-provider="kinopoisk"] button.streaming-tab:hover,
+html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-tab:hover {
+  border-color: #ff5500;
+  color: #fff;
+}
+[data-active-provider="kinopoisk"] .streaming-tab.is-active,
+[data-active-provider="kinopoisk"] button.streaming-tab.is-active,
+html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-tab.is-active {
+  border-color: #ff5500;
+  background: linear-gradient(135deg, #ff5500 0%, #cc3300 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255, 85, 0, 0.45);
+}
+
 .streaming-right-tools {
   display: flex;
   align-items: center;
@@ -850,6 +891,21 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-tab.i
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.kp-chip {
+  padding: 3px 6.5px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ff5500 0%, #cc3300 100%);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 85, 0, 0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .media-type-chip {
@@ -941,6 +997,16 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-regio
   color: #ffffff;
 }
 
+[data-active-provider="kinopoisk"] button.streaming-region-btn:hover,
+[data-active-provider="kinopoisk"] button.streaming-region-btn[aria-expanded="true"],
+html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-region-btn:hover,
+html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-region-btn[aria-expanded="true"] {
+  border-color: #ff5500;
+  background: #211007;
+  box-shadow: 0 0 14px rgba(255, 85, 0, 0.38);
+  color: #ffffff;
+}
+
 .region-globe-icon {
   display: inline-flex;
   align-items: center;
@@ -993,6 +1059,12 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-regio
   background: rgba(0, 168, 225, 0.22);
   border-color: rgba(0, 168, 225, 0.5);
   color: #72d4ff;
+}
+
+[data-active-provider="kinopoisk"] .country-code-pill {
+  background: rgba(255, 85, 0, 0.22);
+  border-color: rgba(255, 85, 0, 0.5);
+  color: #ff9d6b;
 }
 
 .region-chevron {
@@ -1123,6 +1195,13 @@ html[data-theme="current"] [data-active-provider="prime"] button.region-menu-ite
   color: #6ed3ff;
 }
 
+[data-active-provider="kinopoisk"] button.region-menu-item.is-active,
+html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu-item.is-active {
+  background: rgba(255, 85, 0, 0.2);
+  border-color: rgba(255, 85, 0, 0.65);
+  color: #ffa270;
+}
+
 .region-menu-code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 10px;
@@ -1164,6 +1243,12 @@ html[data-theme="current"] [data-active-provider="prime"] button.region-menu-ite
   color: #ffffff;
 }
 
+[data-active-provider="kinopoisk"] .region-menu-item.is-active .region-menu-code {
+  background: rgba(255, 85, 0, 0.4);
+  border-color: rgba(255, 85, 0, 0.7);
+  color: #ffffff;
+}
+
 .region-menu-name {
   flex: 1;
   overflow: hidden;
@@ -1191,6 +1276,10 @@ html[data-theme="current"] [data-active-provider="prime"] button.region-menu-ite
 
 [data-active-provider="prime"] .region-menu-check {
   color: #00a8e1;
+}
+
+[data-active-provider="kinopoisk"] .region-menu-check {
+  color: #ff5500;
 }
 
 /* Liquid theme adaptations */
@@ -1329,6 +1418,13 @@ html[data-theme="liquid"] .streaming-provider.is-active[data-provider="prime"] {
   box-shadow: inset 0 1px rgba(100, 210, 255, 0.6), 0 0 28px rgba(0, 168, 225, 0.4);
 }
 
+html[data-theme="liquid"] .streaming-provider--kp.is-active,
+html[data-theme="liquid"] .streaming-provider.is-active[data-provider="kinopoisk"] {
+  border-color: rgba(255, 85, 0, 0.9);
+  background: linear-gradient(145deg, rgba(255, 85, 0, 0.32), rgba(204, 51, 0, 0.14) 55%, #00000020);
+  box-shadow: inset 0 1px rgba(255, 180, 110, 0.6), 0 0 28px rgba(255, 85, 0, 0.4);
+}
+
 html[data-theme="liquid"] .streaming-tab {
   border-color: #ffffff30;
   background: linear-gradient(145deg, #ffffff20, #ffffff08);
@@ -1367,6 +1463,13 @@ html[data-theme="liquid"] [data-active-provider="prime"] .streaming-tab.is-activ
   border-color: rgba(0, 168, 225, 0.95);
   background: linear-gradient(135deg, #00a8e1, #006097);
   box-shadow: 0 4px 20px rgba(0, 168, 225, 0.5);
+  color: #fff;
+}
+
+html[data-theme="liquid"] [data-active-provider="kinopoisk"] .streaming-tab.is-active {
+  border-color: rgba(255, 85, 0, 0.95);
+  background: linear-gradient(135deg, #ff5500, #cc3300);
+  box-shadow: 0 4px 20px rgba(255, 85, 0, 0.5);
   color: #fff;
 }
 

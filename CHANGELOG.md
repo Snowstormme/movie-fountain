@@ -2,6 +2,12 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.3] - 2026-11-13
+
+- Add full **Kinopoisk** streaming integration (`#streaming/kinopoisk`, `#kinopoisk`, `#kp`, `#kino`): explore Kinopoisk Originals (*King & Jester*, *Patient Zero*, *Trigger*, *Silver Spoon*, *The Cyberfarm*, *Unprincipled*, *The Ciphers*) and popular cinema (*The Master and Margarita*, *Major Grom: Plague Doctor*, *Brother*, *Interstellar*), powered by TMDB provider ID `117`, network ID `3827`, intelligent `RU` fallback region, and dedicated curated catalog (`functions/_lib/kinopoisk_catalog.js`).
+- Add **Kinopoisk Flame Orange Theme & Branding**: active `#ff5500` ambient glow, interactive provider button, custom poster badge (`.kp-chip` with official Kinopoisk **K** emblem), and EN/RU localization.
+- Upgrade streaming poster chips to custom vector wordmarks across **Netflix** (condensed arched SVG wordmark) and **HBO Max** (rebranded from Max with stacked `HBO / max` official lockup), and streamline provider selector cards by removing truncated subtitle lines.
+
 ## [0.9.2] - 2026-11-12
 
 - Add full **Amazon Prime Video** streaming integration (`#streaming/prime`, `#prime`, `#amazon`, `#primevideo`): explore acclaimed Amazon Originals and cinema (*Sound of Metal*, *Manchester by the Sea*, *Air*, *Saltburn*, *The Boys*, *Fallout*, *Fleabag*, *The Marvelous Mrs. Maisel*, *Reacher*, *Invincible*, *The Rings of Power*, *Good Omens*, *The Expanse*), powered by TMDB watch provider IDs `9|119` and network ID `1024` with dedicated curated catalog fallback (`functions/_lib/prime_catalog.js`).

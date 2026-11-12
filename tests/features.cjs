@@ -854,4 +854,46 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_prime')"), "Prime Video");
   assert.equal(run("t('provider_prime_sub')"), "Оригинальные шоу Amazon, блокбастеры и мировые хиты");
+
+  // 10. Kinopoisk provider endpoint, aliases, and catalog
+  const reqKp = new Request("https://movie-fountain.pages.dev/api/streaming?provider=kinopoisk");
+  const resKp = await onRequestGet({ request: reqKp, env: {} });
+  assert.equal(resKp.status, 200);
+  const dataKp = await resKp.json();
+  assert.equal(dataKp.provider, "kinopoisk");
+  assert.ok(dataKp.results.length >= 20);
+
+  const kpMovies = dataKp.results.some((m) => m.media_type === "movie");
+  const kpSeries = dataKp.results.some((m) => m.media_type === "tv");
+  assert.ok(kpMovies, "Kinopoisk catalog must include movies (e.g. Brother, Major Grom)");
+  assert.ok(kpSeries, "Kinopoisk catalog must include series (e.g. Trigger, King & Jester)");
+
+  // Alias checks (kp and kino)
+  const reqKpAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=kp");
+  const resKpAlias = await onRequestGet({ request: reqKpAlias, env: {} });
+  assert.equal(resKpAlias.status, 200);
+  const dataKpAlias = await resKpAlias.json();
+  assert.equal(dataKpAlias.provider, "kinopoisk");
+
+  const reqKinoAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=kino");
+  const resKinoAlias = await onRequestGet({ request: reqKinoAlias, env: {} });
+  assert.equal(resKinoAlias.status, 200);
+  const dataKinoAlias = await resKinoAlias.json();
+  assert.equal(dataKinoAlias.provider, "kinopoisk");
+
+  const reqKpMovies = new Request("https://movie-fountain.pages.dev/api/streaming?provider=kinopoisk&type=movie");
+  const resKpMovies = await onRequestGet({ request: reqKpMovies, env: {} });
+  const dataKpMovies = await resKpMovies.json();
+  assert.ok(dataKpMovies.results.every((m) => m.media_type === "movie"));
+
+  const reqKpTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=kinopoisk&type=tv");
+  const resKpTv = await onRequestGet({ request: reqKpTv, env: {} });
+  const dataKpTv = await resKpTv.json();
+  assert.ok(dataKpTv.results.every((m) => m.media_type === "tv"));
+
+  // Check Kinopoisk i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_kinopoisk')"), "Kinopoisk");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_kinopoisk')"), "Кинопоиск");
 });

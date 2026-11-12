@@ -3,6 +3,7 @@ import { NETFLIX_CATALOG } from "../_lib/netflix_catalog.js";
 import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
 import { MAX_CATALOG } from "../_lib/max_catalog.js";
 import { PRIME_CATALOG } from "../_lib/prime_catalog.js";
+import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
 const PROVIDERS = {
   netflix: {
@@ -32,6 +33,14 @@ const PROVIDERS = {
     watchProviderId: "9|119",
     networkId: "1024",
     catalog: PRIME_CATALOG
+  },
+  kinopoisk: {
+    id: "kinopoisk",
+    name: "Kinopoisk",
+    watchProviderId: "117",
+    networkId: "3827",
+    defaultRegion: "RU",
+    catalog: KINOPOISK_CATALOG
   }
 };
 
@@ -75,6 +84,13 @@ export async function onRequestGet({ request, env }) {
     rawProvider === "amazon_prime"
   ) {
     provider = "prime";
+  } else if (
+    rawProvider === "kp" ||
+    rawProvider === "kino" ||
+    rawProvider === "kinopoiskhd" ||
+    rawProvider === "kinopoisk_hd"
+  ) {
+    provider = "kinopoisk";
   }
   const type = (url.searchParams.get("type") || "all").toLowerCase();
   const sort = (url.searchParams.get("sort") || "popular").toLowerCase();
@@ -86,7 +102,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }
@@ -98,6 +114,7 @@ export async function onRequestGet({ request, env }) {
   if (env?.TMDB_API_KEY) {
     try {
       const language = extractLang(request);
+      const fallbackRegion = config.defaultRegion || "US";
       let movieSortBy = "popularity.desc";
       let tvSortBy = "popularity.desc";
 
@@ -125,10 +142,10 @@ export async function onRequestGet({ request, env }) {
             page: String(page)
           }).then(async (res) => {
             if (res?.results && res.results.length > 0) return res;
-            if (country !== "US") {
+            if (country !== fallbackRegion) {
               return tmdb("/discover/movie", env, {
                 with_watch_providers: config.watchProviderId,
-                watch_region: "US",
+                watch_region: fallbackRegion,
                 sort_by: movieSortBy,
                 "vote_count.gte": type === "top" ? "100" : "15",
                 language,
@@ -153,10 +170,21 @@ export async function onRequestGet({ request, env }) {
             page: String(page)
           }).then(async (res) => {
             if (res?.results && res.results.length > 0) return res;
+            if (country !== fallbackRegion) {
+              const regionFallback = await tmdb("/discover/tv", env, {
+                with_watch_providers: config.watchProviderId,
+                watch_region: fallbackRegion,
+                sort_by: tvSortBy,
+                "vote_count.gte": type === "top" ? "100" : "15",
+                language,
+                page: String(page)
+              }).catch(() => null);
+              if (regionFallback?.results && regionFallback.results.length > 0) return regionFallback;
+            }
             return tmdb("/discover/tv", env, {
               with_networks: config.networkId,
               sort_by: tvSortBy,
-              "vote_count.gte": type === "top" ? "100" : "15",
+              "vote_count.gte": type === "top" ? "100" : "5",
               language,
               page: String(page)
             }).catch(() => null);
