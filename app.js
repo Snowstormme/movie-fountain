@@ -1496,7 +1496,7 @@ function streamingCard(item) {
   let providerChip = `<span class="netflix-chip">NETFLIX</span>`;
   let providerCode = "netflix";
   if (isPrime) {
-    providerChip = `<span class="prime-chip"><svg viewBox="0 0 24 10" width="13" height="6" fill="#00a8e1" style="vertical-align:1px;margin-right:3px;" aria-hidden="true"><path d="M1 4c5 3 14 3.5 20-1l-.7-.7c1.6.2 3 .3 4.2-.1-.6.9-1.3 2-1.8 3l-.7-.6C16 7.5 7 7.2 2.5 3.3l-1.5.7z"/></svg>PRIME</span>`;
+    providerChip = `<span class="prime-chip" aria-label="Prime Video"><svg viewBox="0 0 62 23" width="38" height="14" aria-hidden="true"><path fill="#ffffff" fill-rule="evenodd" d="M2 4.5h3.2v1.1c.8-.9 1.9-1.4 3.3-1.4 2.8 0 4.8 2.1 4.8 5s-2 5-4.8 5c-1.4 0-2.5-.5-3.3-1.4v4.7H2V4.5zm3.3 4.7c0 1.6 1 2.7 2.4 2.7s2.4-1.1 2.4-2.7-1-2.7-2.4-2.7-2.4 1.1-2.4 2.7zM15.2 4.5h3.2v1.6c.7-1.2 1.8-1.9 3.3-1.9.4 0 .8.1 1.1.2v3c-.4-.1-.8-.1-1.3-.1-1.8 0-3 1-3 3.1V14h-3.3V4.5zm9.2-3.7h3.4v2.6h-3.4V.8zm0 3.7h3.4V14h-3.4V4.5zm5.8 0h3.2v1.3c.7-1 1.8-1.6 3.2-1.6 1.5 0 2.6.6 3.2 1.7.8-1.1 2-1.7 3.5-1.7 2.4 0 4 1.6 4 4.1V14H44V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V4.5zm29.4 5.6h-6.8c.2 1.3 1.2 2 2.7 2 1 0 1.9-.3 2.6-.9l1.4 1.8c-1 .8-2.3 1.3-4.1 1.3-3.4 0-5.8-2.1-5.8-5s2.3-5.1 5.3-5.1c3.1 0 4.9 2.1 4.9 4.9 0 .4 0 .7-.2 1zm-6.8-1.8h4c-.1-1.2-.9-2-2-2-1.1 0-1.8.8-2 2z"/><path fill="#ffffff" d="M11.3 16.4c9.7 4.7 24.1 5 34.4-.5l-1.6-1.1c2.6-.2 5.4-.1 7.1.6-.5 1.9-1.4 4.1-2.6 5.6l-1.3-1.4c-10.8 6.2-26.6 5.7-37.2-.7-.7-.4-.1-1.8 1.2-2.5z"/></svg></span>`;
     providerCode = "prime";
   } else if (isMax) {
     providerChip = `<span class="max-chip">MAX</span>`;
