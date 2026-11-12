@@ -1323,7 +1323,6 @@ function renderStreamingView() {
               <strong>${t("provider_netflix")}</strong>
               ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--netflix">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
-            <span class="provider-desc">${esc(t("provider_netflix_sub"))}</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1345,7 +1344,6 @@ function renderStreamingView() {
               <strong>${t("provider_apple")}</strong>
               ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--apple">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
-            <span class="provider-desc">${esc(t("provider_apple_sub"))}</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1366,7 +1364,6 @@ function renderStreamingView() {
               <strong>${t("provider_max")}</strong>
               ${currentStreamingProvider === "max" ? `<span class="provider-status-badge provider-status-badge--max">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
-            <span class="provider-desc">${esc(t("provider_max_sub"))}</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1384,7 +1381,6 @@ function renderStreamingView() {
               <strong>${t("provider_prime")}</strong>
               ${currentStreamingProvider === "prime" ? `<span class="provider-status-badge provider-status-badge--prime">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
-            <span class="provider-desc">${esc(t("provider_prime_sub"))}</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1407,7 +1403,6 @@ function renderStreamingView() {
               <strong>Кинопоиск</strong>
               <span class="provider-status-badge provider-status-badge--kp">${t("provider_coming_soon")}</span>
             </div>
-            <span class="provider-desc">Плюс Мульти & Эксклюзивы</span>
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </div>
