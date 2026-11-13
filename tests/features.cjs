@@ -687,6 +687,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 11, name: "MUBI", logo_path: "/mubi.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
         { id: 283, name: "Crunchyroll", logo_path: "/crunchyroll.jpg" },
+        { id: 1773, name: "SkyShowtime", logo_path: "/skyshowtime.jpg" },
       ],
       buy: [
         { id: 3, name: "Google Play Movies", logo_path: "/google.jpg" },
@@ -720,7 +721,11 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /data-hub-provider="googletv"/);
   assert.match(htmlAllHubsUS, /watch-provider-logo--googletv/);
   assert.match(htmlAllHubsUS, />Google TV</);
-  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*crunchyroll/i);
+  assert.match(htmlAllHubsUS, /href="#streaming\/crunchyroll"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="crunchyroll"/);
+  assert.match(htmlAllHubsUS, /watch-provider-logo--crunchyroll/);
+  assert.match(htmlAllHubsUS, />Crunchyroll</);
+  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*skyshowtime/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
   assert.match(htmlHubRU, /href="#streaming\/okko"/);
@@ -803,6 +808,18 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedPeacock, /href="#streaming\/peacock"/);
   assert.match(renderedEnrichedPeacock, /watch-provider-logo--peacock/);
   assert.match(renderedEnrichedPeacock, /Peacock/);
+
+  const enrichedCrunchyroll = enrichWatchProvidersWithCatalogs(null, 635302);
+  assert.ok(enrichedCrunchyroll?.US?.flatrate?.some((p) => p.name === "Crunchyroll"));
+  const noDupCrunchyroll = enrichWatchProvidersWithCatalogs(
+    { US: { flatrate: [{ id: 1968, name: "Crunchyroll Amazon Channel", logo_path: "/crunchyroll.jpg" }] } },
+    95479,
+  );
+  assert.equal(noDupCrunchyroll.US.flatrate.length, 1);
+  const renderedEnrichedCrunchyroll = run(`renderWatchProviders(${JSON.stringify(enrichedCrunchyroll)}, "US")`);
+  assert.match(renderedEnrichedCrunchyroll, /href="#streaming\/crunchyroll"/);
+  assert.match(renderedEnrichedCrunchyroll, /watch-provider-logo--crunchyroll/);
+  assert.match(renderedEnrichedCrunchyroll, /Crunchyroll/);
 
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
@@ -1376,4 +1393,53 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_peacock')"), "Peacock");
   assert.equal(run("t('provider_peacock_sub')"), "Оригиналы NBCUniversal, культовые комедии и блокбастеры");
+
+  // 18. Crunchyroll provider endpoint, aliases, and catalog
+  const reqCrunchyroll = new Request("https://movie-fountain.pages.dev/api/streaming?provider=crunchyroll");
+  const resCrunchyroll = await onRequestGet({ request: reqCrunchyroll, env: {} });
+  assert.equal(resCrunchyroll.status, 200);
+  const dataCrunchyroll = await resCrunchyroll.json();
+  assert.equal(dataCrunchyroll.provider, "crunchyroll");
+  assert.ok(dataCrunchyroll.results.length >= 20);
+  assert.ok(dataCrunchyroll.total_results >= 25);
+
+  const crunchyrollMovies = dataCrunchyroll.results.some((m) => m.media_type === "movie");
+  const crunchyrollSeries = dataCrunchyroll.results.some((m) => m.media_type === "tv");
+  assert.ok(crunchyrollMovies, "Crunchyroll catalog must include movies");
+  assert.ok(crunchyrollSeries, "Crunchyroll catalog must include series");
+
+  const reqCrunchyAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=crunchy");
+  const resCrunchyAlias = await onRequestGet({ request: reqCrunchyAlias, env: {} });
+  assert.equal(resCrunchyAlias.status, 200);
+  const dataCrunchyAlias = await resCrunchyAlias.json();
+  assert.equal(dataCrunchyAlias.provider, "crunchyroll");
+
+  const reqCrunchyTvAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=crunchyroll_tv");
+  const resCrunchyTvAlias = await onRequestGet({ request: reqCrunchyTvAlias, env: {} });
+  assert.equal(resCrunchyTvAlias.status, 200);
+  const dataCrunchyTvAlias = await resCrunchyTvAlias.json();
+  assert.equal(dataCrunchyTvAlias.provider, "crunchyroll");
+
+  const reqCrunchyShortAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=cr");
+  const resCrunchyShortAlias = await onRequestGet({ request: reqCrunchyShortAlias, env: {} });
+  assert.equal(resCrunchyShortAlias.status, 200);
+  const dataCrunchyShortAlias = await resCrunchyShortAlias.json();
+  assert.equal(dataCrunchyShortAlias.provider, "crunchyroll");
+
+  const reqCrunchyMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=crunchyroll&type=movie");
+  const resCrunchyMoviesOnly = await onRequestGet({ request: reqCrunchyMoviesOnly, env: {} });
+  const dataCrunchyMoviesOnly = await resCrunchyMoviesOnly.json();
+  assert.ok(dataCrunchyMoviesOnly.results.length > 0 && dataCrunchyMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqCrunchySeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=crunchyroll&type=tv");
+  const resCrunchySeriesOnly = await onRequestGet({ request: reqCrunchySeriesOnly, env: {} });
+  const dataCrunchySeriesOnly = await resCrunchySeriesOnly.json();
+  assert.ok(dataCrunchySeriesOnly.results.length > 0 && dataCrunchySeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  run("setLang('en')");
+  assert.equal(run("t('provider_crunchyroll')"), "Crunchyroll");
+  assert.equal(run("t('provider_crunchyroll_sub')"), "Simulcast anime hits, iconic shōnen series & theatrical anime films");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_crunchyroll')"), "Crunchyroll");
+  assert.equal(run("t('provider_crunchyroll_sub')"), "Симулькасты аниме, культовые сериалы и полнометражные хиты");
 });

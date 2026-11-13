@@ -9,6 +9,7 @@ import { PARAMOUNT_CATALOG } from "../_lib/paramount_catalog.js";
 import { GOOGLETV_CATALOG } from "../_lib/googletv_catalog.js";
 import { MUBI_CATALOG } from "../_lib/mubi_catalog.js";
 import { PEACOCK_CATALOG } from "../_lib/peacock_catalog.js";
+import { CRUNCHYROLL_CATALOG } from "../_lib/crunchyroll_catalog.js";
 import { OKKO_CATALOG } from "../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
@@ -82,6 +83,13 @@ const PROVIDERS = {
     watchProviderId: "386|387",
     networkId: "3353",
     catalog: PEACOCK_CATALOG
+  },
+  crunchyroll: {
+    id: "crunchyroll",
+    name: "Crunchyroll",
+    watchProviderId: "283|1968",
+    networkId: "1112",
+    catalog: CRUNCHYROLL_CATALOG
   },
   okko: {
     id: "okko",
@@ -185,6 +193,16 @@ export async function onRequestGet({ request, env }) {
     rawProvider === "nbc_peacock"
   ) {
     provider = "peacock";
+  } else if (
+    rawProvider === "crunchy" ||
+    rawProvider === "crunchyrolltv" ||
+    rawProvider === "crunchyroll_tv" ||
+    rawProvider === "crunchyroll-tv" ||
+    rawProvider === "crunchyrollchannel" ||
+    rawProvider === "crunchyroll_channel" ||
+    rawProvider === "cr"
+  ) {
+    provider = "crunchyroll";
   } else if (rawProvider === "okkotv" || rawProvider === "okko_tv" || rawProvider === "okkomovies") {
     provider = "okko";
   } else if (
@@ -205,7 +223,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, googletv, mubi, peacock, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, googletv, mubi, peacock, crunchyroll, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }

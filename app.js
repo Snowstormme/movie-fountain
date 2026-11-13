@@ -1078,6 +1078,14 @@ const PROVIDER_ALIASES = {
   peacock_premium: "peacock",
   nbcpeacock: "peacock",
   nbc_peacock: "peacock",
+  crunchyroll: "crunchyroll",
+  crunchy: "crunchyroll",
+  crunchyrolltv: "crunchyroll",
+  crunchyroll_tv: "crunchyroll",
+  "crunchyroll-tv": "crunchyroll",
+  crunchyrollchannel: "crunchyroll",
+  crunchyroll_channel: "crunchyroll",
+  cr: "crunchyroll",
   okko: "okko",
   okkotv: "okko",
   okko_tv: "okko",
@@ -1306,6 +1314,8 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
     providerName = t("provider_mubi") || "MUBI";
   } else if (provider === "peacock") {
     providerName = t("provider_peacock") || "Peacock";
+  } else if (provider === "crunchyroll") {
+    providerName = t("provider_crunchyroll") || "Crunchyroll";
   } else if (provider === "okko") {
     providerName = t("provider_okko") || "Okko";
   } else if (provider === "kinopoisk" || provider === "kp") {
@@ -1537,6 +1547,20 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
+        <!-- Crunchyroll -->
+        <button type="button" class="streaming-provider streaming-provider--crunchyroll ${currentStreamingProvider === "crunchyroll" ? "is-active" : ""}" data-provider="crunchyroll" role="tab" aria-selected="${currentStreamingProvider === "crunchyroll"}">
+          <span class="provider-icon provider-icon--crunchyroll" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#ff640a" d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>${t("provider_crunchyroll")}</strong>
+              ${currentStreamingProvider === "crunchyroll" ? `<span class="provider-status-badge provider-status-badge--crunchyroll">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+            </div>
+          </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
+        </button>
+
         <!-- Okko -->
         <button type="button" class="streaming-provider streaming-provider--okko ${currentStreamingProvider === "okko" ? "is-active" : ""}" data-provider="okko" role="tab" aria-selected="${currentStreamingProvider === "okko"}">
           <span class="provider-icon provider-icon--okko" aria-hidden="true">
@@ -1669,6 +1693,9 @@ function streamingCard(item) {
   } else if (activeProvider === "peacock") {
     providerChip = `<span class="peacock-chip" aria-label="Peacock"><svg viewBox="0 0 1607 400" width="56" height="14" aria-hidden="true"><defs><linearGradient id="peacockChip${movieId}" x1="1575.74" x2="1575.74" y1="-.83" y2="400.19" gradientUnits="userSpaceOnUse"><stop stop-color="#ffdc23"/><stop offset=".16" stop-color="#ff8700"/><stop offset=".21" stop-color="#ff5401"/><stop offset=".37" stop-color="#d9005a"/><stop offset=".42" stop-color="#c814c8"/><stop offset=".58" stop-color="#8250ff"/><stop offset=".63" stop-color="#6e64ff"/><stop offset=".79" stop-color="#00c8ff"/><stop offset=".84" stop-color="#00cc99"/><stop offset=".99" stop-color="#00a637"/></linearGradient></defs><path fill="url(#peacockChip${movieId})" d="M1606.99 31.25c0 17.26-13.99 31.25-31.25 31.25s-31.25-13.99-31.25-31.25S1558.48 0 1575.74 0s31.25 13.99 31.25 31.25m-31.25 53.13c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.37c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.37c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.38c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25"/><path fill="#ffffff" d="M1213.52 89.3501c15.38 0 29.97 3.16 43.38 9.86V155.6c-11.04-9.86-27.61-17.35-44.57-17.35-33.52 0-59.15 27.21-59.15 62.31s25.63 61.91 59.95 61.12c16.96 0 33.12-5.92 43.78-16.56v55.6c-14.2 6.31-28.79 10.65-44.57 10.65-61.92 0-112-49.69-112-110.81s51.27-111.1999 113.19-111.1999zM217.7 194.64c0 65.68-50.87 117.91-164.85 131.01v69.71H0v-195.2c0-69.8 49.3-110.8099 111.22-110.8099S217.7 135.49 217.7 194.64m-52.85 1.97c0-32.34-24.45-56.78-55.61-56.78s-56.4 22.08-56.4 60.33v75.28c42.33-1.2 112-24.91 112-78.83zm536.36 3.94c0 61.12 49.69 110.81 112 110.81 15.38 0 30.37-4.34 44.18-10.65v-55.6c-10.25 10.25-26.82 16.56-43.38 16.56-34.31.79-59.95-26.42-59.95-61.12s25.63-62.31 59.15-62.31c16.96 0 33.13 7.49 44.18 17.35V99.2001c-13.41-6.7-28-9.86-42.6-9.86-62.71 0-113.58 49.6899-113.58 111.1999zm780.88 104.5-91.82-108.36 81.57-101.0399h-64.68l-77.3 102.5399V5.36011h-53.24V305.06h53.24V201.17l87.95 103.89h64.28zm-795.07-94.64v94.64h-52.85v-22.7c-16.27 18.33-39.33 29.01-65.86 29.01-56.4 0-102.54-49.69-102.54-110.02S513.09 89.3501 577.38 89.3501c71.78 0 109.64 52.8399 109.64 121.0599m-53.24-9.86c0-35.1-24.45-62.31-57.58-62.31s-58.77 27.21-58.77 62.31 25.64 61.91 58.77 61.91 57.58-26.82 57.58-61.91m453.93 0c0 61.12-50.48 110.81-112.4 110.81s-112-49.69-112-110.81 50.87-111.1999 112-111.1999 112.4 50.0799 112.4 111.1999m-52.85 0c0-35.49-26.03-62.31-59.55-62.31s-59.15 27.21-59.15 62.31 25.63 61.91 59.15 61.91 59.55-27.21 59.55-61.91m-583.68-2.36c0 5.13-.4 13.8-1.18 22.87H285.4c7.99 25.74 31.55 41.8 64.83 41.8 25.24 0 49.3-9.07 69.8-26.42v54.81c-17.75 12.62-42.59 20.11-71.38 20.11-68.62 0-117.53-45.35-117.53-109.23s50.09-112.7799 112-112.7799S451.58 137.85 451.18 198.19M285.8 178.87h110.56c-6.82-24.48-26.88-41.01-53.63-41.01s-48.96 16.56-56.92 41.01z"/></svg></span>`;
     providerCode = "peacock";
+  } else if (activeProvider === "crunchyroll") {
+    providerChip = `<span class="crunchyroll-chip" aria-label="Crunchyroll"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true" style="margin-right:4px;flex:none;"><path d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg>Crunchyroll</span>`;
+    providerCode = "crunchyroll";
   } else if (activeProvider === "okko") {
     providerChip = `<span class="okko-chip" aria-label="Okko"><svg viewBox="0 0 2922 1036" width="44" height="16" aria-hidden="true"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg></span>`;
     providerCode = "okko";
@@ -2146,6 +2173,8 @@ const STREAMING_HUB_PROVIDER_MAP = {
   201: "mubi",
   386: "peacock",
   387: "peacock",
+  283: "crunchyroll",
+  1968: "crunchyroll",
   115: "okko",
   117: "kinopoisk",
 };
@@ -2161,6 +2190,7 @@ const HUB_PROVIDER_DEFAULTS = {
   googletv: { region: "US", section: "buy", id: 3, name: "Google TV", logo_path: "inline:googletv" },
   mubi: { region: "US", id: 11, name: "MUBI", logo_path: "inline:mubi" },
   peacock: { region: "US", id: 386, name: "Peacock", logo_path: "inline:peacock" },
+  crunchyroll: { region: "US", id: 283, name: "Crunchyroll", logo_path: "inline:crunchyroll" },
   okko: { region: "RU", id: 115, name: "Okko", logo_path: "inline:okko" },
   kinopoisk: { region: "RU", id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
 };
@@ -2181,6 +2211,7 @@ function matchStreamingHubProvider(provider) {
   if (/\bgoogle\s*(?:tv|play(?:\s*movies)?)\b/.test(name)) return "googletv";
   if (/\bmubi\b/.test(name)) return "mubi";
   if (/\bpeacock\b/.test(name)) return "peacock";
+  if (/\bcrunchyroll\b/.test(name)) return "crunchyroll";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -2226,6 +2257,9 @@ function renderWatchProviderLogo(provider, hubProvider) {
     watchLogoUid += 1;
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--peacock" aria-hidden="true"><svg viewBox="-2 -2 73.5 72.2" width="19" height="19"><defs><linearGradient id="peacockW${watchLogoUid}" x1="63.89" x2="63.89" y1="-0.13" y2="68.21" gradientUnits="userSpaceOnUse"><stop stop-color="#ffdc23"/><stop offset=".16" stop-color="#ff8700"/><stop offset=".21" stop-color="#ff5401"/><stop offset=".37" stop-color="#d9005a"/><stop offset=".42" stop-color="#c814c8"/><stop offset=".58" stop-color="#8250ff"/><stop offset=".63" stop-color="#6e64ff"/><stop offset=".79" stop-color="#00c8ff"/><stop offset=".84" stop-color="#00cc99"/><stop offset=".99" stop-color="#00a637"/></linearGradient></defs><path fill="#ffffff" d="m 48.344254,23.376251 c 0,14.582148 -11.296608,26.178142 -36.607947,29.086577 v 15.47688 H 0 V 24.601791 C 0,9.1049395 10.947966,0 24.698431,0 38.448896,0 48.344254,10.24389 48.344254,23.376251 m -11.736307,0.437376 c 0,-7.180057 -5.429566,-12.60618 -12.349215,-12.60618 -6.919641,0 -12.524649,4.902158 -12.524649,13.394344 v 16.71352 C 21.134238,41.04889 36.605731,35.784844 36.605731,23.813627 Z"/><path fill="url(#peacockW${watchLogoUid})" d="m 69.499016,5.333684 c 0,2.9417574 -2.512018,5.326184 -5.611192,5.326184 -3.099174,0 -5.611193,-2.3844266 -5.611193,-5.326184 0,-2.9417581 2.512019,-5.32618468 5.611193,-5.32618468 3.099174,0 5.611192,2.38442658 5.611192,5.32618468 m -5.611192,9.055365 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326185 0,2.941758 2.512019,5.326185 5.611193,5.326185 3.099174,0 5.611192,-2.384427 5.611192,-5.326185 0,-2.941758 -2.512018,-5.326185 -5.611192,-5.326185 m 0,14.379846 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326185 0,2.941758 2.512019,5.326184 5.611193,5.326184 3.099174,0 5.611192,-2.384426 5.611192,-5.326184 0,-2.941758 -2.512018,-5.326185 -5.611192,-5.326185 m 0,14.379845 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326186 0,2.941758 2.512019,5.326184 5.611193,5.326184 3.099174,0 5.611192,-2.384426 5.611192,-5.326184 0,-2.941759 -2.512018,-5.326186 -5.611192,-5.326186 m 0,14.381551 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326184 0,2.941758 2.512019,5.326185 5.611193,5.326185 3.099174,0 5.611192,-2.384427 5.611192,-5.326185 0,-2.941757 -2.512018,-5.326184 -5.611192,-5.326184"/></svg></span>`;
   }
+  if (logoPath === "inline:crunchyroll" || hubProvider === "crunchyroll") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--crunchyroll" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19"><path fill="#ff640a" d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg></span>`;
+  }
   if (logoPath === "inline:okko") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--okko" aria-hidden="true"><svg viewBox="0 0 2922 1036" width="26" height="9"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg></span>`;
   }
@@ -2262,6 +2296,7 @@ function cleanWatchProviderName(name) {
     .replace(/^Google\s+Play\s+Movies(?:\s+(?:&|and)\s+TV)?$/i, "Google TV")
     .replace(/^MUBI(?:\s+(?:Go|Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "MUBI")
     .replace(/^Peacock(?:\s+(?:Premium(?:\s+Plus)?|with\s+Ads|Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "Peacock")
+    .replace(/^Crunchyroll(?:\s+(?:Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "Crunchyroll")
     .trim();
 }
 
@@ -2287,7 +2322,7 @@ function watchProviderCanonicalKey(provider) {
 function watchProviderRankPenalty(provider) {
   const name = String(provider?.name || "").trim();
   const id = Number(provider?.id);
-  if (id === 3 || id === 8 || id === 9 || id === 11 || id === 15 || id === 115 || id === 117 || id === 119 || id === 337 || id === 350 || id === 386 || id === 531 || id === 1899) return 0;
+  if (id === 3 || id === 8 || id === 9 || id === 11 || id === 15 || id === 115 || id === 117 || id === 119 || id === 283 || id === 337 || id === 350 || id === 386 || id === 531 || id === 1899) return 0;
   let penalty = 0;
   if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
   if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;
