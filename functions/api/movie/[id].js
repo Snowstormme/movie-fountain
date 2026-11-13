@@ -8,6 +8,7 @@ import { DISNEY_CATALOG } from "../../_lib/disney_catalog.js";
 import { PARAMOUNT_CATALOG } from "../../_lib/paramount_catalog.js";
 import { GOOGLETV_CATALOG } from "../../_lib/googletv_catalog.js";
 import { MUBI_CATALOG } from "../../_lib/mubi_catalog.js";
+import { PEACOCK_CATALOG } from "../../_lib/peacock_catalog.js";
 import { OKKO_CATALOG } from "../../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../../_lib/kinopoisk_catalog.js";
 
@@ -95,6 +96,15 @@ const HUB_CATALOGS = [
     ids: new Set(MUBI_CATALOG.map((m) => Number(m.id))),
   },
   {
+    key: "peacock",
+    region: "US",
+    id: 386,
+    name: "Peacock",
+    logo: "inline:peacock",
+    namePattern: /\bpeacock\b/i,
+    ids: new Set(PEACOCK_CATALOG.map((m) => Number(m.id))),
+  },
+  {
     key: "okko",
     region: "RU",
     id: 115,
@@ -172,7 +182,7 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
-const CANONICAL_HUB_IDS = new Set([3, 8, 9, 11, 15, 115, 117, 119, 337, 350, 531, 1899]);
+const CANONICAL_HUB_IDS = new Set([3, 8, 9, 11, 15, 115, 117, 119, 337, 350, 386, 531, 1899]);
 
 function matchHubKey(provider) {
   const id = Number(provider?.id);
@@ -185,6 +195,7 @@ function matchHubKey(provider) {
   if (id === 531 || id === 2303 || id === 2616 || id === 2304 || id === 582 || id === 633 || id === 1853) return "paramount";
   if (id === 3) return "googletv";
   if (id === 11 || id === 201) return "mubi";
+  if (id === 386 || id === 387) return "peacock";
   if (id === 115) return "okko";
   if (id === 117) return "kinopoisk";
   const name = String(provider?.name || "").trim().toLowerCase();
@@ -198,6 +209,7 @@ function matchHubKey(provider) {
   if (/\bparamount\s*(?:\+|plus\b)/.test(name)) return "paramount";
   if (/\bgoogle\s*(?:tv|play(?:\s*movies)?)\b/.test(name)) return "googletv";
   if (/\bmubi\b/.test(name)) return "mubi";
+  if (/\bpeacock\b/.test(name)) return "peacock";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -209,6 +221,7 @@ function cleanWatchProviderName(name) {
     .replace(/^Paramount\s*(?:\+|Plus)(?:\s+(?:Premium|Essential))?$/i, "Paramount+")
     .replace(/^Google\s+Play\s+Movies(?:\s+(?:&|and)\s+TV)?$/i, "Google TV")
     .replace(/^MUBI(?:\s+(?:Go|Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "MUBI")
+    .replace(/^Peacock(?:\s+(?:Premium(?:\s+Plus)?|with\s+Ads|Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "Peacock")
     .trim();
 }
 

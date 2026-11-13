@@ -314,6 +314,7 @@ html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-link[data-hub-provider="paramount"]:hover{border-color:rgba(0,100,255,0.8);box-shadow:0 4px 14px rgba(0,100,255,0.28)}
 .watch-provider-link[data-hub-provider="googletv"]:hover{border-color:rgba(66,133,244,0.8);box-shadow:0 4px 14px rgba(66,133,244,0.26)}
 .watch-provider-link[data-hub-provider="mubi"]:hover{border-color:rgba(255,255,255,0.65);box-shadow:0 4px 14px rgba(0,20,137,0.4)}
+.watch-provider-link[data-hub-provider="peacock"]:hover{border-color:rgba(255,220,35,0.72);box-shadow:0 4px 14px rgba(130,80,255,0.34)}
 .watch-provider-link[data-hub-provider="okko"]:hover{border-color:rgba(217,70,239,0.75);box-shadow:0 4px 14px rgba(217,70,239,0.25)}
 .watch-provider-link[data-hub-provider="kinopoisk"]:hover{border-color:rgba(255,85,0,0.75);box-shadow:0 4px 14px rgba(255,85,0,0.25)}
 .watch-provider-logo{width:32px;height:32px;border-radius:6px;object-fit:cover;flex:none}
@@ -321,6 +322,7 @@ html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-logo--kp{background:#121215;border:1px solid rgba(255,102,0,0.45)}
 .watch-provider-logo--okko{background:linear-gradient(135deg,#581c87 0%,#9333ea 100%);border:1px solid rgba(232,121,249,0.5)}
 .watch-provider-logo--mubi{background:linear-gradient(135deg,#001489 0%,#0621b8 100%);border:1px solid rgba(255,255,255,0.45)}
+.watch-provider-logo--peacock{background:#09090b;border:1px solid rgba(255,255,255,0.28)}
 .watch-provider-logo--googletv{background:#15181e;border:1px solid rgba(66,133,244,0.5)}
 .watch-provider-logo--paramount{background:linear-gradient(135deg,#0064ff 0%,#003cb3 100%);border:1px solid rgba(96,165,250,0.55)}
 .watch-provider-logo--disney{background:linear-gradient(135deg,#041e4d 0%,#0b4a9f 100%);border:1px solid rgba(34,211,238,0.5)}
@@ -404,6 +406,10 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
 
 [data-active-provider="mubi"] .streaming-ambient-glow {
   background: radial-gradient(ellipse at center, rgba(0, 34, 255, 0.44), rgba(0, 20, 137, 0.28) 48%, transparent 70%);
+}
+
+[data-active-provider="peacock"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(130, 80, 255, 0.34), rgba(255, 220, 35, 0.16) 44%, rgba(0, 200, 255, 0.18) 62%, transparent 74%);
 }
 
 [data-active-provider="okko"] .streaming-ambient-glow {
@@ -796,6 +802,45 @@ html[data-theme="current"] button.streaming-provider--mubi.is-active {
   box-shadow: 0 0 34px rgba(0, 34, 255, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.52);
 }
 
+/* 9b. PEACOCK UNIQUE DESIGN */
+.streaming-provider--peacock,
+button.streaming-provider--peacock,
+html[data-theme="current"] .streaming-provider--peacock,
+html[data-theme="current"] button.streaming-provider--peacock {
+  border: 1.5px solid rgba(255, 255, 255, 0.24);
+  background: radial-gradient(circle at top right, rgba(130, 80, 255, 0.18), transparent 58%),
+              radial-gradient(circle at bottom left, rgba(0, 200, 255, 0.12), transparent 58%),
+              linear-gradient(160deg, #13131b 0%, #09090d 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+.streaming-provider--peacock .provider-icon--peacock {
+  background: #09090b;
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 14px rgba(130, 80, 255, 0.28);
+}
+.streaming-provider--peacock .provider-accent-rail {
+  background: linear-gradient(90deg, #ffdc23, #ff5401, #d9005a, #8250ff, #00c8ff, #00a637);
+}
+.streaming-provider--peacock:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--peacock:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(255, 220, 35, 0.72);
+  background: radial-gradient(circle at top right, rgba(217, 0, 90, 0.26), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(0, 200, 255, 0.2), transparent 60%),
+              linear-gradient(160deg, #1a1826 0%, #0d0d13 100%);
+  box-shadow: 0 14px 30px rgba(130, 80, 255, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+.streaming-provider--peacock.is-active,
+button.streaming-provider--peacock.is-active,
+html[data-theme="current"] .streaming-provider--peacock.is-active,
+html[data-theme="current"] button.streaming-provider--peacock.is-active {
+  border-color: #ffdc23;
+  background: radial-gradient(circle at top right, rgba(255, 220, 35, 0.24), transparent 58%),
+              radial-gradient(circle at bottom left, rgba(0, 200, 255, 0.24), transparent 62%),
+              linear-gradient(160deg, #211d30 0%, #0f0f17 100%);
+  box-shadow: 0 0 34px rgba(130, 80, 255, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
 /* 10. OKKO UNIQUE DESIGN */
 .streaming-provider--okko,
 button.streaming-provider--okko,
@@ -943,6 +988,13 @@ html[data-theme="current"] button.streaming-provider--kp.is-active {
   color: #ffffff;
   font-weight: 800;
   box-shadow: 0 2px 8px rgba(0, 34, 255, 0.5);
+}
+
+.provider-status-badge.provider-status-badge--peacock {
+  background: linear-gradient(135deg, #c8004f 0%, #6344f5 55%, #008bb5 100%);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(99, 68, 245, 0.48);
 }
 
 .provider-status-badge.provider-status-badge--okko {
@@ -1203,6 +1255,21 @@ html[data-theme="current"] [data-active-provider="mubi"] button.streaming-tab.is
   box-shadow: 0 4px 16px rgba(0, 34, 255, 0.48);
 }
 
+[data-active-provider="peacock"] .streaming-tab:hover,
+[data-active-provider="peacock"] button.streaming-tab:hover {
+  border-color: rgba(255, 220, 35, 0.68);
+  color: #ffffff;
+}
+
+[data-active-provider="peacock"] .streaming-tab.is-active,
+[data-active-provider="peacock"] button.streaming-tab.is-active,
+html[data-theme="current"] [data-active-provider="peacock"] button.streaming-tab.is-active {
+  border-color: rgba(255, 220, 35, 0.85);
+  background: linear-gradient(135deg, #c8004f 0%, #6344f5 55%, #008bb5 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(99, 68, 245, 0.45);
+}
+
 [data-active-provider="okko"] .streaming-tab:hover,
 [data-active-provider="okko"] button.streaming-tab:hover,
 html[data-theme="current"] [data-active-provider="okko"] button.streaming-tab:hover {
@@ -1357,6 +1424,18 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-t
   border: 1px solid rgba(255, 255, 255, 0.5);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.75), 0 0 12px rgba(0, 34, 255, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peacock-chip {
+  padding: 2.5px 6.5px;
+  border-radius: 5px;
+  background: #0c0c10;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(130, 80, 255, 0.35);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1525,6 +1604,16 @@ html[data-theme="current"] [data-active-provider="mubi"] button.streaming-region
   color: #ffffff;
 }
 
+[data-active-provider="peacock"] button.streaming-region-btn:hover,
+[data-active-provider="peacock"] button.streaming-region-btn[aria-expanded="true"],
+html[data-theme="current"] [data-active-provider="peacock"] button.streaming-region-btn:hover,
+html[data-theme="current"] [data-active-provider="peacock"] button.streaming-region-btn[aria-expanded="true"] {
+  border-color: #ffdc23;
+  background: #181624;
+  box-shadow: 0 0 14px rgba(130, 80, 255, 0.4);
+  color: #ffffff;
+}
+
 [data-active-provider="okko"] button.streaming-region-btn:hover,
 [data-active-provider="okko"] button.streaming-region-btn[aria-expanded="true"],
 html[data-theme="current"] [data-active-provider="okko"] button.streaming-region-btn:hover,
@@ -1627,6 +1716,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-r
   background: rgba(0, 34, 255, 0.25);
   border-color: rgba(147, 197, 253, 0.6);
   color: #bfdbfe;
+}
+
+[data-active-provider="peacock"] .country-code-pill {
+  background: rgba(130, 80, 255, 0.25);
+  border-color: rgba(255, 220, 35, 0.55);
+  color: #fef08a;
 }
 
 [data-active-provider="okko"] .country-code-pill {
@@ -1804,6 +1899,13 @@ html[data-theme="current"] [data-active-provider="mubi"] button.region-menu-item
   color: #dbeafe;
 }
 
+[data-active-provider="peacock"] button.region-menu-item.is-active,
+html[data-theme="current"] [data-active-provider="peacock"] button.region-menu-item.is-active {
+  background: rgba(130, 80, 255, 0.24);
+  border-color: rgba(255, 220, 35, 0.65);
+  color: #fef9c3;
+}
+
 [data-active-provider="okko"] button.region-menu-item.is-active,
 html[data-theme="current"] [data-active-provider="okko"] button.region-menu-item.is-active {
   background: rgba(217, 70, 239, 0.22);
@@ -1889,6 +1991,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
   color: #ffffff;
 }
 
+[data-active-provider="peacock"] .region-menu-item.is-active .region-menu-code {
+  background: rgba(130, 80, 255, 0.42);
+  border-color: rgba(255, 220, 35, 0.7);
+  color: #ffffff;
+}
+
 [data-active-provider="okko"] .region-menu-item.is-active .region-menu-code {
   background: rgba(192, 38, 211, 0.42);
   border-color: rgba(232, 121, 249, 0.72);
@@ -1948,6 +2056,10 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
 
 [data-active-provider="mubi"] .region-menu-check {
   color: #60a5fa;
+}
+
+[data-active-provider="peacock"] .region-menu-check {
+  color: #ffdc23;
 }
 
 [data-active-provider="okko"] .region-menu-check {
@@ -2129,6 +2241,13 @@ html[data-theme="liquid"] .streaming-provider.is-active[data-provider="mubi"] {
   box-shadow: inset 0 1px rgba(191, 219, 254, 0.62), 0 0 28px rgba(0, 34, 255, 0.48);
 }
 
+html[data-theme="liquid"] .streaming-provider--peacock.is-active,
+html[data-theme="liquid"] .streaming-provider.is-active[data-provider="peacock"] {
+  border-color: rgba(255, 220, 35, 0.9);
+  background: linear-gradient(145deg, rgba(217, 0, 90, 0.28), rgba(130, 80, 255, 0.26) 52%, rgba(0, 200, 255, 0.2));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 28px rgba(130, 80, 255, 0.44);
+}
+
 html[data-theme="liquid"] .streaming-provider--okko.is-active,
 html[data-theme="liquid"] .streaming-provider.is-active[data-provider="okko"] {
   border-color: rgba(232, 121, 249, 0.9);
@@ -2216,6 +2335,13 @@ html[data-theme="liquid"] [data-active-provider="mubi"] .streaming-tab.is-active
   border-color: rgba(147, 197, 253, 0.95);
   background: linear-gradient(135deg, #001489, #1d4ed8);
   box-shadow: 0 4px 20px rgba(0, 34, 255, 0.52);
+  color: #fff;
+}
+
+html[data-theme="liquid"] [data-active-provider="peacock"] .streaming-tab.is-active {
+  border-color: rgba(255, 220, 35, 0.9);
+  background: linear-gradient(135deg, #c8004f, #6344f5 55%, #008bb5);
+  box-shadow: 0 4px 20px rgba(99, 68, 245, 0.5);
   color: #fff;
 }
 

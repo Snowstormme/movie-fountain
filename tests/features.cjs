@@ -686,6 +686,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 531, name: "Paramount Plus", logo_path: "/paramount.jpg" },
         { id: 11, name: "MUBI", logo_path: "/mubi.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
+        { id: 283, name: "Crunchyroll", logo_path: "/crunchyroll.jpg" },
       ],
       buy: [
         { id: 3, name: "Google Play Movies", logo_path: "/google.jpg" },
@@ -711,11 +712,15 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /data-hub-provider="paramount"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/mubi"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="mubi"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/peacock"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="peacock"/);
+  assert.match(htmlAllHubsUS, /watch-provider-logo--peacock/);
+  assert.match(htmlAllHubsUS, />Peacock</);
   assert.match(htmlAllHubsUS, /href="#streaming\/googletv"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="googletv"/);
   assert.match(htmlAllHubsUS, /watch-provider-logo--googletv/);
   assert.match(htmlAllHubsUS, />Google TV</);
-  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
+  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*crunchyroll/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
   assert.match(htmlHubRU, /href="#streaming\/okko"/);
@@ -786,6 +791,18 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedMubi, /href="#streaming\/mubi"/);
   assert.match(renderedEnrichedMubi, /watch-provider-logo--mubi/);
   assert.match(renderedEnrichedMubi, /MUBI/);
+
+  const enrichedPeacock = enrichWatchProvidersWithCatalogs(null, 840430);
+  assert.ok(enrichedPeacock?.US?.flatrate?.some((p) => p.name === "Peacock"));
+  const noDupPeacock = enrichWatchProvidersWithCatalogs(
+    { US: { flatrate: [{ id: 387, name: "Peacock Premium Plus", logo_path: "/peacock.jpg" }] } },
+    872585,
+  );
+  assert.equal(noDupPeacock.US.flatrate.length, 1);
+  const renderedEnrichedPeacock = run(`renderWatchProviders(${JSON.stringify(enrichedPeacock)}, "US")`);
+  assert.match(renderedEnrichedPeacock, /href="#streaming\/peacock"/);
+  assert.match(renderedEnrichedPeacock, /watch-provider-logo--peacock/);
+  assert.match(renderedEnrichedPeacock, /Peacock/);
 
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
@@ -1316,4 +1333,47 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_mubi')"), "MUBI");
   assert.equal(run("t('provider_mubi_sub')"), "Авторское кино, призёры фестивалей и культовые сериалы");
+
+  // 17. Peacock provider endpoint, aliases, and catalog
+  const reqPeacock = new Request("https://movie-fountain.pages.dev/api/streaming?provider=peacock");
+  const resPeacock = await onRequestGet({ request: reqPeacock, env: {} });
+  assert.equal(resPeacock.status, 200);
+  const dataPeacock = await resPeacock.json();
+  assert.equal(dataPeacock.provider, "peacock");
+  assert.ok(dataPeacock.results.length >= 20);
+  assert.ok(dataPeacock.total_results >= 25);
+
+  const peacockMovies = dataPeacock.results.some((m) => m.media_type === "movie");
+  const peacockSeries = dataPeacock.results.some((m) => m.media_type === "tv");
+  assert.ok(peacockMovies, "Peacock catalog must include movies");
+  assert.ok(peacockSeries, "Peacock catalog must include series");
+
+  const reqPeacockTvAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=peacocktv");
+  const resPeacockTvAlias = await onRequestGet({ request: reqPeacockTvAlias, env: {} });
+  assert.equal(resPeacockTvAlias.status, 200);
+  const dataPeacockTvAlias = await resPeacockTvAlias.json();
+  assert.equal(dataPeacockTvAlias.provider, "peacock");
+
+  const reqPeacockPrem = new Request("https://movie-fountain.pages.dev/api/streaming?provider=peacock_premium");
+  const resPeacockPrem = await onRequestGet({ request: reqPeacockPrem, env: {} });
+  assert.equal(resPeacockPrem.status, 200);
+  const dataPeacockPrem = await resPeacockPrem.json();
+  assert.equal(dataPeacockPrem.provider, "peacock");
+
+  const reqPeacockMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=peacock&type=movie");
+  const resPeacockMoviesOnly = await onRequestGet({ request: reqPeacockMoviesOnly, env: {} });
+  const dataPeacockMoviesOnly = await resPeacockMoviesOnly.json();
+  assert.ok(dataPeacockMoviesOnly.results.length > 0 && dataPeacockMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqPeacockSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=peacock&type=tv");
+  const resPeacockSeriesOnly = await onRequestGet({ request: reqPeacockSeriesOnly, env: {} });
+  const dataPeacockSeriesOnly = await resPeacockSeriesOnly.json();
+  assert.ok(dataPeacockSeriesOnly.results.length > 0 && dataPeacockSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  run("setLang('en')");
+  assert.equal(run("t('provider_peacock')"), "Peacock");
+  assert.equal(run("t('provider_peacock_sub')"), "NBCUniversal originals, hit comedies, sports & blockbuster cinema");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_peacock')"), "Peacock");
+  assert.equal(run("t('provider_peacock_sub')"), "Оригиналы NBCUniversal, культовые комедии и блокбастеры");
 });
