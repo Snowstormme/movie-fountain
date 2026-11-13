@@ -3,6 +3,7 @@ import { NETFLIX_CATALOG } from "../_lib/netflix_catalog.js";
 import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
 import { MAX_CATALOG } from "../_lib/max_catalog.js";
 import { PRIME_CATALOG } from "../_lib/prime_catalog.js";
+import { HULU_CATALOG } from "../_lib/hulu_catalog.js";
 import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
 const PROVIDERS = {
@@ -33,6 +34,13 @@ const PROVIDERS = {
     watchProviderId: "9|119",
     networkId: "1024",
     catalog: PRIME_CATALOG
+  },
+  hulu: {
+    id: "hulu",
+    name: "Hulu",
+    watchProviderId: "15",
+    networkId: "453",
+    catalog: HULU_CATALOG
   },
   kinopoisk: {
     id: "kinopoisk",
@@ -84,6 +92,8 @@ export async function onRequestGet({ request, env }) {
     rawProvider === "amazon_prime"
   ) {
     provider = "prime";
+  } else if (rawProvider === "hulutv" || rawProvider === "hulu_tv") {
+    provider = "hulu";
   } else if (
     rawProvider === "kp" ||
     rawProvider === "kino" ||
@@ -102,7 +112,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime, kinopoisk", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }

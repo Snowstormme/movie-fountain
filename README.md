@@ -23,7 +23,7 @@
 - [Features](#features)
   - [1. Continuous Fountain Discovery Stream](#1-continuous-fountain-discovery-stream)
   - [2. Where to Watch (Streaming Providers Hub)](#2-where-to-watch-streaming-providers-hub)
-  - [3. Dedicated Streaming Catalog (Netflix, Apple TV+, HBO Max, Prime Video & Kinopoisk)](#3-dedicated-streaming-catalog-netflix-apple-tv-hbo-max-prime-video--kinopoisk)
+  - [3. Dedicated Streaming Catalog (Netflix, Apple TV+, HBO Max, Prime Video, Hulu & Kinopoisk)](#3-dedicated-streaming-catalog-netflix-apple-tv-hbo-max-prime-video-hulu--kinopoisk)
   - [4. Editorial Canon & Curated Charts](#4-editorial-canon--curated-charts)
   - [5. Multi-Source Ratings & Consensus](#5-multi-source-ratings--consensus)
   - [6. Cinephile Passport & Custom Avatars](#6-cinephile-passport--custom-avatars)
@@ -91,20 +91,20 @@ Never wonder where a film is available. Integrated directly with **JustWatch** v
 
 ---
 
-### 3. Dedicated Streaming Catalog (Netflix, Apple TV+, HBO Max, Prime Video & Kinopoisk)
+### 3. Dedicated Streaming Catalog (Netflix, Apple TV+, HBO Max, Prime Video, Hulu & Kinopoisk)
 
 Browse exclusive movies and binge-worthy TV series available on your favorite streaming platforms without leaving Movie Fountain.
 
 <p align="center">
-  <img src="docs/screenshots/streaming-kinopoisk.png" alt="Streaming Catalog with Netflix, Apple TV+, HBO Max, Prime Video & Kinopoisk" width="95%">
+  <img src="docs/screenshots/streaming-hulu.png" alt="Streaming Catalog with Netflix, Apple TV+, HBO Max, Prime Video, Hulu & Kinopoisk" width="95%">
 </p>
 
-- **Five-Platform Flagship Streaming Hub**: Switch seamlessly between **Netflix** (*Roma*, *Stranger Things*, *Dark*, *Squid Game*), **Apple TV+** (*Severance*, *Ted Lasso*, *Slow Horses*, *Foundation*), **HBO Max** (*Dune: Part Two*, *The Dark Knight*, *The Sopranos*, *Succession*, *The Last of Us*, *Chernobyl*), **Amazon Prime Video** (*The Boys*, *Fallout*, *Fleabag*, *Reacher*, *Sound of Metal*), and **Kinopoisk** (*King & Jester*, *Patient Zero*, *Trigger*, *The Master and Margarita*, *Major Grom: Plague Doctor*), complete with platform-customized ambient glow palettes (crimson neon, titanium silver, violet indigo, azure cyan, and flame orange) and official vector brand marks.
+- **Six-Platform Flagship Streaming Hub**: Switch seamlessly between **Netflix** (*Roma*, *Stranger Things*, *Dark*, *Squid Game*), **Apple TV+** (*Severance*, *Ted Lasso*, *Slow Horses*, *Foundation*), **HBO Max** (*Dune: Part Two*, *The Dark Knight*, *The Sopranos*, *Succession*, *The Last of Us*, *Chernobyl*), **Amazon Prime Video** (*The Boys*, *Fallout*, *Fleabag*, *Reacher*, *Sound of Metal*), **Hulu** (*The Bear*, *Shōgun*, *Only Murders in the Building*, *Poor Things*, *Palm Springs*, *Prey*), and **Kinopoisk** (*King & Jester*, *Patient Zero*, *Trigger*, *The Master and Margarita*, *Major Grom: Plague Doctor*), complete with platform-customized ambient glow palettes (crimson neon, titanium silver, violet indigo, azure cyan, spring green, and flame orange) and official vector brand marks.
 - **Regional Country Selection (`watch_region`)**: Rapidly switch across 14 major regional streaming catalogs (`US`, `GB`, `CA`, `DE`, `FR`, `JP`, `KR`, `TR`, `ES`, `IT`, `BR`, `AU`, `IN`, `RU`) with immediate catalog refetching, smart regional fallbacks, and preferences persisted in `localStorage`.
 - **Dynamic Pagination & "Load More"**: Browse beyond initial snapshots with on-demand chunk loading (`Load More Titles`), giving direct access to thousands of regional titles indexed via TMDB.
 - **Intuitive Type Filtering**: Instant one-click toggles between **All Titles**, **Movies**, **Series**, and **Top Rated / Masterpieces** ($\ge 8.0$).
-- **Integrated Watchlist Actions**: Save any Netflix, Apple TV+, HBO Max, Prime Video, or Kinopoisk movie or series directly to your local Cinephile Passport with real-time feedback and crisp poster badges.
-- **Extensible Provider Architecture**: Full edge-backed support across Netflix, Apple TV+, HBO Max, Amazon Prime Video, and Kinopoisk with curated offline catalogs for zero-dependency reliability.
+- **Integrated Watchlist Actions**: Save any Netflix, Apple TV+, HBO Max, Prime Video, Hulu, or Kinopoisk movie or series directly to your local Cinephile Passport with real-time feedback and crisp poster badges.
+- **Extensible Provider Architecture**: Full edge-backed support across Netflix, Apple TV+, HBO Max, Amazon Prime Video, Hulu, and Kinopoisk with curated offline catalogs for zero-dependency reliability.
 
 ---
 

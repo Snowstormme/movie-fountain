@@ -673,7 +673,7 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlUS, /href="#streaming\/netflix"/);
   assert.match(htmlRU, /href="#streaming\/kinopoisk"/);
 
-  // All 5 streaming hub providers link back to #streaming/<provider>, non-hub providers stay non-links
+  // All 6 streaming hub providers link back to #streaming/<provider>, non-hub providers stay non-links
   const hubShowcase = {
     US: {
       flatrate: [
@@ -682,6 +682,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 1899, name: "Max", logo_path: "/max.jpg" },
         { id: 119, name: "Amazon Prime Video", logo_path: "/prime.jpg" },
         { id: 15, name: "Hulu", logo_path: "/hulu.jpg" },
+        { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
       ],
     },
     RU: {
@@ -695,18 +696,27 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /href="#streaming\/apple"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/max"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/prime"/);
-  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*hulu/i);
+  assert.match(htmlAllHubsUS, /href="#streaming\/hulu"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="hulu"/);
+  assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
   assert.match(htmlHubRU, /href="#streaming\/kinopoisk"/);
   assert.match(htmlHubRU, /watch-provider-logo--kp/);
 
-  // Enriches Kinopoisk catalog items (e.g. 586353 The Master and Margarita) even when TMDB returns null
+  // Enriches Kinopoisk and Hulu catalog items even when TMDB returns null
   const enrichedKp = enrichWatchProvidersWithCatalogs(null, 586353);
   assert.ok(enrichedKp?.RU?.flatrate?.some((p) => p.name === "Kinopoisk"));
   const renderedEnriched = run(`renderWatchProviders(${JSON.stringify(enrichedKp)}, "RU")`);
   assert.match(renderedEnriched, /href="#streaming\/kinopoisk"/);
   assert.match(renderedEnriched, /Kinopoisk/);
+
+  const enrichedHulu = enrichWatchProvidersWithCatalogs(null, 587792);
+  assert.ok(enrichedHulu?.US?.flatrate?.some((p) => p.name === "Hulu"));
+  const renderedEnrichedHulu = run(`renderWatchProviders(${JSON.stringify(enrichedHulu)}, "US")`);
+  assert.match(renderedEnrichedHulu, /href="#streaming\/hulu"/);
+  assert.match(renderedEnrichedHulu, /watch-provider-logo--hulu/);
+  assert.match(renderedEnrichedHulu, /Hulu/);
 
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
@@ -973,4 +983,49 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   assert.equal(run("t('provider_kinopoisk')"), "Kinopoisk");
   run("setLang('ru')");
   assert.equal(run("t('provider_kinopoisk')"), "Кинопоиск");
+
+  // 11. Hulu provider endpoint, aliases, and catalog
+  const reqHulu = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hulu");
+  const resHulu = await onRequestGet({ request: reqHulu, env: {} });
+  assert.equal(resHulu.status, 200);
+  const dataHulu = await resHulu.json();
+  assert.equal(dataHulu.provider, "hulu");
+  assert.ok(dataHulu.results.length >= 20);
+  assert.ok(dataHulu.total_results >= 25);
+
+  const huluMovies = dataHulu.results.some((m) => m.media_type === "movie");
+  const huluSeries = dataHulu.results.some((m) => m.media_type === "tv");
+  assert.ok(huluMovies, "Hulu catalog must include movies (e.g. Palm Springs, Prey, Poor Things)");
+  assert.ok(huluSeries, "Hulu catalog must include series (e.g. The Bear, Shōgun)");
+
+  // Alias checks (hulutv and hulu_tv)
+  const reqHuluTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hulutv");
+  const resHuluTv = await onRequestGet({ request: reqHuluTv, env: {} });
+  assert.equal(resHuluTv.status, 200);
+  const dataHuluTv = await resHuluTv.json();
+  assert.equal(dataHuluTv.provider, "hulu");
+
+  const reqHuluUnderscore = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hulu_tv");
+  const resHuluUnderscore = await onRequestGet({ request: reqHuluUnderscore, env: {} });
+  assert.equal(resHuluUnderscore.status, 200);
+  const dataHuluUnderscore = await resHuluUnderscore.json();
+  assert.equal(dataHuluUnderscore.provider, "hulu");
+
+  const reqHuluMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hulu&type=movie");
+  const resHuluMoviesOnly = await onRequestGet({ request: reqHuluMoviesOnly, env: {} });
+  const dataHuluMoviesOnly = await resHuluMoviesOnly.json();
+  assert.ok(dataHuluMoviesOnly.results.length > 0 && dataHuluMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqHuluSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=hulu&type=tv");
+  const resHuluSeriesOnly = await onRequestGet({ request: reqHuluSeriesOnly, env: {} });
+  const dataHuluSeriesOnly = await resHuluSeriesOnly.json();
+  assert.ok(dataHuluSeriesOnly.results.length > 0 && dataHuluSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  // Check Hulu i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_hulu')"), "Hulu");
+  assert.equal(run("t('provider_hulu_sub')"), "FX originals, indie hits & acclaimed TV");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_hulu')"), "Hulu");
+  assert.equal(run("t('provider_hulu_sub')"), "Оригиналы FX, культовые сериалы и инди-хиты");
 });

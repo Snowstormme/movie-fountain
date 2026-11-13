@@ -1043,6 +1043,9 @@ const PROVIDER_ALIASES = {
   primevideo: "prime",
   amazonprime: "prime",
   amazon_prime: "prime",
+  hulu: "hulu",
+  hulutv: "hulu",
+  hulu_tv: "hulu",
   kinopoisk: "kinopoisk",
   kp: "kinopoisk",
   kino: "kinopoisk",
@@ -1255,6 +1258,8 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
     providerName = t("provider_max") || "HBO Max";
   } else if (provider === "prime" || provider === "amazon") {
     providerName = t("provider_prime") || "Prime Video";
+  } else if (provider === "hulu") {
+    providerName = t("provider_hulu") || "Hulu";
   } else if (provider === "kinopoisk" || provider === "kp") {
     providerName = t("provider_kinopoisk") || "Kinopoisk";
   }
@@ -1381,6 +1386,27 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
+        <!-- Hulu -->
+        <button type="button" class="streaming-provider streaming-provider--hulu ${currentStreamingProvider === "hulu" ? "is-active" : ""}" data-provider="hulu" role="tab" aria-selected="${currentStreamingProvider === "hulu"}">
+          <span class="provider-icon provider-icon--hulu" aria-hidden="true">
+            <svg viewBox="0 0 57 20" width="28" height="10" aria-hidden="true">
+              <g fill="#1ce783">
+                <path d="M2 2h4.4v6.2c.9-1.1 2.2-1.7 3.9-1.7 3 0 4.9 1.9 4.9 5v6.5h-4.4v-5.7c0-1.5-.8-2.3-2-2.3-1.4 0-2.4.9-2.4 2.4V18H2V2z"/>
+                <path d="M18.2 7h4.4v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/>
+                <path d="M34.2 2h4.4v16h-4.4V2z"/>
+                <path d="M41.6 7H46v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/>
+              </g>
+            </svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>${t("provider_hulu")}</strong>
+              ${currentStreamingProvider === "hulu" ? `<span class="provider-status-badge provider-status-badge--hulu">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+            </div>
+          </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
+        </button>
+
         <!-- Kinopoisk -->
         <button type="button" class="streaming-provider streaming-provider--kp ${currentStreamingProvider === "kinopoisk" ? "is-active" : ""}" data-provider="kinopoisk" role="tab" aria-selected="${currentStreamingProvider === "kinopoisk"}">
           <span class="provider-icon provider-icon--kp" aria-hidden="true">
@@ -1487,6 +1513,9 @@ function streamingCard(item) {
   if (activeProvider === "kinopoisk") {
     providerChip = `<span class="kp-chip" aria-label="Kinopoisk"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><defs><linearGradient id="kpG${movieId}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff5500"/><stop offset="65%" stop-color="#ff7a00"/><stop offset="100%" stop-color="#bbff00"/></linearGradient></defs><g fill="url(#kpG${movieId})"><path d="M3 2h5.5l-.8 6.5H3zM3 9.5h4.6l-.3 5H3zM3 15.5h4.2L6.5 22H3zM12.5 9.8l5.8-7.8h4.2l-7.2 8.5zM10 11.2l4.8-4.5 2.8 1.8-5.6 4zM10.2 12.8l5.4 3.8-2.6 2-4.8-4.5zM15.2 13.5l7.3 8.5h-4.2l-5.8-7.2z"/></g></svg><svg viewBox="0 0 92 16" width="54" height="9.5" aria-hidden="true"><g fill="#ffffff"><path d="M1 1.5h2.7v5.4L8 1.5h3.2L6.6 7.4l4.8 7.1H8.1L4.5 9l-.8 1v4.5H1v-13zM13 1.5h2.7v13H13v-13zM18 1.5h2.6l5 8.1V1.5h2.6v13h-2.5l-5.1-8.3v8.3H18v-13z"/><path fill-rule="evenodd" d="M35.8 1.2c3.2 0 5.3 2.5 5.3 6.8s-2.1 6.8-5.3 6.8-5.3-2.5-5.3-6.8 2.1-6.8 5.3-6.8zm0 2.5c-1.5 0-2.5 1.6-2.5 4.3s1 4.3 2.5 4.3 2.5-1.6 2.5-4.3-1-4.3-2.5-4.3zM43.2 1.5h4.7c2.7 0 4.3 1.6 4.3 4.2s-1.6 4.2-4.3 4.2h-2v4.6h-2.7v-13zm2.7 2.4v3.6h1.8c1.1 0 1.8-.6 1.8-1.8s-.7-1.8-1.8-1.8h-1.8zM58.8 1.2c3.2 0 5.3 2.5 5.3 6.8s-2.1 6.8-5.3 6.8-5.3-2.5-5.3-6.8 2.1-6.8 5.3-6.8zm0 2.5c-1.5 0-2.5 1.6-2.5 4.3s1 4.3 2.5 4.3 2.5-1.6 2.5-4.3-1-4.3-2.5-4.3z"/><path d="M66.2 1.5h2.7v13h-2.7v-13zM71.1 11.4l2.3-1.4c.5 1.3 1.4 2.1 2.7 2.1 1.2 0 2-.6 2-1.4 0-.9-.7-1.3-2.2-1.8l-.9-.3c-2.2-.7-3.4-1.8-3.4-3.7 0-2.2 1.8-3.7 4.4-3.7 2.2 0 3.7 1.1 4.4 2.8l-2.2 1.3c-.5-1.1-1.2-1.6-2.2-1.6-1 0-1.7.5-1.7 1.2 0 .8.6 1.2 2 1.6l.9.3c2.4.8 3.6 1.9 3.6 3.9 0 2.4-1.9 4.1-4.8 4.1-2.5 0-4.3-1.2-4.9-3.4zM82.5 1.5h2.7v5.4l4.3-5.4h3.2L88.1 7.4l4.8 7.1h-3.3L86 9l-.8 1v4.5h-2.7v-13z"/></g></svg></span>`;
     providerCode = "kinopoisk";
+  } else if (activeProvider === "hulu") {
+    providerChip = `<span class="hulu-chip" aria-label="Hulu"><svg viewBox="0 0 57 20" width="38" height="13" aria-hidden="true"><g fill="#040405"><path d="M2 2h4.4v6.2c.9-1.1 2.2-1.7 3.9-1.7 3 0 4.9 1.9 4.9 5v6.5h-4.4v-5.7c0-1.5-.8-2.3-2-2.3-1.4 0-2.4.9-2.4 2.4V18H2V2z"/><path d="M18.2 7h4.4v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/><path d="M34.2 2h4.4v16h-4.4V2z"/><path d="M41.6 7H46v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/></g></svg></span>`;
+    providerCode = "hulu";
   } else if (activeProvider === "prime") {
     providerChip = `<span class="prime-chip" aria-label="Prime Video"><svg viewBox="0 0 62 23" width="38" height="14" aria-hidden="true"><path fill="#ffffff" fill-rule="evenodd" d="M2 4.5h3.2v1.1c.8-.9 1.9-1.4 3.3-1.4 2.8 0 4.8 2.1 4.8 5s-2 5-4.8 5c-1.4 0-2.5-.5-3.3-1.4v4.7H2V4.5zm3.3 4.7c0 1.6 1 2.7 2.4 2.7s2.4-1.1 2.4-2.7-1-2.7-2.4-2.7-2.4 1.1-2.4 2.7zM15.2 4.5h3.2v1.6c.7-1.2 1.8-1.9 3.3-1.9.4 0 .8.1 1.1.2v3c-.4-.1-.8-.1-1.3-.1-1.8 0-3 1-3 3.1V14h-3.3V4.5zm9.2-3.7h3.4v2.6h-3.4V.8zm0 3.7h3.4V14h-3.4V4.5zm5.8 0h3.2v1.3c.7-1 1.8-1.6 3.2-1.6 1.5 0 2.6.6 3.2 1.7.8-1.1 2-1.7 3.5-1.7 2.4 0 4 1.6 4 4.1V14H44V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V8.9c0-1.4-.7-2.2-1.9-2.2s-2.1.8-2.1 2.2V14h-3.3V4.5zm29.4 5.6h-6.8c.2 1.3 1.2 2 2.7 2 1 0 1.9-.3 2.6-.9l1.4 1.8c-1 .8-2.3 1.3-4.1 1.3-3.4 0-5.8-2.1-5.8-5s2.3-5.1 5.3-5.1c3.1 0 4.9 2.1 4.9 4.9 0 .4 0 .7-.2 1zm-6.8-1.8h4c-.1-1.2-.9-2-2-2-1.1 0-1.8.8-2 2z"/><path fill="#ffffff" d="M11.3 16.4c9.7 4.7 24.1 5 34.4-.5l-1.6-1.1c2.6-.2 5.4-.1 7.1.6-.5 1.9-1.4 4.1-2.6 5.6l-1.3-1.4c-10.8 6.2-26.6 5.7-37.2-.7-.7-.4-.1-1.8 1.2-2.5z"/></svg></span>`;
     providerCode = "prime";
@@ -1941,6 +1970,7 @@ const STREAMING_HUB_PROVIDER_MAP = {
   10: "prime",
   2100: "prime",
   613: "prime",
+  15: "hulu",
   117: "kinopoisk",
   115: "kinopoisk",
 };
@@ -1950,6 +1980,7 @@ const HUB_PROVIDER_DEFAULTS = {
   apple: { region: "US", id: 350, name: "Apple TV", logo_path: "inline:apple" },
   max: { region: "US", id: 1899, name: "HBO Max", logo_path: "inline:max" },
   prime: { region: "US", id: 9, name: "Prime Video", logo_path: "inline:prime" },
+  hulu: { region: "US", id: 15, name: "Hulu", logo_path: "inline:hulu" },
   kinopoisk: { region: "RU", id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
 };
 
@@ -1963,6 +1994,7 @@ function matchStreamingHubProvider(provider) {
   if (/apple\s*tv/.test(name)) return "apple";
   if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
+  if (/\bhulu\b/.test(name)) return "hulu";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
 }
@@ -1986,6 +2018,9 @@ function renderWatchProviderLogo(provider, hubProvider) {
   }
   if (logoPath === "inline:prime") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--prime" aria-hidden="true"><svg viewBox="0 0 36 16" width="24" height="11"><path fill="#ffffff" d="M5 10.2c6.8 3.3 16.8 3.5 24-.4l-1.1-.8c1.8-.1 3.8-.1 5 .4-.4 1.3-1 2.9-1.8 3.9l-.9-1C22.6 16.6 11.6 16.3 4.2 11.8c-.5-.3-.1-1.2.8-1.6z"/><text x="4" y="8.5" fill="#ffffff" font-family="system-ui,sans-serif" font-size="8" font-weight="800" letter-spacing="-0.3">prime</text></svg></span>`;
+  }
+  if (logoPath === "inline:hulu") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--hulu" aria-hidden="true"><svg viewBox="0 0 57 20" width="26" height="9"><g fill="#1ce783"><path d="M2 2h4.4v6.2c.9-1.1 2.2-1.7 3.9-1.7 3 0 4.9 1.9 4.9 5v6.5h-4.4v-5.7c0-1.5-.8-2.3-2-2.3-1.4 0-2.4.9-2.4 2.4V18H2V2z"/><path d="M18.2 7h4.4v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/><path d="M34.2 2h4.4v16h-4.4V2z"/><path d="M41.6 7H46v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/></g></svg></span>`;
   }
   return `<img class="watch-provider-logo" src="https://image.tmdb.org/t/p/w92${esc(logoPath)}" alt="${esc(provider.name)}" loading="lazy">`;
 }
@@ -2040,7 +2075,7 @@ function watchProviderCanonicalKey(provider) {
 function watchProviderRankPenalty(provider) {
   const name = String(provider?.name || "").trim();
   const id = Number(provider?.id);
-  if (id === 8 || id === 9 || id === 117 || id === 119 || id === 350 || id === 1899) return 0;
+  if (id === 8 || id === 9 || id === 15 || id === 117 || id === 119 || id === 350 || id === 1899) return 0;
   let penalty = 0;
   if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
   if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;

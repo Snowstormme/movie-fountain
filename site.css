@@ -309,6 +309,7 @@ html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-link[data-hub-provider="apple"]:hover{border-color:rgba(226,232,240,0.65);box-shadow:0 4px 14px rgba(226,232,240,0.16)}
 .watch-provider-link[data-hub-provider="max"]:hover{border-color:rgba(124,58,237,0.7);box-shadow:0 4px 14px rgba(124,58,237,0.24)}
 .watch-provider-link[data-hub-provider="prime"]:hover{border-color:rgba(0,168,225,0.7);box-shadow:0 4px 14px rgba(0,168,225,0.22)}
+.watch-provider-link[data-hub-provider="hulu"]:hover{border-color:rgba(28,231,131,0.75);box-shadow:0 4px 14px rgba(28,231,131,0.24)}
 .watch-provider-link[data-hub-provider="kinopoisk"]:hover{border-color:rgba(255,85,0,0.75);box-shadow:0 4px 14px rgba(255,85,0,0.25)}
 .watch-provider-logo{width:32px;height:32px;border-radius:6px;object-fit:cover;flex:none}
 .watch-provider-logo--inline{display:inline-flex;align-items:center;justify-content:center}
@@ -317,6 +318,7 @@ html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-logo--apple{background:#1c1c1e;border:1px solid rgba(255,255,255,0.2)}
 .watch-provider-logo--max{background:linear-gradient(135deg,#002be7 0%,#0b1038 100%);border:1px solid rgba(99,102,241,0.45)}
 .watch-provider-logo--prime{background:linear-gradient(135deg,#00a8e1 0%,#0077c8 100%)}
+.watch-provider-logo--hulu{background:#04120a;border:1px solid rgba(28,231,131,0.5)}
 .watch-provider-name{font-size:13px;font-weight:600;color:#f2efe9}
 .watch-provider-arrow{font-size:12px;font-weight:700;color:#9e9b95;margin-left:2px;transition:transform .18s ease,color .18s ease}
 .watch-provider-link:hover .watch-provider-arrow{transform:translateX(2px);color:#f2efe9}
@@ -373,14 +375,18 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
   background: radial-gradient(ellipse at center, rgba(0, 168, 225, 0.42), rgba(0, 80, 150, 0.25) 45%, transparent 70%);
 }
 
+[data-active-provider="hulu"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(28, 231, 131, 0.36), rgba(16, 185, 129, 0.2) 45%, transparent 70%);
+}
+
 [data-active-provider="kinopoisk"] .streaming-ambient-glow {
   background: radial-gradient(ellipse at center, rgba(255, 85, 0, 0.42), rgba(204, 51, 0, 0.24) 45%, transparent 70%);
 }
 
 .streaming-providers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
   margin: 22px 0 28px;
   position: relative;
   z-index: 1;
@@ -570,7 +576,45 @@ html[data-theme="current"] button.streaming-provider--prime.is-active {
   box-shadow: 0 0 35px rgba(0, 168, 225, 0.45), inset 0 1px 0 rgba(100, 210, 255, 0.5);
 }
 
-/* 5. KINOPOISK UNIQUE DESIGN */
+/* 5. HULU UNIQUE DESIGN */
+.streaming-provider--hulu,
+button.streaming-provider--hulu,
+html[data-theme="current"] .streaming-provider--hulu,
+html[data-theme="current"] button.streaming-provider--hulu {
+  border: 1.5px solid rgba(28, 231, 131, 0.38);
+  background: radial-gradient(circle at top right, rgba(28, 231, 131, 0.16), transparent 60%),
+              linear-gradient(160deg, #071911 0%, #060e0a 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(28, 231, 131, 0.2);
+}
+.streaming-provider--hulu .provider-icon--hulu {
+  background: linear-gradient(135deg, #04140b 0%, #020905 100%);
+  border: 1.5px solid rgba(28, 231, 131, 0.55);
+  box-shadow: 0 4px 14px rgba(28, 231, 131, 0.28);
+}
+.streaming-provider--hulu .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #1ce783, transparent);
+}
+.streaming-provider--hulu:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--hulu:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(28, 231, 131, 0.72);
+  background: radial-gradient(circle at top right, rgba(28, 231, 131, 0.24), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.18), transparent 60%),
+              linear-gradient(160deg, #0a2418 0%, #07120c 100%);
+  box-shadow: 0 14px 30px rgba(28, 231, 131, 0.25), inset 0 1px 0 rgba(120, 255, 185, 0.35);
+}
+.streaming-provider--hulu.is-active,
+button.streaming-provider--hulu.is-active,
+html[data-theme="current"] .streaming-provider--hulu.is-active,
+html[data-theme="current"] button.streaming-provider--hulu.is-active {
+  border-color: #1ce783;
+  background: radial-gradient(circle at top right, rgba(28, 231, 131, 0.3), transparent 65%),
+              radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.22), transparent 65%),
+              linear-gradient(160deg, #0c2b1c 0%, #07140d 100%);
+  box-shadow: 0 0 35px rgba(28, 231, 131, 0.42), inset 0 1px 0 rgba(130, 255, 195, 0.5);
+}
+
+/* 6. KINOPOISK UNIQUE DESIGN */
 .streaming-provider--kp,
 button.streaming-provider--kp,
 html[data-theme="current"] .streaming-provider--kp,
@@ -644,6 +688,13 @@ html[data-theme="current"] button.streaming-provider--kp.is-active {
   color: #fff;
   font-weight: 800;
   box-shadow: 0 2px 8px rgba(0, 168, 225, 0.5);
+}
+
+.provider-status-badge.provider-status-badge--hulu {
+  background: linear-gradient(135deg, #1ce783 0%, #10b981 100%);
+  color: #04120a;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(28, 231, 131, 0.45);
 }
 
 .provider-status-badge.provider-status-badge--kp {
@@ -822,6 +873,21 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-tab.i
   box-shadow: 0 4px 16px rgba(0, 168, 225, 0.45);
 }
 
+[data-active-provider="hulu"] .streaming-tab:hover,
+[data-active-provider="hulu"] button.streaming-tab:hover,
+html[data-theme="current"] [data-active-provider="hulu"] button.streaming-tab:hover {
+  border-color: #1ce783;
+  color: #fff;
+}
+[data-active-provider="hulu"] .streaming-tab.is-active,
+[data-active-provider="hulu"] button.streaming-tab.is-active,
+html[data-theme="current"] [data-active-provider="hulu"] button.streaming-tab.is-active {
+  border-color: #1ce783;
+  background: linear-gradient(135deg, #1ce783 0%, #10b981 100%);
+  color: #04120a;
+  box-shadow: 0 4px 16px rgba(28, 231, 131, 0.4);
+}
+
 [data-active-provider="kinopoisk"] .streaming-tab:hover,
 [data-active-provider="kinopoisk"] button.streaming-tab:hover,
 html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-tab:hover {
@@ -902,6 +968,17 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-t
   background: linear-gradient(135deg, #00a8e1 0%, #0077c8 100%);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 168, 225, 0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hulu-chip {
+  padding: 3px 7px 2.5px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #1ce783 0%, #10b981 100%);
+  color: #040405;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(28, 231, 131, 0.45);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1008,6 +1085,16 @@ html[data-theme="current"] [data-active-provider="prime"] button.streaming-regio
   color: #ffffff;
 }
 
+[data-active-provider="hulu"] button.streaming-region-btn:hover,
+[data-active-provider="hulu"] button.streaming-region-btn[aria-expanded="true"],
+html[data-theme="current"] [data-active-provider="hulu"] button.streaming-region-btn:hover,
+html[data-theme="current"] [data-active-provider="hulu"] button.streaming-region-btn[aria-expanded="true"] {
+  border-color: #1ce783;
+  background: #071911;
+  box-shadow: 0 0 14px rgba(28, 231, 131, 0.35);
+  color: #ffffff;
+}
+
 [data-active-provider="kinopoisk"] button.streaming-region-btn:hover,
 [data-active-provider="kinopoisk"] button.streaming-region-btn[aria-expanded="true"],
 html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-region-btn:hover,
@@ -1070,6 +1157,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-r
   background: rgba(0, 168, 225, 0.22);
   border-color: rgba(0, 168, 225, 0.5);
   color: #72d4ff;
+}
+
+[data-active-provider="hulu"] .country-code-pill {
+  background: rgba(28, 231, 131, 0.18);
+  border-color: rgba(28, 231, 131, 0.5);
+  color: #6ef7b2;
 }
 
 [data-active-provider="kinopoisk"] .country-code-pill {
@@ -1206,6 +1299,13 @@ html[data-theme="current"] [data-active-provider="prime"] button.region-menu-ite
   color: #6ed3ff;
 }
 
+[data-active-provider="hulu"] button.region-menu-item.is-active,
+html[data-theme="current"] [data-active-provider="hulu"] button.region-menu-item.is-active {
+  background: rgba(28, 231, 131, 0.18);
+  border-color: rgba(28, 231, 131, 0.65);
+  color: #6ef7b2;
+}
+
 [data-active-provider="kinopoisk"] button.region-menu-item.is-active,
 html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu-item.is-active {
   background: rgba(255, 85, 0, 0.2);
@@ -1254,6 +1354,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
   color: #ffffff;
 }
 
+[data-active-provider="hulu"] .region-menu-item.is-active .region-menu-code {
+  background: rgba(28, 231, 131, 0.3);
+  border-color: rgba(28, 231, 131, 0.7);
+  color: #ffffff;
+}
+
 [data-active-provider="kinopoisk"] .region-menu-item.is-active .region-menu-code {
   background: rgba(255, 85, 0, 0.4);
   border-color: rgba(255, 85, 0, 0.7);
@@ -1287,6 +1393,10 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
 
 [data-active-provider="prime"] .region-menu-check {
   color: #00a8e1;
+}
+
+[data-active-provider="hulu"] .region-menu-check {
+  color: #1ce783;
 }
 
 [data-active-provider="kinopoisk"] .region-menu-check {
@@ -1429,6 +1539,13 @@ html[data-theme="liquid"] .streaming-provider.is-active[data-provider="prime"] {
   box-shadow: inset 0 1px rgba(100, 210, 255, 0.6), 0 0 28px rgba(0, 168, 225, 0.4);
 }
 
+html[data-theme="liquid"] .streaming-provider--hulu.is-active,
+html[data-theme="liquid"] .streaming-provider.is-active[data-provider="hulu"] {
+  border-color: rgba(28, 231, 131, 0.9);
+  background: linear-gradient(145deg, rgba(28, 231, 131, 0.3), rgba(16, 185, 129, 0.12) 55%, #00000020);
+  box-shadow: inset 0 1px rgba(120, 255, 185, 0.6), 0 0 28px rgba(28, 231, 131, 0.35);
+}
+
 html[data-theme="liquid"] .streaming-provider--kp.is-active,
 html[data-theme="liquid"] .streaming-provider.is-active[data-provider="kinopoisk"] {
   border-color: rgba(255, 85, 0, 0.9);
@@ -1475,6 +1592,13 @@ html[data-theme="liquid"] [data-active-provider="prime"] .streaming-tab.is-activ
   background: linear-gradient(135deg, #00a8e1, #006097);
   box-shadow: 0 4px 20px rgba(0, 168, 225, 0.5);
   color: #fff;
+}
+
+html[data-theme="liquid"] [data-active-provider="hulu"] .streaming-tab.is-active {
+  border-color: rgba(28, 231, 131, 0.95);
+  background: linear-gradient(135deg, #1ce783, #10b981);
+  box-shadow: 0 4px 20px rgba(28, 231, 131, 0.45);
+  color: #04120a;
 }
 
 html[data-theme="liquid"] [data-active-provider="kinopoisk"] .streaming-tab.is-active {
@@ -1528,9 +1652,15 @@ html[data-theme="liquid"] .streaming-end-note {
   color: #c0d2e8;
 }
 
+@media (max-width: 1120px) {
+  .streaming-providers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 650px) {
   .streaming-providers {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
   .streaming-toolbar {

@@ -2,6 +2,11 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.4] - 2026-11-13
+
+- Add full **Hulu** streaming integration (`#streaming/hulu`, `#hulu`, `#hulutv`): explore Hulu Originals, FX series, and acclaimed films (*The Bear*, *Shōgun*, *Only Murders in the Building*, *Poor Things*, *Palm Springs*, *Prey*, *The Handmaid's Tale*), powered by TMDB watch provider ID `15`, network ID `453`, and dedicated curated catalog fallback (`functions/_lib/hulu_catalog.js`).
+- Add **Hulu Spring Green Theme & Branding**: signature `#1ce783` ambient glow, interactive provider button, custom poster badge (`.hulu-chip`), responsive 6-column desktop streaming hub bar, full **Where to Watch** click-through & catalog enrichment, and EN/RU localization.
+
 ## [0.9.3] - 2026-11-13
 
 - Add full **Kinopoisk** streaming integration (`#streaming/kinopoisk`, `#kinopoisk`, `#kp`, `#kino`): explore Kinopoisk Originals (*King & Jester*, *Patient Zero*, *Trigger*, *Silver Spoon*, *The Cyberfarm*, *Unprincipled*, *The Ciphers*) and popular cinema (*The Master and Margarita*, *Major Grom: Plague Doctor*, *Brother*, *Interstellar*), powered by TMDB provider ID `117`, network ID `3827`, intelligent `RU` fallback region, and dedicated curated catalog (`functions/_lib/kinopoisk_catalog.js`).
