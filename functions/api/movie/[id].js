@@ -61,7 +61,7 @@ const HUB_CATALOGS = [
     id: 337,
     name: "Disney+",
     logo: "inline:disney",
-    namePattern: /\bdisney\s*(\+|plus)\b/i,
+    namePattern: /\bdisney\s*(?:\+|plus\b)/i,
     ids: new Set(DISNEY_CATALOG.map((m) => Number(m.id))),
   },
   {
@@ -70,7 +70,7 @@ const HUB_CATALOGS = [
     id: 531,
     name: "Paramount+",
     logo: "inline:paramount",
-    namePattern: /\bparamount\s*(\+|plus)\b/i,
+    namePattern: /\bparamount\s*(?:\+|plus\b)/i,
     ids: new Set(PARAMOUNT_CATALOG.map((m) => Number(m.id))),
   },
   {
@@ -122,6 +122,7 @@ export function enrichWatchProvidersWithCatalogs(watchProviders, itemId) {
       (p) =>
         p &&
         (Number(p.id) === hub.id ||
+          matchHubKey(p) === hub.key ||
           hub.namePattern.test(String(p.name || ""))),
     );
     if (!alreadyPresent) {
@@ -169,8 +170,8 @@ function matchHubKey(provider) {
   if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
   if (/\bhulu\b/.test(name)) return "hulu";
-  if (/\bdisney\s*(\+|plus)\b/.test(name)) return "disney";
-  if (/\bparamount\s*(\+|plus)\b/.test(name)) return "paramount";
+  if (/\bdisney\s*(?:\+|plus\b)/.test(name)) return "disney";
+  if (/\bparamount\s*(?:\+|plus\b)/.test(name)) return "paramount";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;

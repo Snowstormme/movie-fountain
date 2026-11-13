@@ -743,6 +743,11 @@ test("watch providers extraction and rendering format streaming services and cou
 
   const enrichedParamount = enrichWatchProvidersWithCatalogs(null, 247718);
   assert.ok(enrichedParamount?.US?.flatrate?.some((p) => p.name === "Paramount+"));
+  const noDupParamount = enrichWatchProvidersWithCatalogs(
+    { US: { flatrate: [{ id: 2303, name: "Paramount+", logo_path: "/p.jpg" }] } },
+    361743,
+  );
+  assert.equal(noDupParamount.US.flatrate.length, 1);
   const renderedEnrichedParamount = run(`renderWatchProviders(${JSON.stringify(enrichedParamount)}, "US")`);
   assert.match(renderedEnrichedParamount, /href="#streaming\/paramount"/);
   assert.match(renderedEnrichedParamount, /watch-provider-logo--paramount/);

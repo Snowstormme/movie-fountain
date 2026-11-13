@@ -2089,8 +2089,8 @@ function matchStreamingHubProvider(provider) {
   if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
   if (/\bhulu\b/.test(name)) return "hulu";
-  if (/\bdisney\s*(\+|plus)\b/.test(name)) return "disney";
-  if (/\bparamount\s*(\+|plus)\b/.test(name)) return "paramount";
+  if (/\bdisney\s*(?:\+|plus\b)/.test(name)) return "disney";
+  if (/\bparamount\s*(?:\+|plus\b)/.test(name)) return "paramount";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
