@@ -311,12 +311,14 @@ html[data-theme="liquid"] .watch-group-label{color:#38bdf8}
 .watch-provider-link[data-hub-provider="prime"]:hover{border-color:rgba(0,168,225,0.7);box-shadow:0 4px 14px rgba(0,168,225,0.22)}
 .watch-provider-link[data-hub-provider="hulu"]:hover{border-color:rgba(28,231,131,0.75);box-shadow:0 4px 14px rgba(28,231,131,0.24)}
 .watch-provider-link[data-hub-provider="disney"]:hover{border-color:rgba(34,211,238,0.75);box-shadow:0 4px 14px rgba(14,165,233,0.28)}
+.watch-provider-link[data-hub-provider="paramount"]:hover{border-color:rgba(0,100,255,0.8);box-shadow:0 4px 14px rgba(0,100,255,0.28)}
 .watch-provider-link[data-hub-provider="okko"]:hover{border-color:rgba(217,70,239,0.75);box-shadow:0 4px 14px rgba(217,70,239,0.25)}
 .watch-provider-link[data-hub-provider="kinopoisk"]:hover{border-color:rgba(255,85,0,0.75);box-shadow:0 4px 14px rgba(255,85,0,0.25)}
 .watch-provider-logo{width:32px;height:32px;border-radius:6px;object-fit:cover;flex:none}
 .watch-provider-logo--inline{display:inline-flex;align-items:center;justify-content:center}
 .watch-provider-logo--kp{background:#121215;border:1px solid rgba(255,102,0,0.45)}
 .watch-provider-logo--okko{background:linear-gradient(135deg,#581c87 0%,#9333ea 100%);border:1px solid rgba(232,121,249,0.5)}
+.watch-provider-logo--paramount{background:linear-gradient(135deg,#0064ff 0%,#003cb3 100%);border:1px solid rgba(96,165,250,0.55)}
 .watch-provider-logo--disney{background:linear-gradient(135deg,#041e4d 0%,#0b4a9f 100%);border:1px solid rgba(34,211,238,0.5)}
 .watch-provider-logo--netflix{background:#141414;border:1px solid rgba(229,9,20,0.4)}
 .watch-provider-logo--apple{background:#1c1c1e;border:1px solid rgba(255,255,255,0.2)}
@@ -387,6 +389,10 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
   background: radial-gradient(ellipse at center, rgba(34, 211, 238, 0.36), rgba(17, 60, 207, 0.34) 45%, transparent 70%);
 }
 
+[data-active-provider="paramount"] .streaming-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(0, 100, 255, 0.44), rgba(0, 56, 168, 0.3) 45%, transparent 70%);
+}
+
 [data-active-provider="okko"] .streaming-ambient-glow {
   background: radial-gradient(ellipse at center, rgba(217, 70, 239, 0.42), rgba(124, 58, 237, 0.26) 45%, transparent 70%);
 }
@@ -397,7 +403,7 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
 
 .streaming-providers {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: 22px 0 28px;
   position: relative;
@@ -664,7 +670,45 @@ html[data-theme="current"] button.streaming-provider--disney.is-active {
   box-shadow: 0 0 35px rgba(34, 211, 238, 0.42), inset 0 1px 0 rgba(165, 243, 252, 0.5);
 }
 
-/* 7. OKKO UNIQUE DESIGN */
+/* 7. PARAMOUNT+ UNIQUE DESIGN */
+.streaming-provider--paramount,
+button.streaming-provider--paramount,
+html[data-theme="current"] .streaming-provider--paramount,
+html[data-theme="current"] button.streaming-provider--paramount {
+  border: 1.5px solid rgba(0, 100, 255, 0.45);
+  background: radial-gradient(circle at top right, rgba(0, 100, 255, 0.2), transparent 60%),
+              linear-gradient(160deg, #071b47 0%, #050d21 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(96, 165, 250, 0.22);
+}
+.streaming-provider--paramount .provider-icon--paramount {
+  background: linear-gradient(135deg, #0064ff 0%, #003cb3 100%);
+  border: 1.5px solid rgba(147, 197, 253, 0.55);
+  box-shadow: 0 4px 14px rgba(0, 100, 255, 0.38);
+}
+.streaming-provider--paramount .provider-accent-rail {
+  background: linear-gradient(90deg, transparent, #0064ff, transparent);
+}
+.streaming-provider--paramount:hover:not(.is-disabled),
+html[data-theme="current"] button.streaming-provider--paramount:hover:not(.is-disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.85);
+  background: radial-gradient(circle at top right, rgba(0, 100, 255, 0.3), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(0, 56, 168, 0.24), transparent 60%),
+              linear-gradient(160deg, #0b2664 0%, #07122b 100%);
+  box-shadow: 0 14px 30px rgba(0, 100, 255, 0.32), inset 0 1px 0 rgba(147, 197, 253, 0.42);
+}
+.streaming-provider--paramount.is-active,
+button.streaming-provider--paramount.is-active,
+html[data-theme="current"] .streaming-provider--paramount.is-active,
+html[data-theme="current"] button.streaming-provider--paramount.is-active {
+  border-color: #3b82f6;
+  background: radial-gradient(circle at top right, rgba(0, 100, 255, 0.38), transparent 65%),
+              radial-gradient(circle at bottom left, rgba(0, 56, 168, 0.32), transparent 65%),
+              linear-gradient(160deg, #0d2f7a 0%, #081536 100%);
+  box-shadow: 0 0 35px rgba(0, 100, 255, 0.48), inset 0 1px 0 rgba(147, 197, 253, 0.52);
+}
+
+/* 8. OKKO UNIQUE DESIGN */
 .streaming-provider--okko,
 button.streaming-provider--okko,
 html[data-theme="current"] .streaming-provider--okko,
@@ -790,6 +834,13 @@ html[data-theme="current"] button.streaming-provider--kp.is-active {
   color: #ffffff;
   font-weight: 800;
   box-shadow: 0 2px 8px rgba(34, 211, 238, 0.48);
+}
+
+.provider-status-badge.provider-status-badge--paramount {
+  background: linear-gradient(135deg, #0064ff 0%, #003cb3 100%);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 100, 255, 0.5);
 }
 
 .provider-status-badge.provider-status-badge--okko {
@@ -1005,6 +1056,21 @@ html[data-theme="current"] [data-active-provider="disney"] button.streaming-tab.
   box-shadow: 0 4px 16px rgba(34, 211, 238, 0.45);
 }
 
+[data-active-provider="paramount"] .streaming-tab:hover,
+[data-active-provider="paramount"] button.streaming-tab:hover,
+html[data-theme="current"] [data-active-provider="paramount"] button.streaming-tab:hover {
+  border-color: #3b82f6;
+  color: #fff;
+}
+[data-active-provider="paramount"] .streaming-tab.is-active,
+[data-active-provider="paramount"] button.streaming-tab.is-active,
+html[data-theme="current"] [data-active-provider="paramount"] button.streaming-tab.is-active {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #0064ff 0%, #003cb3 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 100, 255, 0.48);
+}
+
 [data-active-provider="okko"] .streaming-tab:hover,
 [data-active-provider="okko"] button.streaming-tab:hover,
 html[data-theme="current"] [data-active-provider="okko"] button.streaming-tab:hover {
@@ -1123,6 +1189,18 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-t
   border: 1px solid rgba(56, 189, 248, 0.55);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 12px rgba(34, 211, 238, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paramount-chip {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #0050db 0%, #0064ff 100%);
+  border: 1px solid rgba(147, 197, 253, 0.6);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 12px rgba(0, 100, 255, 0.45);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1261,6 +1339,16 @@ html[data-theme="current"] [data-active-provider="disney"] button.streaming-regi
   color: #ffffff;
 }
 
+[data-active-provider="paramount"] button.streaming-region-btn:hover,
+[data-active-provider="paramount"] button.streaming-region-btn[aria-expanded="true"],
+html[data-theme="current"] [data-active-provider="paramount"] button.streaming-region-btn:hover,
+html[data-theme="current"] [data-active-provider="paramount"] button.streaming-region-btn[aria-expanded="true"] {
+  border-color: #3b82f6;
+  background: #071a45;
+  box-shadow: 0 0 14px rgba(0, 100, 255, 0.4);
+  color: #ffffff;
+}
+
 [data-active-provider="okko"] button.streaming-region-btn:hover,
 [data-active-provider="okko"] button.streaming-region-btn[aria-expanded="true"],
 html[data-theme="current"] [data-active-provider="okko"] button.streaming-region-btn:hover,
@@ -1345,6 +1433,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.streaming-r
   background: rgba(34, 211, 238, 0.2);
   border-color: rgba(34, 211, 238, 0.55);
   color: #a5f3fc;
+}
+
+[data-active-provider="paramount"] .country-code-pill {
+  background: rgba(0, 100, 255, 0.24);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #93c5fd;
 }
 
 [data-active-provider="okko"] .country-code-pill {
@@ -1501,6 +1595,13 @@ html[data-theme="current"] [data-active-provider="disney"] button.region-menu-it
   color: #a5f3fc;
 }
 
+[data-active-provider="paramount"] button.region-menu-item.is-active,
+html[data-theme="current"] [data-active-provider="paramount"] button.region-menu-item.is-active {
+  background: rgba(0, 100, 255, 0.22);
+  border-color: rgba(59, 130, 246, 0.7);
+  color: #bfdbfe;
+}
+
 [data-active-provider="okko"] button.region-menu-item.is-active,
 html[data-theme="current"] [data-active-provider="okko"] button.region-menu-item.is-active {
   background: rgba(217, 70, 239, 0.22);
@@ -1568,6 +1669,12 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
   color: #ffffff;
 }
 
+[data-active-provider="paramount"] .region-menu-item.is-active .region-menu-code {
+  background: rgba(0, 100, 255, 0.45);
+  border-color: rgba(59, 130, 246, 0.75);
+  color: #ffffff;
+}
+
 [data-active-provider="okko"] .region-menu-item.is-active .region-menu-code {
   background: rgba(192, 38, 211, 0.42);
   border-color: rgba(232, 121, 249, 0.72);
@@ -1615,6 +1722,10 @@ html[data-theme="current"] [data-active-provider="kinopoisk"] button.region-menu
 
 [data-active-provider="disney"] .region-menu-check {
   color: #22d3ee;
+}
+
+[data-active-provider="paramount"] .region-menu-check {
+  color: #3b82f6;
 }
 
 [data-active-provider="okko"] .region-menu-check {
@@ -1775,6 +1886,13 @@ html[data-theme="liquid"] .streaming-provider.is-active[data-provider="disney"] 
   box-shadow: inset 0 1px rgba(165, 243, 252, 0.6), 0 0 28px rgba(34, 211, 238, 0.4);
 }
 
+html[data-theme="liquid"] .streaming-provider--paramount.is-active,
+html[data-theme="liquid"] .streaming-provider.is-active[data-provider="paramount"] {
+  border-color: rgba(59, 130, 246, 0.92);
+  background: linear-gradient(145deg, rgba(0, 100, 255, 0.36), rgba(0, 56, 168, 0.18) 55%, #00000020);
+  box-shadow: inset 0 1px rgba(147, 197, 253, 0.6), 0 0 28px rgba(0, 100, 255, 0.45);
+}
+
 html[data-theme="liquid"] .streaming-provider--okko.is-active,
 html[data-theme="liquid"] .streaming-provider.is-active[data-provider="okko"] {
   border-color: rgba(232, 121, 249, 0.9);
@@ -1844,6 +1962,13 @@ html[data-theme="liquid"] [data-active-provider="disney"] .streaming-tab.is-acti
   color: #fff;
 }
 
+html[data-theme="liquid"] [data-active-provider="paramount"] .streaming-tab.is-active {
+  border-color: rgba(59, 130, 246, 0.95);
+  background: linear-gradient(135deg, #0064ff, #003cb3);
+  box-shadow: 0 4px 20px rgba(0, 100, 255, 0.5);
+  color: #fff;
+}
+
 html[data-theme="liquid"] [data-active-provider="okko"] .streaming-tab.is-active {
   border-color: rgba(232, 121, 249, 0.95);
   background: linear-gradient(135deg, #c026d3, #7c3aed);
@@ -1904,7 +2029,7 @@ html[data-theme="liquid"] .streaming-end-note {
 
 @media (max-width: 1180px) {
   .streaming-providers {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

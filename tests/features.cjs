@@ -683,6 +683,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 119, name: "Amazon Prime Video", logo_path: "/prime.jpg" },
         { id: 15, name: "Hulu", logo_path: "/hulu.jpg" },
         { id: 337, name: "Disney Plus", logo_path: "/disney.jpg" },
+        { id: 531, name: "Paramount Plus", logo_path: "/paramount.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
       ],
     },
@@ -702,6 +703,8 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /data-hub-provider="hulu"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/disney"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="disney"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/paramount"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="paramount"/);
   assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
@@ -738,6 +741,13 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedHulu, /watch-provider-logo--hulu/);
   assert.match(renderedEnrichedHulu, /Hulu/);
 
+  const enrichedParamount = enrichWatchProvidersWithCatalogs(null, 247718);
+  assert.ok(enrichedParamount?.US?.flatrate?.some((p) => p.name === "Paramount+"));
+  const renderedEnrichedParamount = run(`renderWatchProviders(${JSON.stringify(enrichedParamount)}, "US")`);
+  assert.match(renderedEnrichedParamount, /href="#streaming\/paramount"/);
+  assert.match(renderedEnrichedParamount, /watch-provider-logo--paramount/);
+  assert.match(renderedEnrichedParamount, /Paramount\+/);
+
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
     results: {
@@ -760,7 +770,7 @@ test("watch providers extraction and rendering format streaming services and cou
   const dedupedExtracted = extractWatchProviders(dupRaw);
   assert.deepEqual(
     dedupedExtracted.US.flatrate.map((p) => p.name),
-    ["Netflix", "HBO Max", "Amazon Prime Video", "Paramount Plus"],
+    ["Netflix", "HBO Max", "Amazon Prime Video", "Paramount+"],
   );
   const dupClientInput = {
     US: {
@@ -776,7 +786,7 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedDeduped, /Netflix/);
   assert.match(renderedDeduped, /HBO Max/);
   assert.match(renderedDeduped, /Amazon Prime Video/);
-  assert.match(renderedDeduped, /Paramount Plus/);
+  assert.match(renderedDeduped, /Paramount\+/);
 });
 
 test("streaming hub endpoint and catalog serve Netflix movies and series with type filtering", async () => {
@@ -1138,4 +1148,47 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_disney')"), "Disney+");
   assert.equal(run("t('provider_disney_sub')"), "Disney, Pixar, Marvel, Звёздные войны и оригиналы");
+
+  // 14. Paramount+ provider endpoint, aliases, and catalog
+  const reqParamount = new Request("https://movie-fountain.pages.dev/api/streaming?provider=paramount");
+  const resParamount = await onRequestGet({ request: reqParamount, env: {} });
+  assert.equal(resParamount.status, 200);
+  const dataParamount = await resParamount.json();
+  assert.equal(dataParamount.provider, "paramount");
+  assert.ok(dataParamount.results.length >= 20);
+  assert.ok(dataParamount.total_results >= 25);
+
+  const paramountMovies = dataParamount.results.some((m) => m.media_type === "movie");
+  const paramountSeries = dataParamount.results.some((m) => m.media_type === "tv");
+  assert.ok(paramountMovies, "Paramount+ catalog must include movies");
+  assert.ok(paramountSeries, "Paramount+ catalog must include series");
+
+  const reqParamountPlus = new Request("https://movie-fountain.pages.dev/api/streaming?provider=paramountplus");
+  const resParamountPlus = await onRequestGet({ request: reqParamountPlus, env: {} });
+  assert.equal(resParamountPlus.status, 200);
+  const dataParamountPlus = await resParamountPlus.json();
+  assert.equal(dataParamountPlus.provider, "paramount");
+
+  const reqParamountUnderscore = new Request("https://movie-fountain.pages.dev/api/streaming?provider=paramount_plus");
+  const resParamountUnderscore = await onRequestGet({ request: reqParamountUnderscore, env: {} });
+  assert.equal(resParamountUnderscore.status, 200);
+  const dataParamountUnderscore = await resParamountUnderscore.json();
+  assert.equal(dataParamountUnderscore.provider, "paramount");
+
+  const reqParamountMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=paramount&type=movie");
+  const resParamountMoviesOnly = await onRequestGet({ request: reqParamountMoviesOnly, env: {} });
+  const dataParamountMoviesOnly = await resParamountMoviesOnly.json();
+  assert.ok(dataParamountMoviesOnly.results.length > 0 && dataParamountMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqParamountSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=paramount&type=tv");
+  const resParamountSeriesOnly = await onRequestGet({ request: reqParamountSeriesOnly, env: {} });
+  const dataParamountSeriesOnly = await resParamountSeriesOnly.json();
+  assert.ok(dataParamountSeriesOnly.results.length > 0 && dataParamountSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  run("setLang('en')");
+  assert.equal(run("t('provider_paramount')"), "Paramount+");
+  assert.equal(run("t('provider_paramount_sub')"), "Paramount Pictures, Showtime, Star Trek & hit series");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_paramount')"), "Paramount+");
+  assert.equal(run("t('provider_paramount_sub')"), "Paramount Pictures, Showtime, Звёздный путь и хиты сериалов");
 });

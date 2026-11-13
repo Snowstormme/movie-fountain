@@ -5,6 +5,7 @@ import { MAX_CATALOG } from "../../_lib/max_catalog.js";
 import { PRIME_CATALOG } from "../../_lib/prime_catalog.js";
 import { HULU_CATALOG } from "../../_lib/hulu_catalog.js";
 import { DISNEY_CATALOG } from "../../_lib/disney_catalog.js";
+import { PARAMOUNT_CATALOG } from "../../_lib/paramount_catalog.js";
 import { OKKO_CATALOG } from "../../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../../_lib/kinopoisk_catalog.js";
 
@@ -62,6 +63,15 @@ const HUB_CATALOGS = [
     logo: "inline:disney",
     namePattern: /\bdisney\s*(\+|plus)\b/i,
     ids: new Set(DISNEY_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "paramount",
+    region: "US",
+    id: 531,
+    name: "Paramount+",
+    logo: "inline:paramount",
+    namePattern: /\bparamount\s*(\+|plus)\b/i,
+    ids: new Set(PARAMOUNT_CATALOG.map((m) => Number(m.id))),
   },
   {
     key: "okko",
@@ -139,7 +149,7 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
-const CANONICAL_HUB_IDS = new Set([8, 9, 15, 115, 117, 119, 337, 350, 1899]);
+const CANONICAL_HUB_IDS = new Set([8, 9, 15, 115, 117, 119, 337, 350, 531, 1899]);
 
 function matchHubKey(provider) {
   const id = Number(provider?.id);
@@ -149,6 +159,7 @@ function matchHubKey(provider) {
   if (id === 9 || id === 119 || id === 10 || id === 2100 || id === 613) return "prime";
   if (id === 15) return "hulu";
   if (id === 337) return "disney";
+  if (id === 531 || id === 2303 || id === 2616 || id === 2304 || id === 582 || id === 633 || id === 1853) return "paramount";
   if (id === 115) return "okko";
   if (id === 117) return "kinopoisk";
   const name = String(provider?.name || "").trim().toLowerCase();
@@ -159,6 +170,7 @@ function matchHubKey(provider) {
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
   if (/\bhulu\b/.test(name)) return "hulu";
   if (/\bdisney\s*(\+|plus)\b/.test(name)) return "disney";
+  if (/\bparamount\s*(\+|plus)\b/.test(name)) return "paramount";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -167,6 +179,7 @@ function matchHubKey(provider) {
 function cleanWatchProviderName(name) {
   return String(name || "")
     .replace(/\s+(?:Standard\s+|Free\s+)?with\s+Ads$/i, "")
+    .replace(/^Paramount\s*(?:\+|Plus)(?:\s+(?:Premium|Essential))?$/i, "Paramount+")
     .trim();
 }
 
