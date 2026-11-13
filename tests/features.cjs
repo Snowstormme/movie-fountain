@@ -682,6 +682,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 1899, name: "Max", logo_path: "/max.jpg" },
         { id: 119, name: "Amazon Prime Video", logo_path: "/prime.jpg" },
         { id: 15, name: "Hulu", logo_path: "/hulu.jpg" },
+        { id: 337, name: "Disney Plus", logo_path: "/disney.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
       ],
     },
@@ -699,6 +700,8 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /href="#streaming\/prime"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/hulu"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="hulu"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/disney"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="disney"/);
   assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
@@ -720,6 +723,13 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedOkko, /href="#streaming\/okko"/);
   assert.match(renderedEnrichedOkko, /watch-provider-logo--okko/);
   assert.match(renderedEnrichedOkko, /Okko/);
+
+  const enrichedDisney = enrichWatchProvidersWithCatalogs(null, 82856);
+  assert.ok(enrichedDisney?.US?.flatrate?.some((p) => p.name === "Disney+"));
+  const renderedEnrichedDisney = run(`renderWatchProviders(${JSON.stringify(enrichedDisney)}, "US")`);
+  assert.match(renderedEnrichedDisney, /href="#streaming\/disney"/);
+  assert.match(renderedEnrichedDisney, /watch-provider-logo--disney/);
+  assert.match(renderedEnrichedDisney, /Disney\+/);
 
   const enrichedHulu = enrichWatchProvidersWithCatalogs(null, 587792);
   assert.ok(enrichedHulu?.US?.flatrate?.some((p) => p.name === "Hulu"));
@@ -1083,4 +1093,49 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_okko')"), "Okko");
   assert.equal(run("t('provider_okko_sub')"), "Оригинальные сериалы Okko и мировое кино");
+
+  // 13. Disney+ provider endpoint, aliases, and catalog
+  const reqDisney = new Request("https://movie-fountain.pages.dev/api/streaming?provider=disney");
+  const resDisney = await onRequestGet({ request: reqDisney, env: {} });
+  assert.equal(resDisney.status, 200);
+  const dataDisney = await resDisney.json();
+  assert.equal(dataDisney.provider, "disney");
+  assert.ok(dataDisney.results.length >= 20);
+  assert.ok(dataDisney.total_results >= 25);
+
+  const disneyMovies = dataDisney.results.some((m) => m.media_type === "movie");
+  const disneySeries = dataDisney.results.some((m) => m.media_type === "tv");
+  assert.ok(disneyMovies, "Disney+ catalog must include movies");
+  assert.ok(disneySeries, "Disney+ catalog must include series");
+
+  // Alias checks (disneyplus and disney_plus)
+  const reqDisneyPlus = new Request("https://movie-fountain.pages.dev/api/streaming?provider=disneyplus");
+  const resDisneyPlus = await onRequestGet({ request: reqDisneyPlus, env: {} });
+  assert.equal(resDisneyPlus.status, 200);
+  const dataDisneyPlus = await resDisneyPlus.json();
+  assert.equal(dataDisneyPlus.provider, "disney");
+
+  const reqDisneyUnderscore = new Request("https://movie-fountain.pages.dev/api/streaming?provider=disney_plus");
+  const resDisneyUnderscore = await onRequestGet({ request: reqDisneyUnderscore, env: {} });
+  assert.equal(resDisneyUnderscore.status, 200);
+  const dataDisneyUnderscore = await resDisneyUnderscore.json();
+  assert.equal(dataDisneyUnderscore.provider, "disney");
+
+  const reqDisneyMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=disney&type=movie");
+  const resDisneyMoviesOnly = await onRequestGet({ request: reqDisneyMoviesOnly, env: {} });
+  const dataDisneyMoviesOnly = await resDisneyMoviesOnly.json();
+  assert.ok(dataDisneyMoviesOnly.results.length > 0 && dataDisneyMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqDisneySeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=disney&type=tv");
+  const resDisneySeriesOnly = await onRequestGet({ request: reqDisneySeriesOnly, env: {} });
+  const dataDisneySeriesOnly = await resDisneySeriesOnly.json();
+  assert.ok(dataDisneySeriesOnly.results.length > 0 && dataDisneySeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  // Check Disney+ i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_disney')"), "Disney+");
+  assert.equal(run("t('provider_disney_sub')"), "Disney, Pixar, Marvel & Star Wars originals");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_disney')"), "Disney+");
+  assert.equal(run("t('provider_disney_sub')"), "Disney, Pixar, Marvel, Звёздные войны и оригиналы");
 });

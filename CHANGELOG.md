@@ -2,6 +2,11 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.6] - 2026-11-13
+
+- Add full **Disney+** streaming integration (`#streaming/disney`, `#disney`, `#disneyplus`): explore Disney, Pixar, Marvel, and Star Wars movies & originals (*The Mandalorian*, *WandaVision*, *Loki*, *The Avengers*, *Avatar*, *Hawkeye*), powered by TMDB watch provider ID `337`, network ID `2739`, and curated catalog fallback (`functions/_lib/disney_catalog.js`).
+- Add **Disney+ Aurora Teal & Midnight Sapphire Branding**: luminous cyan-teal ambient glow (`#22d3ee`), shooting-star `D+` monogram card, crisp `.disney-chip` poster badge, clean 4×2 desktop provider grid across all 8 flagship platforms, full **Where to Watch** click-through & catalog enrichment, and EN/RU localization.
+
 ## [0.9.5] - 2026-11-13
 
 - Add full **Okko** streaming integration (`#streaming/okko`, `#okko`, `#okkotv`, `#okkomovies`): explore Okko Originals (*The Magic District*, *The Highway*, *Outsource*, *Chikatilo*, *Comfort Zone*, *Survivors*) and popular cinema (*Solaris*, *Come and See*, *Mirror*, *Sputnik*, *Interstellar*), powered by TMDB watch provider ID `115`, network ID `3871`, smart `RU` fallback region, and curated catalog (`functions/_lib/okko_catalog.js`).

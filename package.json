@@ -1,6 +1,6 @@
 {
   "name": "movie-fountain",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Curated cinephile film discovery stream, Letterboxd Top 500, and cross-platform streaming catalog",
   "type": "module",
   "scripts": {

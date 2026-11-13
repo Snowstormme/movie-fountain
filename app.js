@@ -1046,6 +1046,11 @@ const PROVIDER_ALIASES = {
   hulu: "hulu",
   hulutv: "hulu",
   hulu_tv: "hulu",
+  disney: "disney",
+  disneyplus: "disney",
+  disney_plus: "disney",
+  "disney+": "disney",
+  dplus: "disney",
   okko: "okko",
   okkotv: "okko",
   okko_tv: "okko",
@@ -1264,6 +1269,8 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
     providerName = t("provider_prime") || "Prime Video";
   } else if (provider === "hulu") {
     providerName = t("provider_hulu") || "Hulu";
+  } else if (provider === "disney" || provider === "disneyplus") {
+    providerName = t("provider_disney") || "Disney+";
   } else if (provider === "okko") {
     providerName = t("provider_okko") || "Okko";
   } else if (provider === "kinopoisk" || provider === "kp") {
@@ -1413,6 +1420,24 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
+        <!-- Disney+ -->
+        <button type="button" class="streaming-provider streaming-provider--disney ${currentStreamingProvider === "disney" ? "is-active" : ""}" data-provider="disney" role="tab" aria-selected="${currentStreamingProvider === "disney"}">
+          <span class="provider-icon provider-icon--disney" aria-hidden="true">
+            <svg viewBox="0 0 30 24" width="24" height="19" aria-hidden="true">
+              <path fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" d="M3.5 9.2C8.5 2 18.5 1.8 23.5 7.6"/>
+              <circle cx="23.8" cy="7.9" r="1.2" fill="#67e8f9"/>
+              <path fill="#ffffff" d="M5 10.5h4.8c3.6 0 6.1 2.2 6.1 5.6 0 3.5-2.5 5.9-6.1 5.9H5V10.5zm2.8 2.4v6.7h1.9c2.1 0 3.3-1.3 3.3-3.4s-1.2-3.3-3.3-3.3H7.8zM20.8 11.8h2.4v3.4h3.4v2.3h-3.4v3.4h-2.4v-3.4h-3.4v-2.3h3.4v-3.4z"/>
+            </svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>${t("provider_disney")}</strong>
+              ${currentStreamingProvider === "disney" ? `<span class="provider-status-badge provider-status-badge--disney">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+            </div>
+          </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
+        </button>
+
         <!-- Okko -->
         <button type="button" class="streaming-provider streaming-provider--okko ${currentStreamingProvider === "okko" ? "is-active" : ""}" data-provider="okko" role="tab" aria-selected="${currentStreamingProvider === "okko"}">
           <span class="provider-icon provider-icon--okko" aria-hidden="true">
@@ -1541,6 +1566,9 @@ function streamingCard(item) {
   } else if (activeProvider === "okko") {
     providerChip = `<span class="okko-chip" aria-label="Okko"><svg viewBox="0 0 74 24" width="44" height="14" aria-hidden="true"><g fill="#f0abfc"><circle cx="7.2" cy="4.2" r="1.7"/><circle cx="12" cy="2.6" r="1.7"/><circle cx="16.8" cy="4.2" r="1.7"/></g><g fill="#ffffff"><path fill-rule="evenodd" d="M12 6.8c-4.6 0-8 3.2-8 7.5s3.4 7.5 8 7.5 8-3.2 8-7.5-3.4-7.5-8-7.5zm0 3.6c-2.2 0-3.8 1.6-3.8 3.9s1.6 3.9 3.8 3.9 3.8-1.6 3.8-3.9-1.6-3.9-3.8-3.9z"/><path d="M22.2 4.5h3.8v9.4l4.7-5.9h4.6l-5.2 6.2 5.6 7.3h-4.6l-4.5-6-0.6.7v5.3h-3.8V4.5z"/><path d="M37.4 4.5h3.8v9.4l4.7-5.9h4.6l-5.2 6.2 5.6 7.3h-4.6l-4.5-6-.6.7v5.3h-3.8V4.5z"/><path fill-rule="evenodd" d="M60.4 6.8c-4.6 0-8 3.2-8 7.5s3.4 7.5 8 7.5 8-3.2 8-7.5-3.4-7.5-8-7.5zm0 3.6c-2.2 0-3.8 1.6-3.8 3.9s1.6 3.9 3.8 3.9 3.8-1.6 3.8-3.9-1.6-3.9-3.8-3.9z"/></g></svg></span>`;
     providerCode = "okko";
+  } else if (activeProvider === "disney") {
+    providerChip = `<span class="disney-chip" aria-label="Disney+"><svg viewBox="0 0 64 22" width="44" height="15" aria-hidden="true"><path fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" d="M12 7.5C20 1.4 39 1.3 49 7.8"/><circle cx="49.4" cy="8.1" r="1.1" fill="#67e8f9"/><path fill="#ffffff" d="M4.5 9.2h4c3.1 0 5.1 1.8 5.1 4.8s-2 4.9-5.1 4.9h-4V9.2zm2.2 1.9v5.9h1.7c1.8 0 2.9-1.1 2.9-2.9s-1.1-3-2.9-3H6.7zM15.4 8.2h2.2v1.9h-2.2V8.2zm0 3.2h2.2v7.5h-2.2v-7.5zm9.2 1.9l-1.3 1.4c-.6-.5-1.3-.8-2-.8-.6 0-1 .2-1 .6s.4.6 1.4.9c1.9.5 3.1 1.2 3.1 2.7 0 1.7-1.4 2.8-3.5 2.8-1.5 0-2.8-.5-3.7-1.3l1.3-1.4c.7.6 1.5.9 2.4.9.8 0 1.3-.3 1.3-.7s-.4-.6-1.5-.9c-1.8-.5-2.9-1.2-2.9-2.6 0-1.6 1.3-2.7 3.3-2.7 1.3 0 2.4.4 3.1 1.2zm1.5-1.9h2.1v1c.5-.8 1.3-1.2 2.4-1.2 1.7 0 2.8 1.1 2.8 3v4.7h-2.2v-4.2c0-1-.5-1.6-1.4-1.6-.9 0-1.5.6-1.5 1.6v4.2h-2.2v-7.5zm16.1 4.3h-5.3c.2 1 1 1.6 2.1 1.6.8 0 1.4-.3 2-.8l1.2 1.3c-.8.7-1.9 1.1-3.3 1.1-2.6 0-4.4-1.7-4.4-4s1.8-4 4.2-4c2.4 0 3.9 1.6 3.9 3.9 0 .3 0 .6-.1.9zm-5.3-1.4h3.2c-.2-.9-.8-1.5-1.6-1.5-.9 0-1.5.6-1.6 1.5zm6.3-2.9h2.3l1.7 4.7 1.7-4.7h2.3l-2.9 7.5c-.6 1.6-1.5 2.3-3 2.3-.5 0-1-.1-1.4-.2l.4-1.7c.3.1.5.1.8.1.7 0 1-.3 1.3-1l-3.2-7zm11.8-1.4h2.1v2.9h2.9v2h-2.9v2.9h-2.1v-2.9h-2.9v-2h2.9v-2.9z"/></svg></span>`;
+    providerCode = "disney";
   } else if (activeProvider === "hulu") {
     providerChip = `<span class="hulu-chip" aria-label="Hulu"><svg viewBox="0 0 57 20" width="38" height="13" aria-hidden="true"><g fill="#040405"><path d="M2 2h4.4v6.2c.9-1.1 2.2-1.7 3.9-1.7 3 0 4.9 1.9 4.9 5v6.5h-4.4v-5.7c0-1.5-.8-2.3-2-2.3-1.4 0-2.4.9-2.4 2.4V18H2V2z"/><path d="M18.2 7h4.4v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/><path d="M34.2 2h4.4v16h-4.4V2z"/><path d="M41.6 7H46v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/></g></svg></span>`;
     providerCode = "hulu";
@@ -1999,6 +2027,7 @@ const STREAMING_HUB_PROVIDER_MAP = {
   2100: "prime",
   613: "prime",
   15: "hulu",
+  337: "disney",
   115: "okko",
   117: "kinopoisk",
 };
@@ -2009,6 +2038,7 @@ const HUB_PROVIDER_DEFAULTS = {
   max: { region: "US", id: 1899, name: "HBO Max", logo_path: "inline:max" },
   prime: { region: "US", id: 9, name: "Prime Video", logo_path: "inline:prime" },
   hulu: { region: "US", id: 15, name: "Hulu", logo_path: "inline:hulu" },
+  disney: { region: "US", id: 337, name: "Disney+", logo_path: "inline:disney" },
   okko: { region: "RU", id: 115, name: "Okko", logo_path: "inline:okko" },
   kinopoisk: { region: "RU", id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
 };
@@ -2024,6 +2054,7 @@ function matchStreamingHubProvider(provider) {
   if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
   if (/\bhulu\b/.test(name)) return "hulu";
+  if (/\bdisney\s*(\+|plus)\b/.test(name)) return "disney";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -2051,6 +2082,9 @@ function renderWatchProviderLogo(provider, hubProvider) {
   }
   if (logoPath === "inline:hulu") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--hulu" aria-hidden="true"><svg viewBox="0 0 57 20" width="26" height="9"><g fill="#1ce783"><path d="M2 2h4.4v6.2c.9-1.1 2.2-1.7 3.9-1.7 3 0 4.9 1.9 4.9 5v6.5h-4.4v-5.7c0-1.5-.8-2.3-2-2.3-1.4 0-2.4.9-2.4 2.4V18H2V2z"/><path d="M18.2 7h4.4v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/><path d="M34.2 2h4.4v16h-4.4V2z"/><path d="M41.6 7H46v5.7c0 1.5.8 2.3 2 2.3 1.3 0 2.2-.9 2.2-2.4V7h4.4v11h-4.2v-1.4c-.9 1.1-2.2 1.7-3.8 1.7-3 0-5-1.9-5-5V7z"/></g></svg></span>`;
+  }
+  if (logoPath === "inline:disney") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--disney" aria-hidden="true"><svg viewBox="0 0 30 24" width="20" height="16"><path fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" d="M3.5 9.2C8.5 2 18.5 1.8 23.5 7.6"/><circle cx="23.8" cy="7.9" r="1.2" fill="#67e8f9"/><path fill="#ffffff" d="M5 10.5h4.8c3.6 0 6.1 2.2 6.1 5.6 0 3.5-2.5 5.9-6.1 5.9H5V10.5zm2.8 2.4v6.7h1.9c2.1 0 3.3-1.3 3.3-3.4s-1.2-3.3-3.3-3.3H7.8zM20.8 11.8h2.4v3.4h3.4v2.3h-3.4v3.4h-2.4v-3.4h-3.4v-2.3h3.4v-3.4z"/></svg></span>`;
   }
   if (logoPath === "inline:okko") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--okko" aria-hidden="true"><svg viewBox="0 0 28 24" width="20" height="17"><circle cx="8.5" cy="4.8" r="1.7" fill="#e879f9"/><circle cx="14" cy="3.1" r="1.7" fill="#d946ef"/><circle cx="19.5" cy="4.8" r="1.7" fill="#c084fc"/><path fill="#ffffff" fill-rule="evenodd" d="M14 7.5c-4.7 0-8.1 3.2-8.1 7.5s3.4 7.5 8.1 7.5 8.1-3.2 8.1-7.5-3.4-7.5-8.1-7.5zm0 3.7c-2.2 0-3.8 1.6-3.8 3.8s1.6 3.8 3.8 3.8 3.8-1.6 3.8-3.8-1.6-3.8-3.8-3.8z"/></svg></span>`;
@@ -2108,7 +2142,7 @@ function watchProviderCanonicalKey(provider) {
 function watchProviderRankPenalty(provider) {
   const name = String(provider?.name || "").trim();
   const id = Number(provider?.id);
-  if (id === 8 || id === 9 || id === 15 || id === 115 || id === 117 || id === 119 || id === 350 || id === 1899) return 0;
+  if (id === 8 || id === 9 || id === 15 || id === 115 || id === 117 || id === 119 || id === 337 || id === 350 || id === 1899) return 0;
   let penalty = 0;
   if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
   if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;
