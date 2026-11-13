@@ -684,6 +684,7 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 15, name: "Hulu", logo_path: "/hulu.jpg" },
         { id: 337, name: "Disney Plus", logo_path: "/disney.jpg" },
         { id: 531, name: "Paramount Plus", logo_path: "/paramount.jpg" },
+        { id: 11, name: "MUBI", logo_path: "/mubi.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
       ],
       buy: [
@@ -708,6 +709,8 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /data-hub-provider="disney"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/paramount"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="paramount"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/mubi"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="mubi"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/googletv"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="googletv"/);
   assert.match(htmlAllHubsUS, /watch-provider-logo--googletv/);
@@ -771,6 +774,18 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedGoogleTV, /href="#streaming\/googletv"/);
   assert.match(renderedEnrichedGoogleTV, /watch-provider-logo--googletv/);
   assert.match(renderedEnrichedGoogleTV, /Google TV/);
+
+  const enrichedMubi = enrichWatchProvidersWithCatalogs(null, 933260);
+  assert.ok(enrichedMubi?.US?.flatrate?.some((p) => p.name === "MUBI"));
+  const noDupMubi = enrichWatchProvidersWithCatalogs(
+    { US: { flatrate: [{ id: 201, name: "MUBI Amazon Channel", logo_path: "/mubi.jpg" }] } },
+    965150,
+  );
+  assert.equal(noDupMubi.US.flatrate.length, 1);
+  const renderedEnrichedMubi = run(`renderWatchProviders(${JSON.stringify(enrichedMubi)}, "US")`);
+  assert.match(renderedEnrichedMubi, /href="#streaming\/mubi"/);
+  assert.match(renderedEnrichedMubi, /watch-provider-logo--mubi/);
+  assert.match(renderedEnrichedMubi, /MUBI/);
 
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
@@ -1258,4 +1273,47 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_googletv')"), "Google TV");
   assert.equal(run("t('provider_googletv_sub')"), "Мировые блокбастеры, цифровые премьеры и сериалы");
+
+  // 16. MUBI provider endpoint, aliases, and catalog
+  const reqMubi = new Request("https://movie-fountain.pages.dev/api/streaming?provider=mubi");
+  const resMubi = await onRequestGet({ request: reqMubi, env: {} });
+  assert.equal(resMubi.status, 200);
+  const dataMubi = await resMubi.json();
+  assert.equal(dataMubi.provider, "mubi");
+  assert.ok(dataMubi.results.length >= 20);
+  assert.ok(dataMubi.total_results >= 25);
+
+  const mubiMovies = dataMubi.results.some((m) => m.media_type === "movie");
+  const mubiSeries = dataMubi.results.some((m) => m.media_type === "tv");
+  assert.ok(mubiMovies, "MUBI catalog must include movies");
+  assert.ok(mubiSeries, "MUBI catalog must include series");
+
+  const reqMubiGo = new Request("https://movie-fountain.pages.dev/api/streaming?provider=mubigo");
+  const resMubiGo = await onRequestGet({ request: reqMubiGo, env: {} });
+  assert.equal(resMubiGo.status, 200);
+  const dataMubiGo = await resMubiGo.json();
+  assert.equal(dataMubiGo.provider, "mubi");
+
+  const reqMubiTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=mubi_tv");
+  const resMubiTv = await onRequestGet({ request: reqMubiTv, env: {} });
+  assert.equal(resMubiTv.status, 200);
+  const dataMubiTv = await resMubiTv.json();
+  assert.equal(dataMubiTv.provider, "mubi");
+
+  const reqMubiMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=mubi&type=movie");
+  const resMubiMoviesOnly = await onRequestGet({ request: reqMubiMoviesOnly, env: {} });
+  const dataMubiMoviesOnly = await resMubiMoviesOnly.json();
+  assert.ok(dataMubiMoviesOnly.results.length > 0 && dataMubiMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqMubiSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=mubi&type=tv");
+  const resMubiSeriesOnly = await onRequestGet({ request: reqMubiSeriesOnly, env: {} });
+  const dataMubiSeriesOnly = await resMubiSeriesOnly.json();
+  assert.ok(dataMubiSeriesOnly.results.length > 0 && dataMubiSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  run("setLang('en')");
+  assert.equal(run("t('provider_mubi')"), "MUBI");
+  assert.equal(run("t('provider_mubi_sub')"), "Curated cinema, festival winners & auteur series");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_mubi')"), "MUBI");
+  assert.equal(run("t('provider_mubi_sub')"), "Авторское кино, призёры фестивалей и культовые сериалы");
 });

@@ -7,6 +7,7 @@ import { HULU_CATALOG } from "../_lib/hulu_catalog.js";
 import { DISNEY_CATALOG } from "../_lib/disney_catalog.js";
 import { PARAMOUNT_CATALOG } from "../_lib/paramount_catalog.js";
 import { GOOGLETV_CATALOG } from "../_lib/googletv_catalog.js";
+import { MUBI_CATALOG } from "../_lib/mubi_catalog.js";
 import { OKKO_CATALOG } from "../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
@@ -66,6 +67,13 @@ const PROVIDERS = {
     watchProviderId: "3",
     networkId: null,
     catalog: GOOGLETV_CATALOG
+  },
+  mubi: {
+    id: "mubi",
+    name: "MUBI",
+    watchProviderId: "11|201",
+    networkId: null,
+    catalog: MUBI_CATALOG
   },
   okko: {
     id: "okko",
@@ -151,6 +159,14 @@ export async function onRequestGet({ request, env }) {
     rawProvider === "gtv"
   ) {
     provider = "googletv";
+  } else if (
+    rawProvider === "mubigo" ||
+    rawProvider === "mubi_go" ||
+    rawProvider === "mubi-go" ||
+    rawProvider === "mubitv" ||
+    rawProvider === "mubi_tv"
+  ) {
+    provider = "mubi";
   } else if (rawProvider === "okkotv" || rawProvider === "okko_tv" || rawProvider === "okkomovies") {
     provider = "okko";
   } else if (
@@ -171,7 +187,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, googletv, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, mubi, googletv, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }

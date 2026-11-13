@@ -1064,6 +1064,12 @@ const PROVIDER_ALIASES = {
   google_play: "googletv",
   googleplaymovies: "googletv",
   gtv: "googletv",
+  mubi: "mubi",
+  mubigo: "mubi",
+  mubi_go: "mubi",
+  "mubi-go": "mubi",
+  mubitv: "mubi",
+  mubi_tv: "mubi",
   okko: "okko",
   okkotv: "okko",
   okko_tv: "okko",
@@ -1288,6 +1294,8 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
     providerName = t("provider_paramount") || "Paramount+";
   } else if (provider === "googletv" || provider === "google") {
     providerName = t("provider_googletv") || "Google TV";
+  } else if (provider === "mubi") {
+    providerName = t("provider_mubi") || "MUBI";
   } else if (provider === "okko") {
     providerName = t("provider_okko") || "Okko";
   } else if (provider === "kinopoisk" || provider === "kp") {
@@ -1491,6 +1499,20 @@ function renderStreamingView() {
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
 
+        <!-- MUBI -->
+        <button type="button" class="streaming-provider streaming-provider--mubi ${currentStreamingProvider === "mubi" ? "is-active" : ""}" data-provider="mubi" role="tab" aria-selected="${currentStreamingProvider === "mubi"}">
+          <span class="provider-icon provider-icon--mubi" aria-hidden="true">
+            <svg viewBox="76.5 272.5 67 66.5" width="21" height="21" aria-hidden="true"><g fill="#ffffff"><circle cx="132.523" cy="305.6" r="8.766"/><circle cx="87.383" cy="305.6" r="8.766"/><circle cx="109.954" cy="305.6" r="8.766"/><circle cx="87.383" cy="283.116" r="8.766"/><circle cx="109.954" cy="283.116" r="8.766"/><circle cx="87.383" cy="328.087" r="8.766"/><circle cx="109.954" cy="328.087" r="8.766"/></g></svg>
+          </span>
+          <div class="provider-meta">
+            <div class="provider-name-row">
+              <strong>${t("provider_mubi")}</strong>
+              ${currentStreamingProvider === "mubi" ? `<span class="provider-status-badge provider-status-badge--mubi">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+            </div>
+          </div>
+          <span class="provider-accent-rail" aria-hidden="true"></span>
+        </button>
+
         <!-- Okko -->
         <button type="button" class="streaming-provider streaming-provider--okko ${currentStreamingProvider === "okko" ? "is-active" : ""}" data-provider="okko" role="tab" aria-selected="${currentStreamingProvider === "okko"}">
           <span class="provider-icon provider-icon--okko" aria-hidden="true">
@@ -1617,6 +1639,9 @@ function streamingCard(item) {
   } else if (activeProvider === "googletv") {
     providerChip = `<span class="googletv-chip" aria-label="Google TV"><svg viewBox="0 0 2896 500" width="64" height="11" aria-hidden="true"><g fill="#ffffff"><path d="m2500 99.4v286.2h-41.7v-286.2h-91.4v-40.3h224.1v40.3z"/><path d="m2776.8 386.2h-43.8l-114.7-326.4h46.7l89.4 264.9h2l92.9-264.9h46.7z"/><path d="m960 393.2c-101.9 0-187.3-83-187.3-184.9s85.5-184.9 187.3-184.9c56.1 0 96.4 21.9 126.7 50.7l-35.8 35.8c-21.9-20.4-50.7-36.3-90.9-36.3-74.5 0-132.7 60.1-132.7 134.2 0 74.5 58.1 134.2 132.7 134.2 48.2 0 75.5-19.4 93.4-36.8 14.4-14.4 23.9-35.3 27.3-63.6h-120.7v-50.6h170c2 8.9 2.5 19.9 2.5 31.3 0 37.8-10.4 84.5-43.7 118.3-32.4 34.7-73.6 52.6-128.8 52.6z"/><path d="m1395.3 274.5c0 68.6-52.7 118.8-117.3 118.8s-117.3-50.7-117.3-118.8c0-69.1 52.7-118.8 117.3-118.8 64.6.1 117.3 49.7 117.3 118.8zm-51.2 0c0-42.7-30.3-72.1-66.1-72.1-35.3 0-66.1 29.3-66.1 72.1 0 42.2 30.3 72.1 66.1 72.1 35.3 0 66.1-29.8 66.1-72.1z"/><path d="m1658.2 274.4c0 68.6-52.7 118.8-117.3 118.8s-117.3-50.7-117.3-118.8c0-69.1 52.7-118.8 117.3-118.8 64.6-.5 117.3 49.7 117.3 118.8zm-51.2 0c0-42.7-30.3-72.1-66.1-72.1-35.3 0-66.1 29.3-66.1 72.1 0 42.2 30.3 72.1 66.1 72.1 35.3 0 66.1-29.9 66.1-72.1z"/><path d="m1914.6 162.6v213.7c0 88-51.7 123.7-113.3 123.7-57.6 0-92.4-38.8-105.3-70.1l45.7-18.9c7.9 19.4 27.8 42.2 60.1 42.2 39.3 0 63.6-24.3 63.6-70.1v-16.9h-2c-11.9 14.4-34.3 26.8-62.6 26.8-59.6 0-113.8-51.7-113.8-118.3 0-67.1 54.7-119.3 113.8-119.3 28.3 0 50.7 12.4 62.6 26.3h2v-19.4h49.2zm-46.2 112.3c0-41.7-27.8-72.6-63.6-72.6-36.3 0-66.1 30.8-66.1 72.6 0 41.2 30.3 71.6 66.1 71.6 35.7 0 63.6-30.4 63.6-71.6z"/><path d="m2006 36.5v349.8h-52.2v-349.8z"/><path d="m2211.7 313.7 40.7 26.8c-12.9 19.4-44.7 52.7-98.9 52.7-67.6 0-116.3-52.2-116.3-118.8 0-70.6 49.2-118.8 110.3-118.8 61.6 0 91.9 49.2 101.9 75.5l5.5 13.4-159 65.6c11.9 23.9 31.3 36.3 57.6 36.3 26.4.1 44.3-12.9 58.2-32.7zm-125.2-42.8 106.3-44.2c-6-14.9-23.4-25.3-44.2-25.3-26.3 0-63.1 23.3-62.1 69.5z"/></g><path d="m497.4 0h-337.9c-29.3 0-53.2 23.9-53.2 53.2v53.2h411.9c29.3 0 53.2 23.9 53.2 53.2v-85.6c0-41.2-33.3-74-74-74z" fill="#4285f4"/><path d="m74 0c-40.7 0-74 33.3-74 74v183.4c0 29.3 23.9 53.2 53.2 53.2h53.2v-257.4c0-29.3 23.9-53.2 53.2-53.2z" fill="#34a853"/><path d="m74 416.9h337.9c29.3 0 53.2-23.9 53.2-53.2v-53.2h-411.9c-29.3.1-53.2-23.8-53.2-53.1v86c0 40.2 32.8 73.5 74 73.5z" fill="#fbbc04"/><path d="m497.4 416.9c40.7 0 74-33.3 74-74v-183.4c0-29.3-23.9-53.2-53.2-53.2h-53.2v257.4c0 29.3-23.8 53.2-53.2 53.2z" fill="#ea4335"/></svg></span>`;
     providerCode = "googletv";
+  } else if (activeProvider === "mubi") {
+    providerChip = `<span class="mubi-chip" aria-label="MUBI"><svg viewBox="-71.23 273.35 213.52 65.44" width="49" height="15" aria-hidden="true"><g fill="#ffffff"><path d="m 47.33547,319.67101 a 12.080875,12.080875 0 0 0 -4.146021,-3.88673 10.398125,10.398125 0 0 0 3.116792,-3.25967 q 1.169458,-1.94204 1.172104,-4.74662 a 10.63625,10.63625 0 0 0 -0.915459,-4.45823 10.080625,10.080625 0 0 0 -2.542645,-3.43958 11.467042,11.467042 0 0 0 -3.889375,-2.20134 15.165916,15.165916 0 0 0 -4.945063,-0.77258 H 15.463762 v 40.02881 h 20.865041 a 15.012458,15.012458 0 0 0 5.117042,-0.83079 11.840104,11.840104 0 0 0 3.96875,-2.31246 10.207625,10.207625 0 0 0 2.574396,-3.61421 11.641667,11.641667 0 0 0 0.915458,-4.68577 q 0.0026,-3.42106 -1.568979,-5.82083 z M 22.895907,303.20599 h 11.718396 q 2.57175,0 4.003146,1.23031 1.431396,1.23031 1.42875,3.63008 0,2.39713 -1.42875,3.77296 -1.42875,1.37584 -4.003146,1.37054 H 22.895907 Z m 17.234959,25.92916 q -1.341438,1.51607 -4.373563,1.51607 H 22.895907 v -11.15219 h 12.861396 q 2.973917,0 4.347104,1.6854 a 6.1991874,6.1991874 0 0 1 1.370542,4.03225 q 0,2.40241 -1.344083,3.9026 z"/><path d="m 0.7688036,336.59111 a 15.345833,15.345833 0 0 0 5.2308124,-3.28612 14.210771,14.210771 0 0 0 3.286125,-4.91596 15.904104,15.904104 0 0 0 1.145646,-6.0325 V 296.91684 H 3.0098244 v 25.43969 a 10.548937,10.548937 0 0 1 -0.6693958,3.85233 7.9374999,7.9374999 0 0 1 -1.85208332,2.8575 8.1306457,8.1306457 0 0 1 -2.88660418,1.80182 11.490854,11.490854 0 0 1 -7.4877082,0 8.1412291,8.1412291 0 0 1 -2.8892499,-1.80182 8.0036457,8.0036457 0 0 1 -1.852083,-2.8575 10.607146,10.607146 0 0 1 -0.656167,-3.86027 v -25.43175 h -7.442729 v 25.43969 a 15.954375,15.954375 0 0 0 1.143,6.0325 14.210771,14.210771 0 0 0 3.286125,4.91596 15.433146,15.433146 0 0 0 5.204354,3.28612 20.595166,20.595166 0 0 0 13.8615206,0"/><path d="m -49.078696,336.93507 9.091083,-17.43604 q 0.79375,-1.48431 1.426105,-2.80194 0.632354,-1.31762 1.201208,-2.60085 0.5715,-1.28588 1.116542,-2.62996 0.545041,-1.34408 1.172104,-2.8284 h 0.227541 q -0.116416,1.5875 -0.227541,3.00038 c -0.07937,0.93398 -0.134938,1.83885 -0.171979,2.71462 -0.03704,0.87577 -0.06615,1.7833 -0.08731,2.71727 -0.02117,0.93398 -0.0291,1.93411 -0.0291,3.00038 v 16.86454 h 7.432146 v -40.01823 h -8.28675 l -7.776104,15.20561 q -0.79375,1.54781 -1.457854,2.86014 c -0.439209,0.87577 -0.85725,1.73567 -1.256771,2.57175 -0.399521,0.83609 -0.79375,1.69598 -1.172104,2.5744 -0.378355,0.87841 -0.79375,1.80975 -1.201209,2.79929 q -0.629708,-1.48167 -1.201208,-2.80458 -0.5715,-1.32292 -1.172104,-2.5744 c -0.399521,-0.83608 -0.820209,-1.69598 -1.256771,-2.57175 -0.436563,-0.87577 -0.923396,-1.82827 -1.457854,-2.86015 l -7.776104,-15.20031 h -8.28675 v 40.01823 h 7.4295 v -16.86454 q 0,-1.5875 -0.02646,-3.00038 -0.02646,-1.41287 -0.08731,-2.71727 -0.05556,-1.32291 -0.171979,-2.71462 -0.116417,-1.39171 -0.227542,-3.00038 h 0.227542 q 0.5715,1.48432 1.143,2.8284 0.5715,1.34408 1.145646,2.62996 c 0.378354,0.85725 0.78052,1.72508 1.198562,2.60085 0.418042,0.87577 0.896938,1.8124 1.42875,2.80194 z"/><rect height="40.01823" width="7.4321456" y="296.91684" x="53.706631"/><circle cx="132.52336" cy="305.60046" r="8.765646"/><circle cx="87.382805" cy="305.60046" r="8.765646"/><circle cx="109.95441" cy="305.60046" r="8.765646"/><circle cx="87.382805" cy="283.11618" r="8.765646"/><circle cx="109.95441" cy="283.11618" r="8.765646"/><circle cx="87.382805" cy="328.0874" r="8.765646"/><circle cx="109.95441" cy="328.0874" r="8.765646"/></g></svg></span>`;
+    providerCode = "mubi";
   } else if (activeProvider === "okko") {
     providerChip = `<span class="okko-chip" aria-label="Okko"><svg viewBox="0 0 2922 1036" width="44" height="16" aria-hidden="true"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg></span>`;
     providerCode = "okko";
@@ -2090,6 +2115,8 @@ const STREAMING_HUB_PROVIDER_MAP = {
   633: "paramount",
   1853: "paramount",
   3: "googletv",
+  11: "mubi",
+  201: "mubi",
   115: "okko",
   117: "kinopoisk",
 };
@@ -2103,6 +2130,7 @@ const HUB_PROVIDER_DEFAULTS = {
   disney: { region: "US", id: 337, name: "Disney+", logo_path: "inline:disney" },
   paramount: { region: "US", id: 531, name: "Paramount+", logo_path: "inline:paramount" },
   googletv: { region: "US", section: "buy", id: 3, name: "Google TV", logo_path: "inline:googletv" },
+  mubi: { region: "US", id: 11, name: "MUBI", logo_path: "inline:mubi" },
   okko: { region: "RU", id: 115, name: "Okko", logo_path: "inline:okko" },
   kinopoisk: { region: "RU", id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
 };
@@ -2121,6 +2149,7 @@ function matchStreamingHubProvider(provider) {
   if (/\bdisney\s*(?:\+|plus\b)/.test(name)) return "disney";
   if (/\bparamount\s*(?:\+|plus\b)/.test(name)) return "paramount";
   if (/\bgoogle\s*(?:tv|play(?:\s*movies)?)\b/.test(name)) return "googletv";
+  if (/\bmubi\b/.test(name)) return "mubi";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -2159,6 +2188,9 @@ function renderWatchProviderLogo(provider, hubProvider) {
   if (logoPath === "inline:googletv" || hubProvider === "googletv") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--googletv" aria-hidden="true"><svg viewBox="0 0 548.3 400" width="21" height="15"><path fill="#4285F4" d="M477.4,0H153.2c-28.2,0-51.1,22.9-51.1,51.1v51.1h395.1c28.2,0,51.1,22.9,51.1,51.1V70.9 C548.3,31.7,516.6,0,477.4,0L477.4,0z"/><path fill="#34A853" d="M70.9,0C31.7,0,0,31.7,0,70.9v175.9c0,28.2,22.9,51.1,51.1,51.1h51.1V51.1c0,0,0,0,0,0 C102.2,22.9,125,0,153.2,0H70.9L70.9,0z"/><path fill="#FBBC04" d="M70.9,400h324.2c28.2,0,51.1-22.9,51.1-51.1v-51.1H51.1C22.9,297.8,0,275,0,246.8v82.3 C0,368.3,31.7,400,70.9,400L70.9,400z"/><path fill="#EA4335" d="M477.4,400c39.2,0,70.9-31.7,70.9-70.9V153.2c0-28.2-22.9-51.1-51.1-51.1h-51.1v246.8c0,0,0,0,0,0 c0,28.2-22.9,51.1-51.1,51.1H477.4L477.4,400z"/></svg></span>`;
   }
+  if (logoPath === "inline:mubi") {
+    return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--mubi" aria-hidden="true"><svg viewBox="76.5 272.5 67 66.5" width="20" height="20"><g fill="#ffffff"><circle cx="132.523" cy="305.6" r="8.766"/><circle cx="87.383" cy="305.6" r="8.766"/><circle cx="109.954" cy="305.6" r="8.766"/><circle cx="87.383" cy="283.116" r="8.766"/><circle cx="109.954" cy="283.116" r="8.766"/><circle cx="87.383" cy="328.087" r="8.766"/><circle cx="109.954" cy="328.087" r="8.766"/></g></svg></span>`;
+  }
   if (logoPath === "inline:okko") {
     return `<span class="watch-provider-logo watch-provider-logo--inline watch-provider-logo--okko" aria-hidden="true"><svg viewBox="0 0 2922 1036" width="26" height="9"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg></span>`;
   }
@@ -2193,6 +2225,7 @@ function cleanWatchProviderName(name) {
     .replace(/\s+(?:Standard\s+|Free\s+)?with\s+Ads$/i, "")
     .replace(/^Paramount\s*(?:\+|Plus)(?:\s+(?:Premium|Essential))?$/i, "Paramount+")
     .replace(/^Google\s+Play\s+Movies(?:\s+(?:&|and)\s+TV)?$/i, "Google TV")
+    .replace(/^MUBI(?:\s+(?:Go|Amazon\s+Channel|Apple\s+TV\s+Channel))?$/i, "MUBI")
     .trim();
 }
 
@@ -2218,7 +2251,7 @@ function watchProviderCanonicalKey(provider) {
 function watchProviderRankPenalty(provider) {
   const name = String(provider?.name || "").trim();
   const id = Number(provider?.id);
-  if (id === 3 || id === 8 || id === 9 || id === 15 || id === 115 || id === 117 || id === 119 || id === 337 || id === 350 || id === 531 || id === 1899) return 0;
+  if (id === 3 || id === 8 || id === 9 || id === 11 || id === 15 || id === 115 || id === 117 || id === 119 || id === 337 || id === 350 || id === 531 || id === 1899) return 0;
   let penalty = 0;
   if (/\b(amazon|apple\s*tv|roku\s*premium|youtube)\s*channel\b/i.test(name)) penalty += 30;
   if (/\b(with\s+ads|ad[- ]supported|free\s+with\s+ads)\b/i.test(name)) penalty += 20;
