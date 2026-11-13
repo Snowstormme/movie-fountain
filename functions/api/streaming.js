@@ -4,6 +4,7 @@ import { APPLE_CATALOG } from "../_lib/apple_catalog.js";
 import { MAX_CATALOG } from "../_lib/max_catalog.js";
 import { PRIME_CATALOG } from "../_lib/prime_catalog.js";
 import { HULU_CATALOG } from "../_lib/hulu_catalog.js";
+import { OKKO_CATALOG } from "../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
 const PROVIDERS = {
@@ -41,6 +42,14 @@ const PROVIDERS = {
     watchProviderId: "15",
     networkId: "453",
     catalog: HULU_CATALOG
+  },
+  okko: {
+    id: "okko",
+    name: "Okko",
+    watchProviderId: "115",
+    networkId: "3871",
+    defaultRegion: "RU",
+    catalog: OKKO_CATALOG
   },
   kinopoisk: {
     id: "kinopoisk",
@@ -94,6 +103,8 @@ export async function onRequestGet({ request, env }) {
     provider = "prime";
   } else if (rawProvider === "hulutv" || rawProvider === "hulu_tv") {
     provider = "hulu";
+  } else if (rawProvider === "okkotv" || rawProvider === "okko_tv" || rawProvider === "okkomovies") {
+    provider = "okko";
   } else if (
     rawProvider === "kp" ||
     rawProvider === "kino" ||
@@ -112,7 +123,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, kinopoisk", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }

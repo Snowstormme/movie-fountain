@@ -634,7 +634,7 @@ test("watch providers extraction and rendering format streaming services and cou
         link: "https://www.themoviedb.org/movie/550/watch?locale=RU",
         flatrate: [
           {
-            provider_id: 115,
+            provider_id: 117,
             provider_name: "Kinopoisk",
             logo_path: "/kinopoisk.jpg",
           },
@@ -687,6 +687,7 @@ test("watch providers extraction and rendering format streaming services and cou
     },
     RU: {
       flatrate: [
+        { id: 115, name: "Okko", logo_path: "inline:okko" },
         { id: 117, name: "Kinopoisk", logo_path: "inline:kinopoisk" },
       ],
     },
@@ -701,15 +702,24 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
+  assert.match(htmlHubRU, /href="#streaming\/okko"/);
+  assert.match(htmlHubRU, /watch-provider-logo--okko/);
   assert.match(htmlHubRU, /href="#streaming\/kinopoisk"/);
   assert.match(htmlHubRU, /watch-provider-logo--kp/);
 
-  // Enriches Kinopoisk and Hulu catalog items even when TMDB returns null
+  // Enriches Kinopoisk, Hulu, and Okko catalog items even when TMDB returns null
   const enrichedKp = enrichWatchProvidersWithCatalogs(null, 586353);
   assert.ok(enrichedKp?.RU?.flatrate?.some((p) => p.name === "Kinopoisk"));
   const renderedEnriched = run(`renderWatchProviders(${JSON.stringify(enrichedKp)}, "RU")`);
   assert.match(renderedEnriched, /href="#streaming\/kinopoisk"/);
   assert.match(renderedEnriched, /Kinopoisk/);
+
+  const enrichedOkko = enrichWatchProvidersWithCatalogs(null, 250928);
+  assert.ok(enrichedOkko?.RU?.flatrate?.some((p) => p.name === "Okko"));
+  const renderedEnrichedOkko = run(`renderWatchProviders(${JSON.stringify(enrichedOkko)}, "RU")`);
+  assert.match(renderedEnrichedOkko, /href="#streaming\/okko"/);
+  assert.match(renderedEnrichedOkko, /watch-provider-logo--okko/);
+  assert.match(renderedEnrichedOkko, /Okko/);
 
   const enrichedHulu = enrichWatchProvidersWithCatalogs(null, 587792);
   assert.ok(enrichedHulu?.US?.flatrate?.some((p) => p.name === "Hulu"));
@@ -1028,4 +1038,49 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_hulu')"), "Hulu");
   assert.equal(run("t('provider_hulu_sub')"), "Оригиналы FX, культовые сериалы и инди-хиты");
+
+  // 12. Okko provider endpoint, aliases, and catalog
+  const reqOkko = new Request("https://movie-fountain.pages.dev/api/streaming?provider=okko");
+  const resOkko = await onRequestGet({ request: reqOkko, env: {} });
+  assert.equal(resOkko.status, 200);
+  const dataOkko = await resOkko.json();
+  assert.equal(dataOkko.provider, "okko");
+  assert.ok(dataOkko.results.length >= 20);
+  assert.ok(dataOkko.total_results >= 25);
+
+  const okkoMovies = dataOkko.results.some((m) => m.media_type === "movie");
+  const okkoSeries = dataOkko.results.some((m) => m.media_type === "tv");
+  assert.ok(okkoMovies, "Okko catalog must include movies");
+  assert.ok(okkoSeries, "Okko catalog must include series");
+
+  // Alias checks (okkotv and okko_tv)
+  const reqOkkoTv = new Request("https://movie-fountain.pages.dev/api/streaming?provider=okkotv");
+  const resOkkoTv = await onRequestGet({ request: reqOkkoTv, env: {} });
+  assert.equal(resOkkoTv.status, 200);
+  const dataOkkoTv = await resOkkoTv.json();
+  assert.equal(dataOkkoTv.provider, "okko");
+
+  const reqOkkoUnderscore = new Request("https://movie-fountain.pages.dev/api/streaming?provider=okko_tv");
+  const resOkkoUnderscore = await onRequestGet({ request: reqOkkoUnderscore, env: {} });
+  assert.equal(resOkkoUnderscore.status, 200);
+  const dataOkkoUnderscore = await resOkkoUnderscore.json();
+  assert.equal(dataOkkoUnderscore.provider, "okko");
+
+  const reqOkkoMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=okko&type=movie");
+  const resOkkoMoviesOnly = await onRequestGet({ request: reqOkkoMoviesOnly, env: {} });
+  const dataOkkoMoviesOnly = await resOkkoMoviesOnly.json();
+  assert.ok(dataOkkoMoviesOnly.results.length > 0 && dataOkkoMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqOkkoSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=okko&type=tv");
+  const resOkkoSeriesOnly = await onRequestGet({ request: reqOkkoSeriesOnly, env: {} });
+  const dataOkkoSeriesOnly = await resOkkoSeriesOnly.json();
+  assert.ok(dataOkkoSeriesOnly.results.length > 0 && dataOkkoSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  // Check Okko i18n
+  run("setLang('en')");
+  assert.equal(run("t('provider_okko')"), "Okko");
+  assert.equal(run("t('provider_okko_sub')"), "Russian originals, world cinema & exclusive series");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_okko')"), "Okko");
+  assert.equal(run("t('provider_okko_sub')"), "Оригинальные сериалы Okko и мировое кино");
 });

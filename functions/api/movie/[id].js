@@ -4,6 +4,7 @@ import { APPLE_CATALOG } from "../../_lib/apple_catalog.js";
 import { MAX_CATALOG } from "../../_lib/max_catalog.js";
 import { PRIME_CATALOG } from "../../_lib/prime_catalog.js";
 import { HULU_CATALOG } from "../../_lib/hulu_catalog.js";
+import { OKKO_CATALOG } from "../../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../../_lib/kinopoisk_catalog.js";
 
 const HUB_CATALOGS = [
@@ -51,6 +52,15 @@ const HUB_CATALOGS = [
     logo: "inline:hulu",
     namePattern: /\bhulu\b/i,
     ids: new Set(HULU_CATALOG.map((m) => Number(m.id))),
+  },
+  {
+    key: "okko",
+    region: "RU",
+    id: 115,
+    name: "Okko",
+    logo: "inline:okko",
+    namePattern: /\bokko\b|окко/i,
+    ids: new Set(OKKO_CATALOG.map((m) => Number(m.id))),
   },
   {
     key: "kinopoisk",
@@ -120,7 +130,7 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
-const CANONICAL_HUB_IDS = new Set([8, 9, 15, 117, 119, 350, 1899]);
+const CANONICAL_HUB_IDS = new Set([8, 9, 15, 115, 117, 119, 350, 1899]);
 
 function matchHubKey(provider) {
   const id = Number(provider?.id);
@@ -129,7 +139,8 @@ function matchHubKey(provider) {
   if (id === 1899 || id === 384 || id === 1825 || id === 616) return "max";
   if (id === 9 || id === 119 || id === 10 || id === 2100 || id === 613) return "prime";
   if (id === 15) return "hulu";
-  if (id === 117 || id === 115) return "kinopoisk";
+  if (id === 115) return "okko";
+  if (id === 117) return "kinopoisk";
   const name = String(provider?.name || "").trim().toLowerCase();
   if (!name) return null;
   if (/\bnetflix\b/.test(name)) return "netflix";
@@ -137,6 +148,7 @@ function matchHubKey(provider) {
   if (/^(hbo\s*)?max(\b|\s)/.test(name)) return "max";
   if (/\bprime\s*video\b|\bamazon\s*(prime\s*)?video\b/.test(name)) return "prime";
   if (/\bhulu\b/.test(name)) return "hulu";
+  if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
 }

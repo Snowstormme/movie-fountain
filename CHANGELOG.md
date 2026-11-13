@@ -2,6 +2,11 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [0.9.5] - 2026-11-13
+
+- Add full **Okko** streaming integration (`#streaming/okko`, `#okko`, `#okkotv`, `#okkomovies`): explore Okko Originals (*The Magic District*, *The Highway*, *Outsource*, *Chikatilo*, *Comfort Zone*, *Survivors*) and popular cinema (*Solaris*, *Come and See*, *Mirror*, *Sputnik*, *Interstellar*), powered by TMDB watch provider ID `115`, network ID `3871`, smart `RU` fallback region, and curated catalog (`functions/_lib/okko_catalog.js`).
+- Add **Okko Orchid-Magenta Theme & Branding**: signature `#d946ef` / `#7c3aed` ambient glow, three-dot "paw" `O` emblem, interactive provider card, crisp poster badge (`.okko-chip`), responsive 7-column desktop selector bar, and full **Where to Watch** click-through + catalog enrichment (disambiguating TMDB provider ID `115` exclusively to Okko vs `117` Kinopoisk).
+
 ## [0.9.4] - 2026-11-13
 
 - Add full **Hulu** streaming integration (`#streaming/hulu`, `#hulu`, `#hulutv`): explore Hulu Originals, FX series, and acclaimed films (*The Bear*, *Shōgun*, *Only Murders in the Building*, *Poor Things*, *Palm Springs*, *Prey*, *The Handmaid's Tale*), powered by TMDB watch provider ID `15`, network ID `453`, and dedicated curated catalog fallback (`functions/_lib/hulu_catalog.js`).
