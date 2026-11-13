@@ -102,7 +102,6 @@ export function enrichWatchProvidersWithCatalogs(watchProviders, itemId) {
       (p) =>
         p &&
         (Number(p.id) === hub.id ||
-          (hub.key === "kinopoisk" && Number(p.id) === 115) ||
           hub.namePattern.test(String(p.name || ""))),
     );
     if (!alreadyPresent) {
