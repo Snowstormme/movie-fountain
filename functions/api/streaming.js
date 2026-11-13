@@ -6,6 +6,7 @@ import { PRIME_CATALOG } from "../_lib/prime_catalog.js";
 import { HULU_CATALOG } from "../_lib/hulu_catalog.js";
 import { DISNEY_CATALOG } from "../_lib/disney_catalog.js";
 import { PARAMOUNT_CATALOG } from "../_lib/paramount_catalog.js";
+import { GOOGLETV_CATALOG } from "../_lib/googletv_catalog.js";
 import { OKKO_CATALOG } from "../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../_lib/kinopoisk_catalog.js";
 
@@ -58,6 +59,13 @@ const PROVIDERS = {
     watchProviderId: "531|2303|2616|582",
     networkId: "4330",
     catalog: PARAMOUNT_CATALOG
+  },
+  googletv: {
+    id: "googletv",
+    name: "Google TV",
+    watchProviderId: "3",
+    networkId: null,
+    catalog: GOOGLETV_CATALOG
   },
   okko: {
     id: "okko",
@@ -133,6 +141,16 @@ export async function onRequestGet({ request, env }) {
     rawProvider === "pplus"
   ) {
     provider = "paramount";
+  } else if (
+    rawProvider === "google" ||
+    rawProvider === "google_tv" ||
+    rawProvider === "google-tv" ||
+    rawProvider === "googleplay" ||
+    rawProvider === "google_play" ||
+    rawProvider === "googleplaymovies" ||
+    rawProvider === "gtv"
+  ) {
+    provider = "googletv";
   } else if (rawProvider === "okkotv" || rawProvider === "okko_tv" || rawProvider === "okkomovies") {
     provider = "okko";
   } else if (
@@ -153,7 +171,7 @@ export async function onRequestGet({ request, env }) {
   const config = PROVIDERS[provider];
   if (!config) {
     return Response.json(
-      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
+      { error: "Currently supported streaming providers: netflix, apple, max, prime, hulu, disney, paramount, googletv, okko, kinopoisk", supported: Object.keys(PROVIDERS) },
       { status: 400 }
     );
   }
@@ -232,13 +250,16 @@ export async function onRequestGet({ request, env }) {
               }).catch(() => null);
               if (regionFallback?.results && regionFallback.results.length > 0) return regionFallback;
             }
-            return tmdb("/discover/tv", env, {
-              with_networks: config.networkId,
-              sort_by: tvSortBy,
-              "vote_count.gte": type === "top" ? "100" : "5",
-              language,
-              page: String(page)
-            }).catch(() => null);
+            if (config.networkId) {
+              return tmdb("/discover/tv", env, {
+                with_networks: config.networkId,
+                sort_by: tvSortBy,
+                "vote_count.gte": type === "top" ? "100" : "5",
+                language,
+                page: String(page)
+              }).catch(() => null);
+            }
+            return null;
           }).catch(() => null)
         );
       } else {

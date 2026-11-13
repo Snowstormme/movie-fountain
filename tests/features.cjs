@@ -686,6 +686,9 @@ test("watch providers extraction and rendering format streaming services and cou
         { id: 531, name: "Paramount Plus", logo_path: "/paramount.jpg" },
         { id: 386, name: "Peacock Premium", logo_path: "/peacock.jpg" },
       ],
+      buy: [
+        { id: 3, name: "Google Play Movies", logo_path: "/google.jpg" },
+      ],
     },
     RU: {
       flatrate: [
@@ -705,6 +708,10 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(htmlAllHubsUS, /data-hub-provider="disney"/);
   assert.match(htmlAllHubsUS, /href="#streaming\/paramount"/);
   assert.match(htmlAllHubsUS, /data-hub-provider="paramount"/);
+  assert.match(htmlAllHubsUS, /href="#streaming\/googletv"/);
+  assert.match(htmlAllHubsUS, /data-hub-provider="googletv"/);
+  assert.match(htmlAllHubsUS, /watch-provider-logo--googletv/);
+  assert.match(htmlAllHubsUS, />Google TV</);
   assert.doesNotMatch(htmlAllHubsUS, /href="#streaming\/[^"]*peacock/i);
 
   const htmlHubRU = run(`renderWatchProviders(${JSON.stringify(hubShowcase)}, "RU")`);
@@ -752,6 +759,18 @@ test("watch providers extraction and rendering format streaming services and cou
   assert.match(renderedEnrichedParamount, /href="#streaming\/paramount"/);
   assert.match(renderedEnrichedParamount, /watch-provider-logo--paramount/);
   assert.match(renderedEnrichedParamount, /Paramount\+/);
+
+  const enrichedGoogleTV = enrichWatchProvidersWithCatalogs(null, 693134);
+  assert.ok(enrichedGoogleTV?.US?.buy?.some((p) => p.name === "Google TV"));
+  const noDupGoogleTV = enrichWatchProvidersWithCatalogs(
+    { US: { buy: [{ id: 3, name: "Google Play Movies", logo_path: "/gtv.jpg" }] } },
+    872585,
+  );
+  assert.equal(noDupGoogleTV.US.buy.length, 1);
+  const renderedEnrichedGoogleTV = run(`renderWatchProviders(${JSON.stringify(enrichedGoogleTV)}, "US")`);
+  assert.match(renderedEnrichedGoogleTV, /href="#streaming\/googletv"/);
+  assert.match(renderedEnrichedGoogleTV, /watch-provider-logo--googletv/);
+  assert.match(renderedEnrichedGoogleTV, /Google TV/);
 
   // Deduplicates redundant ad tiers, kids editions, and channel variants
   const dupRaw = {
@@ -1196,4 +1215,47 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   run("setLang('ru')");
   assert.equal(run("t('provider_paramount')"), "Paramount+");
   assert.equal(run("t('provider_paramount_sub')"), "Paramount Pictures, Showtime, Звёздный путь и хиты сериалов");
+
+  // 15. Google TV provider endpoint, aliases, and catalog
+  const reqGoogleTV = new Request("https://movie-fountain.pages.dev/api/streaming?provider=googletv");
+  const resGoogleTV = await onRequestGet({ request: reqGoogleTV, env: {} });
+  assert.equal(resGoogleTV.status, 200);
+  const dataGoogleTV = await resGoogleTV.json();
+  assert.equal(dataGoogleTV.provider, "googletv");
+  assert.ok(dataGoogleTV.results.length >= 20);
+  assert.ok(dataGoogleTV.total_results >= 25);
+
+  const googleTvMovies = dataGoogleTV.results.some((m) => m.media_type === "movie");
+  const googleTvSeries = dataGoogleTV.results.some((m) => m.media_type === "tv");
+  assert.ok(googleTvMovies, "Google TV catalog must include movies");
+  assert.ok(googleTvSeries, "Google TV catalog must include series");
+
+  const reqGoogleAlias = new Request("https://movie-fountain.pages.dev/api/streaming?provider=google");
+  const resGoogleAlias = await onRequestGet({ request: reqGoogleAlias, env: {} });
+  assert.equal(resGoogleAlias.status, 200);
+  const dataGoogleAlias = await resGoogleAlias.json();
+  assert.equal(dataGoogleAlias.provider, "googletv");
+
+  const reqGoogleUnderscore = new Request("https://movie-fountain.pages.dev/api/streaming?provider=google_tv");
+  const resGoogleUnderscore = await onRequestGet({ request: reqGoogleUnderscore, env: {} });
+  assert.equal(resGoogleUnderscore.status, 200);
+  const dataGoogleUnderscore = await resGoogleUnderscore.json();
+  assert.equal(dataGoogleUnderscore.provider, "googletv");
+
+  const reqGoogleMoviesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=googletv&type=movie");
+  const resGoogleMoviesOnly = await onRequestGet({ request: reqGoogleMoviesOnly, env: {} });
+  const dataGoogleMoviesOnly = await resGoogleMoviesOnly.json();
+  assert.ok(dataGoogleMoviesOnly.results.length > 0 && dataGoogleMoviesOnly.results.every((m) => m.media_type === "movie"));
+
+  const reqGoogleSeriesOnly = new Request("https://movie-fountain.pages.dev/api/streaming?provider=googletv&type=tv");
+  const resGoogleSeriesOnly = await onRequestGet({ request: reqGoogleSeriesOnly, env: {} });
+  const dataGoogleSeriesOnly = await resGoogleSeriesOnly.json();
+  assert.ok(dataGoogleSeriesOnly.results.length > 0 && dataGoogleSeriesOnly.results.every((m) => m.media_type === "tv"));
+
+  run("setLang('en')");
+  assert.equal(run("t('provider_googletv')"), "Google TV");
+  assert.equal(run("t('provider_googletv_sub')"), "Digital blockbusters, studio releases & acclaimed series");
+  run("setLang('ru')");
+  assert.equal(run("t('provider_googletv')"), "Google TV");
+  assert.equal(run("t('provider_googletv_sub')"), "Мировые блокбастеры, цифровые премьеры и сериалы");
 });

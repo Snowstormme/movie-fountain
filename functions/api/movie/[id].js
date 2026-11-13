@@ -6,6 +6,7 @@ import { PRIME_CATALOG } from "../../_lib/prime_catalog.js";
 import { HULU_CATALOG } from "../../_lib/hulu_catalog.js";
 import { DISNEY_CATALOG } from "../../_lib/disney_catalog.js";
 import { PARAMOUNT_CATALOG } from "../../_lib/paramount_catalog.js";
+import { GOOGLETV_CATALOG } from "../../_lib/googletv_catalog.js";
 import { OKKO_CATALOG } from "../../_lib/okko_catalog.js";
 import { KINOPOISK_CATALOG } from "../../_lib/kinopoisk_catalog.js";
 
@@ -74,6 +75,16 @@ const HUB_CATALOGS = [
     ids: new Set(PARAMOUNT_CATALOG.map((m) => Number(m.id))),
   },
   {
+    key: "googletv",
+    region: "US",
+    section: "buy",
+    id: 3,
+    name: "Google TV",
+    logo: "inline:googletv",
+    namePattern: /\bgoogle\s*(?:tv|play(?:\s*movies)?)\b/i,
+    ids: new Set(GOOGLETV_CATALOG.map((m) => Number(m.id))),
+  },
+  {
     key: "okko",
     region: "RU",
     id: 115,
@@ -126,7 +137,8 @@ export function enrichWatchProvidersWithCatalogs(watchProviders, itemId) {
           hub.namePattern.test(String(p.name || ""))),
     );
     if (!alreadyPresent) {
-      regionData.flatrate.push({
+      const targetList = hub.section === "buy" ? regionData.buy : regionData.flatrate;
+      targetList.push({
         id: hub.id,
         name: hub.name,
         logo_path: hub.logo,
@@ -150,7 +162,7 @@ function uniqueDirectedMovies(crew, currentMovieId) {
     .slice(0, 6);
 }
 
-const CANONICAL_HUB_IDS = new Set([8, 9, 15, 115, 117, 119, 337, 350, 531, 1899]);
+const CANONICAL_HUB_IDS = new Set([3, 8, 9, 15, 115, 117, 119, 337, 350, 531, 1899]);
 
 function matchHubKey(provider) {
   const id = Number(provider?.id);
@@ -161,6 +173,7 @@ function matchHubKey(provider) {
   if (id === 15) return "hulu";
   if (id === 337) return "disney";
   if (id === 531 || id === 2303 || id === 2616 || id === 2304 || id === 582 || id === 633 || id === 1853) return "paramount";
+  if (id === 3) return "googletv";
   if (id === 115) return "okko";
   if (id === 117) return "kinopoisk";
   const name = String(provider?.name || "").trim().toLowerCase();
@@ -172,6 +185,7 @@ function matchHubKey(provider) {
   if (/\bhulu\b/.test(name)) return "hulu";
   if (/\bdisney\s*(?:\+|plus\b)/.test(name)) return "disney";
   if (/\bparamount\s*(?:\+|plus\b)/.test(name)) return "paramount";
+  if (/\bgoogle\s*(?:tv|play(?:\s*movies)?)\b/.test(name)) return "googletv";
   if (/\bokko\b|окко/.test(name)) return "okko";
   if (/kinopoisk|кинопоиск/.test(name)) return "kinopoisk";
   return null;
@@ -181,6 +195,7 @@ function cleanWatchProviderName(name) {
   return String(name || "")
     .replace(/\s+(?:Standard\s+|Free\s+)?with\s+Ads$/i, "")
     .replace(/^Paramount\s*(?:\+|Plus)(?:\s+(?:Premium|Essential))?$/i, "Paramount+")
+    .replace(/^Google\s+Play\s+Movies(?:\s+(?:&|and)\s+TV)?$/i, "Google TV")
     .trim();
 }
 
