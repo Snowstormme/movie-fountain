@@ -1288,10 +1288,20 @@ function updateStreamingCountAndLoadMoreUI() {
       currentStreamingProvider
     );
   }
+  const spotlightCountEl = document.querySelector(".streaming-provider.is-active .provider-spotlight-count");
+  if (spotlightCountEl) {
+    const num = Number(streamingTotalResults || streamingItems.length) || 0;
+    spotlightCountEl.textContent = `${num.toLocaleString()} →`;
+  }
   const loadMoreSlot = document.getElementById("streaming-load-more-container");
   if (loadMoreSlot) {
     loadMoreSlot.innerHTML = renderStreamingLoadMoreButton();
   }
+}
+
+function renderProviderSpotlightDetails(subKey, countryName, countryCode, totalCount) {
+  const num = Number(totalCount) > 0 ? Number(totalCount).toLocaleString() : "0";
+  return `<span class="provider-spotlight-sub">${t(subKey)}</span><span class="provider-spotlight-footer"><span class="provider-spotlight-region">${esc(countryName)} · ${esc(countryCode)}</span><span class="provider-spotlight-count">${num} →</span></span>`;
 }
 
 function renderStreamingCountText(currentCount, totalCount, countryCode, provider) {
@@ -1361,6 +1371,7 @@ function renderStreamingView() {
   const sorted = sortMovieList(filtered, currentStreamingSort);
   const currentCountryObj = STREAMING_COUNTRIES.find((c) => c.code === currentStreamingCountry) || STREAMING_COUNTRIES[0];
   const currentCountryName = t("country_" + currentCountryObj.code.toLowerCase()) || currentCountryObj.name;
+  const spotlightTotal = streamingTotalResults || sorted.length;
 
   app.innerHTML = `
     <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
@@ -1382,6 +1393,7 @@ function renderStreamingView() {
               <strong>${t("provider_netflix")}</strong>
               ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--netflix">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_netflix_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1403,6 +1415,7 @@ function renderStreamingView() {
               <strong>${t("provider_apple")}</strong>
               ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--apple">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_apple_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1423,6 +1436,7 @@ function renderStreamingView() {
               <strong>${t("provider_max")}</strong>
               ${currentStreamingProvider === "max" ? `<span class="provider-status-badge provider-status-badge--max">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_max_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1440,6 +1454,7 @@ function renderStreamingView() {
               <strong>${t("provider_prime")}</strong>
               ${currentStreamingProvider === "prime" ? `<span class="provider-status-badge provider-status-badge--prime">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_prime_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1461,6 +1476,7 @@ function renderStreamingView() {
               <strong>${t("provider_hulu")}</strong>
               ${currentStreamingProvider === "hulu" ? `<span class="provider-status-badge provider-status-badge--hulu">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_hulu_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1487,6 +1503,7 @@ function renderStreamingView() {
               <strong>${t("provider_disney")}</strong>
               ${currentStreamingProvider === "disney" ? `<span class="provider-status-badge provider-status-badge--disney">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_disney_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1501,6 +1518,7 @@ function renderStreamingView() {
               <strong>${t("provider_paramount")}</strong>
               ${currentStreamingProvider === "paramount" ? `<span class="provider-status-badge provider-status-badge--paramount">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_paramount_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1515,6 +1533,7 @@ function renderStreamingView() {
               <strong>${t("provider_googletv")}</strong>
               ${currentStreamingProvider === "googletv" ? `<span class="provider-status-badge provider-status-badge--googletv">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_googletv_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1529,6 +1548,7 @@ function renderStreamingView() {
               <strong>${t("provider_mubi")}</strong>
               ${currentStreamingProvider === "mubi" ? `<span class="provider-status-badge provider-status-badge--mubi">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_mubi_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1543,6 +1563,7 @@ function renderStreamingView() {
               <strong>${t("provider_peacock")}</strong>
               ${currentStreamingProvider === "peacock" ? `<span class="provider-status-badge provider-status-badge--peacock">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_peacock_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1557,6 +1578,7 @@ function renderStreamingView() {
               <strong>${t("provider_crunchyroll")}</strong>
               ${currentStreamingProvider === "crunchyroll" ? `<span class="provider-status-badge provider-status-badge--crunchyroll">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_crunchyroll_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1571,6 +1593,7 @@ function renderStreamingView() {
               <strong>${t("provider_okko")}</strong>
               ${currentStreamingProvider === "okko" ? `<span class="provider-status-badge provider-status-badge--okko">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_okko_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
@@ -1593,6 +1616,7 @@ function renderStreamingView() {
               <strong>${t("provider_kinopoisk")}</strong>
               ${currentStreamingProvider === "kinopoisk" ? `<span class="provider-status-badge provider-status-badge--kp">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
             </div>
+            ${renderProviderSpotlightDetails("provider_kinopoisk_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>

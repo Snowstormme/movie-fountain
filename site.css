@@ -428,11 +428,13 @@ html[data-theme="liquid"] .watch-justwatch-link:hover{color:#38bdf8}
 
 .streaming-providers {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-  margin: 22px 0 28px;
+  grid-template-columns: minmax(275px, 1.45fr) repeat(4, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  gap: 9px;
+  margin: 22px 0 26px;
   position: relative;
   z-index: 1;
+  align-items: stretch;
 }
 
 .streaming-provider,
@@ -825,7 +827,7 @@ html[data-theme="current"] button.streaming-provider--peacock {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 14px rgba(130, 80, 255, 0.28);
 }
 .streaming-provider--peacock .provider-accent-rail {
-  background: linear-gradient(90deg, #ffdc23, #ff5401, #d9005a, #8250ff, #00c8ff, #00a637);
+  background: linear-gradient(90deg, transparent, #ffdc23 15%, #ff5401 30%, #d9005a 46%, #8250ff 62%, #00c8ff 78%, #00a637 88%, transparent);
 }
 .streaming-provider--peacock:hover:not(.is-disabled),
 html[data-theme="current"] button.streaming-provider--peacock:hover:not(.is-disabled) {
@@ -1115,6 +1117,97 @@ html[data-theme="current"] button.streaming-provider--kp.is-active {
   color: #9e9b95;
   white-space: nowrap;
   flex: none;
+}
+
+.provider-spotlight-sub,
+.provider-spotlight-footer {
+  display: none;
+}
+
+/* 1+12 Spotlight Bento Active Provider Card */
+.streaming-provider.is-active,
+button.streaming-provider.is-active,
+html[data-theme="current"] .streaming-provider.is-active,
+html[data-theme="current"] button.streaming-provider.is-active {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 8px;
+  padding: 15px 16px;
+  border-radius: 17px;
+}
+
+.streaming-provider.is-active .provider-meta {
+  display: contents;
+}
+
+.streaming-provider.is-active .provider-icon {
+  grid-column: 1;
+  grid-row: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.streaming-provider.is-active .provider-icon svg {
+  transform: scale(1.12);
+}
+
+.streaming-provider.is-active .provider-name-row {
+  grid-column: 2;
+  grid-row: 1;
+  align-items: center;
+  gap: 8px;
+}
+
+.streaming-provider.is-active .provider-name-row strong {
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.streaming-provider.is-active .provider-status-badge {
+  font-size: 9.5px;
+  padding: 3px 8px;
+}
+
+.streaming-provider.is-active .provider-spotlight-sub {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: center;
+  font-size: 12.25px;
+  line-height: 1.45;
+  color: rgba(243, 241, 236, 0.84);
+  font-weight: 500;
+  white-space: normal;
+}
+
+.streaming-provider.is-active .provider-spotlight-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 11.5px;
+  color: rgba(230, 226, 218, 0.72);
+  font-weight: 600;
+}
+
+.streaming-provider.is-active .provider-spotlight-count {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .streaming-toolbar {
@@ -2532,13 +2625,27 @@ html[data-theme="liquid"] .streaming-end-note {
 
 @media (max-width: 1180px) {
   .streaming-providers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(240px, 1.35fr) repeat(3, minmax(0, 1fr));
+  }
+  .streaming-provider.is-active,
+  button.streaming-provider.is-active,
+  html[data-theme="current"] .streaming-provider.is-active,
+  html[data-theme="current"] button.streaming-provider.is-active {
+    grid-column: 1;
+    grid-row: 1 / span 4;
   }
 }
 
 @media (max-width: 900px) {
   .streaming-providers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .streaming-provider.is-active,
+  button.streaming-provider.is-active,
+  html[data-theme="current"] .streaming-provider.is-active,
+  html[data-theme="current"] button.streaming-provider.is-active {
+    grid-column: 1 / -1;
+    grid-row: auto;
   }
 }
 
