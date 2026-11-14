@@ -1170,11 +1170,106 @@ async function streamingPage(subFilter = "all", providerOverride = null) {
   }
 }
 
+/* ===== Movie Fountain: animated streaming service switch =====
+   Replaces the old changeStreamingProvider() in app.js. */
+let providerSwitchToken = 0;
+
+function mfWait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function mfMarkProviderActive(provider) {
+  const heading = document.querySelector(".streaming-heading");
+  if (heading) heading.setAttribute("data-active-provider", provider);
+
+  document.querySelectorAll(".streaming-provider[data-provider]").forEach((btn) => {
+    const isOn = normalizeStreamingProvider(btn.dataset.provider) === provider;
+    btn.classList.toggle("is-active", isOn);
+    btn.setAttribute("aria-selected", String(isOn));
+    const badge = btn.querySelector(".provider-status-badge");
+    if (badge) {
+      badge.className = isOn
+        ? `provider-status-badge provider-status-badge--${btn.dataset.provider}`
+        : "provider-status-badge provider-status-badge--ready";
+      badge.textContent = isOn ? t("provider_active") : "READY";
+    }
+  });
+}
+
 async function changeStreamingProvider(provider) {
-  if (!provider || provider === currentStreamingProvider) return;
-  setStreamingProvider(provider);
+  const next = normalizeStreamingProvider(provider);
+  if (!next || next === currentStreamingProvider) return;
+
+  const token = ++providerSwitchToken;
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const root = document.documentElement;
+  const grid = document.getElementById("streaming-movie-grid");
+  const loadMoreSlot = document.getElementById("streaming-load-more-container");
+
+  setStreamingProvider(next);
   currentStreamingPage = 1;
-  await fetchAndRenderStreaming();
+
+  // 1. Start loading straight away, in parallel with the animation.
+  const params = new URLSearchParams({
+    provider: currentStreamingProvider,
+    country: currentStreamingCountry,
+    type: currentStreamingFilter,
+    page: "1"
+  });
+  const request = api(`/api/streaming?${params}`);
+
+  // 2. Move the big "active" card to the new service (smooth morph where supported).
+  const buttons = [...document.querySelectorAll(".streaming-provider[data-provider]")];
+  let transitionDone = Promise.resolve();
+  if (!reduceMotion && document.startViewTransition) {
+    buttons.forEach((btn) => {
+      btn.style.viewTransitionName = `mf-provider-${btn.dataset.provider}`;
+    });
+    root.classList.add("mf-provider-vt");
+    const vt = document.startViewTransition(() => mfMarkProviderActive(next));
+    transitionDone = vt.finished.catch(() => {}).finally(() => {
+      if (token !== providerSwitchToken) return;
+      root.classList.remove("mf-provider-vt");
+      buttons.forEach((btn) => (btn.style.viewTransitionName = ""));
+    });
+  } else {
+    mfMarkProviderActive(next);
+  }
+
+  // 3. Glow bloom + fade the old titles out.
+  if (!reduceMotion) {
+    const heading = document.querySelector(".streaming-heading");
+    heading?.classList.remove("mf-glow-bloom");
+    void heading?.offsetWidth;
+    heading?.classList.add("mf-glow-bloom");
+  }
+  grid?.classList.remove("mf-grid-in");
+  grid?.classList.add("mf-grid-out");
+  if (loadMoreSlot) loadMoreSlot.innerHTML = "";
+
+  try {
+    const [data] = await Promise.all([request, transitionDone, mfWait(reduceMotion ? 0 : 220)]);
+    if (token !== providerSwitchToken || !isStreamingHash()) return;
+
+    streamingItems = Array.isArray(data.results) ? data.results : [];
+    streamingTotalPages = Number(data.total_pages) || 1;
+    streamingTotalResults = Number(data.total_results) || streamingItems.length;
+    renderStreamingView();
+
+    // 4. New titles rise in one after another.
+    const newGrid = document.getElementById("streaming-movie-grid");
+    if (newGrid && !reduceMotion) {
+      [...newGrid.children].forEach((tile, i) => tile.style.setProperty("--mf-i", Math.min(i, 17)));
+      newGrid.classList.add("mf-grid-in");
+      setTimeout(() => newGrid.classList.remove("mf-grid-in"), 1400);
+    }
+  } catch (error) {
+    if (token !== providerSwitchToken) return;
+    if (grid) {
+      grid.classList.remove("mf-grid-out");
+      grid.innerHTML = `<div class="message error" style="grid-column: 1 / -1;">${esc(error.message)}</div>`;
+    }
+  }
 }
 
 async function changeStreamingFilter(tab) {

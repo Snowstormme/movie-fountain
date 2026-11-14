@@ -2668,3 +2668,73 @@ html[data-theme="liquid"] .streaming-end-note {
     gap: 10px;
   }
 }
+
+/* ===== Movie Fountain: animated streaming service switch ===== */
+
+.provider-status-badge.provider-status-badge--kinopoisk {
+  background: linear-gradient(135deg, #ff6600, #ff3300);
+  color: #fff;
+}
+
+/* Smooth morph of the service cards (Chrome, Edge, Safari 18+, Firefox 144+) */
+html.mf-provider-vt .streaming-provider[data-provider="netflix"]     { view-transition-name: mf-provider-netflix; }
+html.mf-provider-vt .streaming-provider[data-provider="apple"]       { view-transition-name: mf-provider-apple; }
+html.mf-provider-vt .streaming-provider[data-provider="max"]         { view-transition-name: mf-provider-max; }
+html.mf-provider-vt .streaming-provider[data-provider="prime"]       { view-transition-name: mf-provider-prime; }
+html.mf-provider-vt .streaming-provider[data-provider="hulu"]        { view-transition-name: mf-provider-hulu; }
+html.mf-provider-vt .streaming-provider[data-provider="disney"]      { view-transition-name: mf-provider-disney; }
+html.mf-provider-vt .streaming-provider[data-provider="paramount"]   { view-transition-name: mf-provider-paramount; }
+html.mf-provider-vt .streaming-provider[data-provider="googletv"]    { view-transition-name: mf-provider-googletv; }
+html.mf-provider-vt .streaming-provider[data-provider="mubi"]        { view-transition-name: mf-provider-mubi; }
+html.mf-provider-vt .streaming-provider[data-provider="peacock"]     { view-transition-name: mf-provider-peacock; }
+html.mf-provider-vt .streaming-provider[data-provider="crunchyroll"] { view-transition-name: mf-provider-crunchyroll; }
+html.mf-provider-vt .streaming-provider[data-provider="okko"]        { view-transition-name: mf-provider-okko; }
+html.mf-provider-vt .streaming-provider[data-provider="kinopoisk"]   { view-transition-name: mf-provider-kinopoisk; }
+
+html.mf-provider-vt::view-transition-group(*) {
+  animation-duration: .45s;
+  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
+}
+html.mf-provider-vt::view-transition-old(root),
+html.mf-provider-vt::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Glow behind the cards flares up in the new service's colour */
+.streaming-heading.mf-glow-bloom .streaming-ambient-glow {
+  animation: mf-glow-bloom .7s cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes mf-glow-bloom {
+  0%   { opacity: .15; transform: translateX(-50%) scale(.7); }
+  45%  { opacity: .9;  transform: translateX(-50%) scale(1.08); }
+  100% { opacity: .55; transform: translateX(-50%) scale(1); }
+}
+
+/* Old titles soften and sink away while the new ones load */
+#streaming-movie-grid {
+  transition: opacity .22s ease, filter .22s ease, transform .22s ease;
+}
+#streaming-movie-grid.mf-grid-out {
+  opacity: .25;
+  filter: blur(6px) saturate(.6);
+  transform: translateY(8px) scale(.99);
+  pointer-events: none;
+}
+
+/* New titles rise in one after another */
+#streaming-movie-grid.mf-grid-in > * {
+  animation: mf-tile-in .5s cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: calc(var(--mf-i, 0) * 35ms);
+}
+@keyframes mf-tile-in {
+  from { opacity: 0; transform: translateY(18px) scale(.96); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #streaming-movie-grid { transition: none; }
+  #streaming-movie-grid.mf-grid-out { filter: none; transform: none; opacity: .5; }
+  .streaming-heading.mf-glow-bloom .streaming-ambient-glow,
+  #streaming-movie-grid.mf-grid-in > * { animation: none; }
+}
