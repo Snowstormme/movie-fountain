@@ -261,7 +261,33 @@ app.addEventListener("click", (event) => {
     return;
   }
 
-  const providerBtn = event.target.closest("[data-provider]");
+  const mineEdit = event.target.closest("[data-mine-edit]");
+  if (mineEdit?.dataset?.mineEdit !== undefined) {
+    toggleMyServicesPanel();
+    return;
+  }
+
+  const mineToggle = event.target.closest("[data-mine-toggle]");
+  if (mineToggle?.dataset?.mineToggle) {
+    toggleMyService(mineToggle.dataset.mineToggle);
+    return;
+  }
+
+  const mineDone = event.target.closest("[data-mine-done]");
+  if (mineDone?.dataset?.mineDone !== undefined) {
+    finishMyServices();
+    return;
+  }
+
+  const clearFiltersBtn = event.target.closest("[data-streaming-clear-filters]");
+  if (clearFiltersBtn?.dataset?.streamingClearFilters !== undefined) {
+    clearStreamingFilters();
+    return;
+  }
+
+  // Only the service buttons switch service. (Before, a click on Save inside a
+  // title card was caught here because the card also carried data-provider.)
+  const providerBtn = event.target.closest(".streaming-provider[data-provider], .streaming-mine-btn[data-provider]");
   if (providerBtn?.dataset?.provider && !providerBtn.classList?.contains?.("is-disabled")) {
     changeStreamingProvider(providerBtn.dataset.provider);
     return;
@@ -383,12 +409,34 @@ app.addEventListener("change", (event) => {
     refreshListMovies();
   }
   if (event.target.matches("[data-streaming-sort]")) {
-    currentStreamingSort = event.target.value;
-    renderStreamingView();
+    changeStreamingSort(event.target.value);
+  }
+  if (event.target.matches("[data-streaming-genre]")) {
+    changeStreamingGenre(event.target.value);
+  }
+  if (event.target.matches("[data-streaming-decade]")) {
+    changeStreamingDecade(event.target.value);
   }
   if (event.target.matches("[data-streaming-country]")) {
     changeStreamingCountry(event.target.value);
   }
+});
+
+app.addEventListener("input", (event) => {
+  if (!event.target.matches?.("[data-streaming-search]")) return;
+  const value = event.target.value;
+  clearTimeout(streamingSearchTimer);
+  streamingSearchTimer = setTimeout(() => changeStreamingQuery(value), 450);
+});
+
+app.addEventListener("submit", (event) => {
+  const form = event.target.closest?.("[data-streaming-search-form]");
+  if (!form) return;
+  event.preventDefault();
+  clearTimeout(streamingSearchTimer);
+  const input = form.querySelector("[data-streaming-search]");
+  changeStreamingQuery(input?.value || "");
+  input?.blur?.();
 });
 
 app.addEventListener("watchedchange", () => {
@@ -1030,6 +1078,7 @@ function setStreamingCountry(code) {
 const streamingProviderKey = "movie-fountain.streaming_provider.v1";
 
 const PROVIDER_ALIASES = {
+  mine: "mine",
   netflix: "netflix",
   apple: "apple",
   appletv: "apple",
@@ -1129,94 +1178,289 @@ let currentStreamingProvider = getStreamingProvider();
 let currentStreamingFilter = "all";
 let currentStreamingSort = "default";
 let currentStreamingCountry = getStreamingCountry();
+let currentStreamingGenre = "";
+let currentStreamingDecade = "";
+let currentStreamingQuery = "";
 let currentStreamingPage = 1;
 let streamingTotalPages = 1;
 let streamingTotalResults = 0;
 let streamingItems = [];
 let isLoadingMoreStreaming = false;
+let streamingLoading = false;
+let streamingError = "";
+let streamingRequestToken = 0;
+let streamingLoadMoreObserver = null;
+let streamingSearchTimer = null;
+let streamingMineRefetchTimer = null;
+let streamingMinePanelOpen = false;
+const streamingRowsCache = new Map();
+
+const myServicesKey = "movie-fountain.my_services.v1";
+
+const STREAMING_PROVIDER_ORDER = [
+  "netflix", "apple", "max", "prime", "hulu", "disney", "paramount",
+  "googletv", "mubi", "peacock", "crunchyroll", "okko", "kinopoisk"
+];
+const STREAMING_GENRE_KEYS = [
+  "action", "adventure", "animation", "comedy", "crime", "documentary", "drama",
+  "family", "fantasy", "horror", "mystery", "romance", "scifi", "thriller"
+];
+const STREAMING_DECADE_KEYS = ["2020s", "2010s", "2000s", "1990s", "1980s", "older"];
+// Sort menu value -> server sort key, so every page comes back in the chosen order.
+const STREAMING_SORT_TO_SERVER = { default: "popular", rating_desc: "rating", year_desc: "date", title_asc: "title" };
+
+function normalizeMyServices(list) {
+  if (!Array.isArray(list)) return [];
+  const picked = new Set(
+    list.map((p) => normalizeStreamingProvider(p)).filter((p) => p && p !== "mine")
+  );
+  return STREAMING_PROVIDER_ORDER.filter((p) => picked.has(p));
+}
+
+function readMyServices() {
+  try {
+    return normalizeMyServices(JSON.parse(localStorage.getItem(myServicesKey) || "[]"));
+  } catch {
+    return [];
+  }
+}
+
+function setMyServices(list) {
+  myServices = normalizeMyServices(list);
+  try {
+    localStorage.setItem(myServicesKey, JSON.stringify(myServices));
+  } catch {}
+  return myServices;
+}
+
+let myServices = readMyServices();
+
+function streamingProviderName(provider) {
+  if (provider === "mine") return t("my_services");
+  const norm = normalizeStreamingProvider(provider) || "netflix";
+  return t(`provider_${norm}`);
+}
+
+/** True for titles released in the last 45 days (never for future dates). */
+function isNewRelease(item, now = Date.now()) {
+  const raw = String(item?.release_date || "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return false;
+  const released = Date.parse(`${raw}T00:00:00Z`);
+  if (!Number.isFinite(released)) return false;
+  const age = now - released;
+  return age >= 0 && age <= 45 * 24 * 60 * 60 * 1000;
+}
+
+function hasStreamingFilters() {
+  return Boolean(
+    currentStreamingGenre ||
+      currentStreamingDecade ||
+      currentStreamingQuery ||
+      currentStreamingSort !== "default" ||
+      currentStreamingFilter !== "all"
+  );
+}
+
+function buildStreamingParams(page = 1, overrides = {}) {
+  const params = new URLSearchParams({
+    provider: currentStreamingProvider,
+    country: currentStreamingCountry,
+    type: currentStreamingFilter,
+    page: String(page)
+  });
+  const sort = STREAMING_SORT_TO_SERVER[currentStreamingSort] || "popular";
+  if (sort !== "popular") params.set("sort", sort);
+  if (currentStreamingGenre) params.set("genre", currentStreamingGenre);
+  if (currentStreamingDecade) params.set("decade", currentStreamingDecade);
+  if (currentStreamingQuery) params.set("q", currentStreamingQuery);
+  if (currentStreamingProvider === "mine") params.set("providers", myServices.join(","));
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value === null || value === undefined || value === "") params.delete(key);
+    else params.set(key, String(value));
+  }
+  return params;
+}
+
+function fetchStreamingPage(page = 1, overrides = {}) {
+  return api(`/api/streaming?${buildStreamingParams(page, overrides)}`);
+}
+
+function applyStreamingData(data) {
+  streamingItems = Array.isArray(data?.results) ? data.results : [];
+  streamingTotalPages = Number(data?.total_pages) || 1;
+  streamingTotalResults = Number(data?.total_results) || streamingItems.length;
+  currentStreamingPage = 1;
+}
+
+function streamingHasMore() {
+  return !currentStreamingQuery && currentStreamingPage < streamingTotalPages;
+}
+
+function streamingNeedsServices() {
+  return currentStreamingProvider === "mine" && myServices.length === 0;
+}
+
+function syncStreamingHash() {
+  const target = `#streaming/${currentStreamingProvider}`;
+  if (location.hash === target) return;
+  try {
+    if (typeof history !== "undefined" && typeof history.replaceState === "function") {
+      history.replaceState(null, "", target);
+    }
+  } catch {}
+}
+
+function streamingReducedMotion() {
+  try {
+    return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
+  } catch {
+    return false;
+  }
+}
+
+function streamingSkeletonTiles(count = 12) {
+  return Array.from(
+    { length: count },
+    () => `<div class="movie-tile streaming-skeleton" aria-hidden="true"><div class="skeleton-poster"></div><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--short"></div></div>`
+  ).join("");
+}
+
+function streamingSkeletonRows() {
+  return `<section class="shelf streaming-row-shelf" aria-hidden="true"><div class="skeleton-line skeleton-line--title"></div><div class="movie-row streaming-row">${streamingSkeletonTiles(6)}</div></section>`;
+}
+
+function streamingVisibleItems() {
+  const filtered = streamingItems.filter((item) => {
+    if (currentStreamingFilter === "movie") return item.media_type === "movie";
+    if (currentStreamingFilter === "tv") return item.media_type === "tv";
+    if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 7.8;
+    return true;
+  });
+  return sortMovieList(filtered, currentStreamingSort);
+}
+
+function streamingGridInner() {
+  if (streamingLoading) return streamingSkeletonTiles(12);
+  if (streamingError) {
+    return `<div class="message error streaming-grid-message">${esc(streamingError)}</div>`;
+  }
+  if (streamingNeedsServices()) {
+    return `<div class="streaming-empty streaming-grid-message"><strong>${t("my_services_empty_title")}</strong><p>${t("my_services_hint")}</p><button type="button" class="streaming-empty-btn" data-mine-edit>${t("my_services_choose")}</button></div>`;
+  }
+  const visible = streamingVisibleItems();
+  if (visible.length === 0) {
+    return `<div class="streaming-empty streaming-grid-message"><strong>${t("stream_empty_title")}</strong><p>${t("stream_empty_hint")}</p>${hasStreamingFilters() ? `<button type="button" class="streaming-empty-btn" data-streaming-clear-filters>${t("clear_filters")}</button>` : ""}</div>`;
+  }
+  return visible.map((item) => streamingCard(item)).join("");
+}
 
 async function streamingPage(subFilter = "all", providerOverride = null) {
   fountainAbort?.abort();
   if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
     window.scrollTo(0, 0);
   }
-  app.innerHTML = `<div class="loading">${t("loading_short")}</div>`;
   currentStreamingFilter = subFilter || "all";
   currentStreamingSort = "default";
+  currentStreamingGenre = "";
+  currentStreamingDecade = "";
+  currentStreamingQuery = "";
   currentStreamingPage = 1;
   const normOverride = normalizeStreamingProvider(providerOverride);
-  if (normOverride) {
-    currentStreamingProvider = normOverride;
-    try {
-      localStorage.setItem(streamingProviderKey, normOverride);
-    } catch {}
-  }
+  if (normOverride) setStreamingProvider(normOverride);
 
-  try {
-    const params = new URLSearchParams({
-      provider: currentStreamingProvider,
-      country: currentStreamingCountry,
-      type: currentStreamingFilter,
-      page: "1"
-    });
-    const data = await api(`/api/streaming?${params}`);
-    if (!isStreamingHash()) return;
-    streamingItems = Array.isArray(data.results) ? data.results : [];
-    streamingTotalPages = Number(data.total_pages) || 1;
-    streamingTotalResults = Number(data.total_results) || streamingItems.length;
-    renderStreamingView();
-  } catch (error) {
-    app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
-  }
+  streamingItems = [];
+  streamingTotalPages = 1;
+  streamingTotalResults = 0;
+  streamingError = "";
+  streamingLoading = !streamingNeedsServices();
+  streamingMinePanelOpen = streamingNeedsServices();
+
+  // Show the page frame with shimmering placeholders straight away.
+  renderStreamingView();
+  syncStreamingHash();
+  if (streamingNeedsServices()) return;
+  await fetchAndRenderStreaming();
 }
 
-/* ===== Movie Fountain: animated streaming service switch =====
-   Replaces the old changeStreamingProvider() in app.js. */
-let providerSwitchToken = 0;
-
+/* ===== Movie Fountain: animated streaming service switch ===== */
 function mfWait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function providerStatusBadge(provider) {
+  const kpExtra = provider === "kinopoisk" ? " provider-status-badge--kp" : "";
+  if (provider === currentStreamingProvider) {
+    return `<span class="provider-status-badge provider-status-badge--${provider}${kpExtra}">${t("provider_active")}</span>`;
+  }
+  if (currentStreamingProvider === "mine" && myServices.includes(provider)) {
+    return `<span class="provider-status-badge provider-status-badge--mine" title="${esc(t("my_services"))}">${t("provider_mine_badge")}</span>`;
+  }
+  return `<span class="provider-status-badge provider-status-badge--ready"></span>`;
 }
 
 function mfMarkProviderActive(provider) {
   const heading = document.querySelector(".streaming-heading");
   if (heading) heading.setAttribute("data-active-provider", provider);
+  document.querySelector(".streaming-providers")?.classList.toggle("is-mine-mode", provider === "mine");
 
   document.querySelectorAll(".streaming-provider[data-provider]").forEach((btn) => {
-    const isOn = normalizeStreamingProvider(btn.dataset.provider) === provider;
+    const id = normalizeStreamingProvider(btn.dataset.provider);
+    const isOn = id === provider;
     btn.classList.toggle("is-active", isOn);
+    btn.classList.toggle("is-mine", provider === "mine" && myServices.includes(id));
     btn.setAttribute("aria-selected", String(isOn));
     const badge = btn.querySelector(".provider-status-badge");
-    if (badge) {
-      badge.className = isOn
-        ? `provider-status-badge provider-status-badge--${btn.dataset.provider}`
-        : "provider-status-badge provider-status-badge--ready";
-      badge.textContent = isOn ? t("provider_active") : "READY";
-    }
+    if (badge) badge.outerHTML = providerStatusBadge(id);
   });
+
+  document.querySelectorAll(".streaming-mine-btn").forEach((btn) => {
+    btn.classList.toggle("is-active", provider === "mine");
+    btn.setAttribute("aria-pressed", String(provider === "mine"));
+  });
+}
+
+function mfAnimateGridIn(grid = document.getElementById("streaming-movie-grid")) {
+  if (!grid || streamingReducedMotion()) return;
+  [...grid.children].forEach((tile, i) => tile.style.setProperty("--mf-i", Math.min(i, 17)));
+  grid.classList.remove("mf-grid-in");
+  void grid.offsetWidth;
+  grid.classList.add("mf-grid-in");
+  setTimeout(() => grid.classList.remove("mf-grid-in"), 1400);
+}
+
+function mfScrollProvidersToStart() {
+  const strip = document.querySelector(".streaming-providers");
+  if (!strip || strip.scrollWidth <= strip.clientWidth + 2) return;
+  try {
+    strip.scrollTo({ left: 0, behavior: streamingReducedMotion() ? "auto" : "smooth" });
+  } catch {
+    strip.scrollLeft = 0;
+  }
 }
 
 async function changeStreamingProvider(provider) {
   const next = normalizeStreamingProvider(provider);
-  if (!next || next === currentStreamingProvider) return;
+  if (!next) return;
+  if (next === "mine" && myServices.length === 0) {
+    toggleMyServicesPanel(true);
+    return;
+  }
+  if (next === currentStreamingProvider) return;
 
-  const token = ++providerSwitchToken;
-  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const token = ++streamingRequestToken;
+  const reduceMotion = streamingReducedMotion();
   const root = document.documentElement;
   const grid = document.getElementById("streaming-movie-grid");
   const loadMoreSlot = document.getElementById("streaming-load-more-container");
+  const rows = document.getElementById("streaming-rows");
 
   setStreamingProvider(next);
+  syncStreamingHash();
   currentStreamingPage = 1;
+  streamingError = "";
 
   // 1. Start loading straight away, in parallel with the animation.
-  const params = new URLSearchParams({
-    provider: currentStreamingProvider,
-    country: currentStreamingCountry,
-    type: currentStreamingFilter,
-    page: "1"
-  });
-  const request = api(`/api/streaming?${params}`);
+  const request = fetchStreamingPage(1);
 
   // 2. Move the big "active" card to the new service (smooth morph where supported).
   const buttons = [...document.querySelectorAll(".streaming-provider[data-provider]")];
@@ -1228,15 +1472,16 @@ async function changeStreamingProvider(provider) {
     root.classList.add("mf-provider-vt");
     const vt = document.startViewTransition(() => mfMarkProviderActive(next));
     transitionDone = vt.finished.catch(() => {}).finally(() => {
-      if (token !== providerSwitchToken) return;
+      if (token !== streamingRequestToken) return;
       root.classList.remove("mf-provider-vt");
       buttons.forEach((btn) => (btn.style.viewTransitionName = ""));
     });
   } else {
     mfMarkProviderActive(next);
   }
+  mfScrollProvidersToStart();
 
-  // 3. Glow bloom + fade the old titles out.
+  // 3. Glow bloom + fade the old titles out; show placeholders if loading is slow.
   if (!reduceMotion) {
     const heading = document.querySelector(".streaming-heading");
     heading?.classList.remove("mf-glow-bloom");
@@ -1245,78 +1490,167 @@ async function changeStreamingProvider(provider) {
   }
   grid?.classList.remove("mf-grid-in");
   grid?.classList.add("mf-grid-out");
+  grid?.setAttribute("aria-busy", "true");
+  rows?.classList.add("is-fading");
   if (loadMoreSlot) loadMoreSlot.innerHTML = "";
+  const skeletonTimer = setTimeout(() => {
+    if (token !== streamingRequestToken || !grid?.isConnected) return;
+    grid.classList.remove("mf-grid-out");
+    grid.innerHTML = streamingSkeletonTiles(12);
+  }, 380);
 
   try {
     const [data] = await Promise.all([request, transitionDone, mfWait(reduceMotion ? 0 : 220)]);
-    if (token !== providerSwitchToken || !isStreamingHash()) return;
-
-    streamingItems = Array.isArray(data.results) ? data.results : [];
-    streamingTotalPages = Number(data.total_pages) || 1;
-    streamingTotalResults = Number(data.total_results) || streamingItems.length;
-    renderStreamingView();
-
-    // 4. New titles rise in one after another.
-    const newGrid = document.getElementById("streaming-movie-grid");
-    if (newGrid && !reduceMotion) {
-      [...newGrid.children].forEach((tile, i) => tile.style.setProperty("--mf-i", Math.min(i, 17)));
-      newGrid.classList.add("mf-grid-in");
-      setTimeout(() => newGrid.classList.remove("mf-grid-in"), 1400);
-    }
+    clearTimeout(skeletonTimer);
+    if (token !== streamingRequestToken || !isStreamingHash()) return;
+    applyStreamingData(data);
   } catch (error) {
-    if (token !== providerSwitchToken) return;
-    if (grid) {
-      grid.classList.remove("mf-grid-out");
-      grid.innerHTML = `<div class="message error" style="grid-column: 1 / -1;">${esc(error.message)}</div>`;
-    }
+    clearTimeout(skeletonTimer);
+    if (token !== streamingRequestToken) return;
+    streamingItems = [];
+    streamingError = error.message;
   }
+  streamingLoading = false;
+  renderStreamingView();
+  // 4. New titles rise in one after another.
+  mfAnimateGridIn();
 }
 
 async function changeStreamingFilter(tab) {
   if (currentStreamingFilter === tab) return;
   currentStreamingFilter = tab;
-  currentStreamingPage = 1;
-  await fetchAndRenderStreaming();
+  document.querySelectorAll("[data-stream-tab]").forEach((btn) => {
+    const on = btn.dataset.streamTab === tab;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-selected", String(on));
+  });
+  await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
 }
 
 async function changeStreamingCountry(code) {
   if (!code || code === currentStreamingCountry) return;
   setStreamingCountry(code);
-  currentStreamingPage = 1;
-  await fetchAndRenderStreaming();
+  await fetchAndRenderStreaming({ animateIn: true });
 }
 
-async function fetchAndRenderStreaming() {
-  const grid = document.getElementById("streaming-movie-grid");
-  const loadMoreSlot = document.getElementById("streaming-load-more-container");
-  if (grid) {
-    grid.innerHTML = `<div class="loading" style="grid-column: 1 / -1; padding: 48px 0;">${t("loading_short")}</div>`;
+async function changeStreamingSort(value) {
+  const next = STREAMING_SORT_TO_SERVER[value] ? value : "default";
+  if (next === currentStreamingSort) return;
+  currentStreamingSort = next;
+  await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
+}
+
+async function changeStreamingGenre(value) {
+  const next = STREAMING_GENRE_KEYS.includes(value) ? value : "";
+  if (next === currentStreamingGenre) return;
+  currentStreamingGenre = next;
+  await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
+}
+
+async function changeStreamingDecade(value) {
+  const next = STREAMING_DECADE_KEYS.includes(value) ? value : "";
+  if (next === currentStreamingDecade) return;
+  currentStreamingDecade = next;
+  await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
+}
+
+async function changeStreamingQuery(value) {
+  const trimmed = String(value || "").trim().slice(0, 80);
+  const next = trimmed.length >= 2 ? trimmed : "";
+  if (next === currentStreamingQuery) return;
+  currentStreamingQuery = next;
+  await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
+}
+
+async function clearStreamingFilters() {
+  currentStreamingFilter = "all";
+  currentStreamingSort = "default";
+  currentStreamingGenre = "";
+  currentStreamingDecade = "";
+  currentStreamingQuery = "";
+  await fetchAndRenderStreaming({ animateIn: true });
+}
+
+async function fetchAndRenderStreaming({ resultsOnly = false, animateIn = false } = {}) {
+  const token = ++streamingRequestToken;
+  currentStreamingPage = 1;
+  streamingError = "";
+
+  if (streamingNeedsServices()) {
+    streamingItems = [];
+    streamingTotalPages = 1;
+    streamingTotalResults = 0;
+    streamingLoading = false;
+    if (resultsOnly) renderStreamingResults();
+    else renderStreamingView();
+    return;
   }
+
+  streamingLoading = true;
+  const grid = document.getElementById("streaming-movie-grid");
+  if (grid) {
+    grid.classList.remove("mf-grid-out", "mf-grid-in");
+    grid.setAttribute("aria-busy", "true");
+    grid.innerHTML = streamingSkeletonTiles(12);
+  }
+  const loadMoreSlot = document.getElementById("streaming-load-more-container");
   if (loadMoreSlot) loadMoreSlot.innerHTML = "";
+  updateStreamingFilterControls();
 
   try {
-    const params = new URLSearchParams({
-      provider: currentStreamingProvider,
-      country: currentStreamingCountry,
-      type: currentStreamingFilter,
-      page: "1"
-    });
-    const data = await api(`/api/streaming?${params}`);
-    if (!isStreamingHash()) return;
-    streamingItems = Array.isArray(data.results) ? data.results : [];
-    streamingTotalPages = Number(data.total_pages) || 1;
-    streamingTotalResults = Number(data.total_results) || streamingItems.length;
-    renderStreamingView();
+    const data = await fetchStreamingPage(1);
+    if (token !== streamingRequestToken || !isStreamingHash()) return;
+    applyStreamingData(data);
   } catch (error) {
-    if (grid) {
-      grid.innerHTML = `<div class="message error" style="grid-column: 1 / -1;">${esc(error.message)}</div>`;
-    }
+    if (token !== streamingRequestToken) return;
+    streamingItems = [];
+    streamingError = error.message;
   }
+  streamingLoading = false;
+  if (resultsOnly) renderStreamingResults();
+  else renderStreamingView();
+  if (animateIn) mfAnimateGridIn();
+}
+
+/** Re-renders only the titles, count and rows, so the search box keeps focus. */
+function renderStreamingResults() {
+  const grid = document.getElementById("streaming-movie-grid");
+  if (!grid) {
+    renderStreamingView();
+    return;
+  }
+  grid.classList.remove("mf-grid-out");
+  grid.setAttribute("aria-busy", String(streamingLoading));
+  grid.innerHTML = streamingGridInner();
+  updateStreamingFilterControls();
+  updateStreamingCountAndLoadMoreUI();
+  afterStreamingRender();
+}
+
+function afterStreamingRender() {
+  mfObserveStreamingLoadMore();
+  refreshStreamingRows();
+}
+
+function mfObserveStreamingLoadMore() {
+  streamingLoadMoreObserver?.disconnect?.();
+  streamingLoadMoreObserver = null;
+  if (typeof IntersectionObserver === "undefined" || !streamingHasMore() || streamingLoading) return;
+  const slot = document.getElementById("streaming-load-more-container");
+  if (!slot) return;
+  streamingLoadMoreObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) loadMoreStreaming();
+    },
+    { rootMargin: "700px 0px" }
+  );
+  streamingLoadMoreObserver.observe(slot);
 }
 
 async function loadMoreStreaming() {
-  if (isLoadingMoreStreaming || currentStreamingPage >= streamingTotalPages) return;
+  if (isLoadingMoreStreaming || !streamingHasMore() || streamingLoading) return;
   isLoadingMoreStreaming = true;
+  const token = streamingRequestToken;
 
   const btn = document.querySelector("[data-load-more-streaming]");
   if (btn) {
@@ -1327,105 +1661,97 @@ async function loadMoreStreaming() {
   }
 
   const nextPage = currentStreamingPage + 1;
+  let loaded = false;
   try {
-    const params = new URLSearchParams({
-      provider: currentStreamingProvider,
-      country: currentStreamingCountry,
-      type: currentStreamingFilter,
-      page: String(nextPage)
-    });
-    const data = await api(`/api/streaming?${params}`);
-    if (!isStreamingHash()) return;
+    const data = await fetchStreamingPage(nextPage);
+    if (token !== streamingRequestToken || !isStreamingHash()) return;
 
     const newItems = Array.isArray(data.results) ? data.results : [];
     currentStreamingPage = nextPage;
     streamingTotalPages = Number(data.total_pages) || streamingTotalPages;
     if (data.total_results) streamingTotalResults = Number(data.total_results);
 
-    // Deduplicate against existing items
-    const existingIds = new Set(streamingItems.map((m) => m.id));
-    const uniqueNew = newItems.filter((m) => !existingIds.has(m.id));
+    const key = (m) => `${m.media_type}:${m.id}`;
+    const existing = new Set(streamingItems.map(key));
+    const uniqueNew = newItems.filter((m) => !existing.has(key(m)));
     streamingItems = [...streamingItems, ...uniqueNew];
 
     const grid = document.getElementById("streaming-movie-grid");
-    if (grid && uniqueNew.length > 0) {
+    const visibleNew = uniqueNew.filter((item) => {
+      if (currentStreamingFilter === "movie") return item.media_type === "movie";
+      if (currentStreamingFilter === "tv") return item.media_type === "tv";
+      if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 7.8;
+      return true;
+    });
+    if (grid && visibleNew.length > 0) {
       const fragment = document.createDocumentFragment();
-      for (const item of uniqueNew) {
+      const animate = !streamingReducedMotion();
+      visibleNew.forEach((item, i) => {
         const temp = document.createElement("div");
         temp.innerHTML = streamingCard(item);
-        if (temp.firstElementChild) {
-          fragment.appendChild(temp.firstElementChild);
+        const tile = temp.firstElementChild;
+        if (!tile) return;
+        if (animate) {
+          tile.classList.add("mf-tile-append");
+          tile.style.setProperty("--mf-i", Math.min(i, 11));
         }
-      }
+        fragment.appendChild(tile);
+      });
       grid.appendChild(fragment);
     }
-
-    updateStreamingCountAndLoadMoreUI();
-  } catch (err) {
-    if (btn) {
-      btn.disabled = false;
-      btn.classList.remove("is-loading");
-      const label = btn.querySelector(".load-more-text");
-      if (label) label.textContent = t("load_more_titles");
-    }
+    loaded = true;
+  } catch {
+    // Keep the button so the visitor can retry.
   } finally {
     isLoadingMoreStreaming = false;
   }
+  if (token !== streamingRequestToken) return;
+  updateStreamingCountAndLoadMoreUI();
+  if (loaded) mfObserveStreamingLoadMore();
 }
 
 function updateStreamingCountAndLoadMoreUI() {
   const countEl = document.getElementById("streaming-count-display");
-  if (countEl) {
-    countEl.textContent = renderStreamingCountText(
-      streamingItems.length,
-      streamingTotalResults,
-      currentStreamingCountry,
-      currentStreamingProvider
-    );
-  }
+  if (countEl) countEl.textContent = streamingCountLabel();
   const spotlightCountEl = document.querySelector(".streaming-provider.is-active .provider-spotlight-count");
-  if (spotlightCountEl) {
+  if (spotlightCountEl && !streamingLoading && !hasStreamingFilters()) {
     const num = Number(streamingTotalResults || streamingItems.length) || 0;
     spotlightCountEl.textContent = `${num.toLocaleString()} →`;
   }
   const loadMoreSlot = document.getElementById("streaming-load-more-container");
-  if (loadMoreSlot) {
-    loadMoreSlot.innerHTML = renderStreamingLoadMoreButton();
-  }
+  if (loadMoreSlot) loadMoreSlot.innerHTML = renderStreamingLoadMoreButton();
+}
+
+function updateStreamingFilterControls() {
+  const clear = document.querySelector(".streaming-filters [data-streaming-clear-filters]");
+  if (clear) clear.hidden = !hasStreamingFilters();
+  const countEl = document.getElementById("streaming-count-display");
+  if (countEl) countEl.textContent = streamingCountLabel();
 }
 
 function renderProviderSpotlightDetails(subKey, countryName, countryCode, totalCount) {
-  const num = Number(totalCount) > 0 ? Number(totalCount).toLocaleString() : "0";
+  const num = Number(totalCount) > 0 ? Number(totalCount).toLocaleString() : "…";
   return `<span class="provider-spotlight-sub">${t(subKey)}</span><span class="provider-spotlight-footer"><span class="provider-spotlight-region">${esc(countryName)} · ${esc(countryCode)}</span><span class="provider-spotlight-count">${num} →</span></span>`;
 }
 
-function renderStreamingCountText(currentCount, totalCount, countryCode, provider) {
-  let providerName = t("provider_netflix") || "Netflix";
-  if (provider === "apple") {
-    providerName = t("provider_apple") || "Apple TV";
-  } else if (provider === "max" || provider === "hbo") {
-    providerName = t("provider_max") || "HBO Max";
-  } else if (provider === "prime" || provider === "amazon") {
-    providerName = t("provider_prime") || "Prime Video";
-  } else if (provider === "hulu") {
-    providerName = t("provider_hulu") || "Hulu";
-  } else if (provider === "disney" || provider === "disneyplus") {
-    providerName = t("provider_disney") || "Disney+";
-  } else if (provider === "paramount" || provider === "paramountplus") {
-    providerName = t("provider_paramount") || "Paramount+";
-  } else if (provider === "googletv" || provider === "google") {
-    providerName = t("provider_googletv") || "Google TV";
-  } else if (provider === "mubi") {
-    providerName = t("provider_mubi") || "MUBI";
-  } else if (provider === "peacock") {
-    providerName = t("provider_peacock") || "Peacock";
-  } else if (provider === "crunchyroll") {
-    providerName = t("provider_crunchyroll") || "Crunchyroll";
-  } else if (provider === "okko") {
-    providerName = t("provider_okko") || "Okko";
-  } else if (provider === "kinopoisk" || provider === "kp") {
-    providerName = t("provider_kinopoisk") || "Kinopoisk";
+function streamingCountLabel() {
+  if (streamingLoading) return t("loading_short");
+  if (currentStreamingQuery) {
+    return t("stream_search_count")
+      .replace(/\{count\}/g, String(streamingVisibleItems().length))
+      .replace(/\{query\}/g, currentStreamingQuery)
+      .replace(/\{provider\}/g, streamingProviderName(currentStreamingProvider));
   }
+  return renderStreamingCountText(
+    streamingVisibleItems().length,
+    streamingTotalResults,
+    currentStreamingCountry,
+    currentStreamingProvider
+  );
+}
+
+function renderStreamingCountText(currentCount, totalCount, countryCode, provider) {
+  const providerName = streamingProviderName(provider);
   const formattedTotal = Number(totalCount) > currentCount ? Number(totalCount).toLocaleString() : null;
   if (formattedTotal) {
     return t("stream_count_total")
@@ -1440,8 +1766,9 @@ function renderStreamingCountText(currentCount, totalCount, countryCode, provide
 }
 
 function renderStreamingLoadMoreButton() {
-  if (currentStreamingPage >= streamingTotalPages) {
-    if (streamingItems.length > 0) {
+  if (streamingLoading || streamingError || streamingNeedsServices()) return "";
+  if (!streamingHasMore()) {
+    if (streamingItems.length > 0 && !currentStreamingQuery) {
       return `<p class="streaming-end-note">✓ ${t("all_titles_loaded")}</p>`;
     }
     return "";
@@ -1455,38 +1782,199 @@ function renderStreamingLoadMoreButton() {
   `;
 }
 
-function renderStreamingView() {
-  const filtered = streamingItems.filter((item) => {
-    if (currentStreamingFilter === "movie") return item.media_type === "movie";
-    if (currentStreamingFilter === "tv") return item.media_type === "tv";
-    if (currentStreamingFilter === "top") return (item.vote_average || 0) >= 7.8;
-    return true;
+/* ===== My services: one combined list of the services you pay for ===== */
+function renderMyServicesBar() {
+  const active = currentStreamingProvider === "mine";
+  const names = myServices.map((p) => streamingProviderName(p));
+  return `
+    <div class="streaming-mine-bar">
+      <button type="button" class="streaming-mine-btn ${active ? "is-active" : ""}" data-provider="mine" aria-pressed="${active}">
+        <span class="mine-star" aria-hidden="true">★</span>
+        <span class="mine-label">${t("my_services")}</span>
+        <span class="mine-count" data-mine-count>${myServices.length}</span>
+      </button>
+      <span class="streaming-mine-summary" data-mine-summary>${names.length ? esc(names.join(" · ")) : t("my_services_hint")}</span>
+      <button type="button" class="streaming-mine-edit" data-mine-edit aria-expanded="${streamingMinePanelOpen}" aria-controls="streaming-mine-panel">${myServices.length ? t("my_services_edit") : t("my_services_choose")}</button>
+    </div>
+    <div class="streaming-mine-panel" id="streaming-mine-panel" ${streamingMinePanelOpen ? "" : "hidden"}>
+      <p class="streaming-mine-panel-title">${t("my_services_panel_title")}</p>
+      <div class="streaming-mine-chips">
+        ${STREAMING_PROVIDER_ORDER.map((p) => {
+          const on = myServices.includes(p);
+          return `<button type="button" class="mine-chip mine-chip--${p} ${on ? "is-on" : ""}" data-mine-toggle="${p}" aria-pressed="${on}"><span class="mine-chip-check" aria-hidden="true">✓</span>${esc(streamingProviderName(p))}</button>`;
+        }).join("")}
+      </div>
+      <button type="button" class="streaming-mine-done" data-mine-done>${t("my_services_done")}</button>
+    </div>
+  `;
+}
+
+function updateMyServicesBar() {
+  const names = myServices.map((p) => streamingProviderName(p));
+  document.querySelectorAll("[data-mine-count]").forEach((el) => (el.textContent = String(myServices.length)));
+  document.querySelectorAll("[data-mine-summary]").forEach((el) => {
+    el.textContent = names.length ? names.join(" · ") : t("my_services_hint");
   });
+  document.querySelectorAll(".streaming-mine-edit").forEach((el) => {
+    el.textContent = myServices.length ? t("my_services_edit") : t("my_services_choose");
+    el.setAttribute("aria-expanded", String(streamingMinePanelOpen));
+  });
+  document.querySelectorAll("[data-mine-toggle]").forEach((chip) => {
+    const on = myServices.includes(chip.dataset.mineToggle);
+    chip.classList.toggle("is-on", on);
+    chip.setAttribute("aria-pressed", String(on));
+  });
+}
 
-  const sorted = sortMovieList(filtered, currentStreamingSort);
-  const currentCountryObj = STREAMING_COUNTRIES.find((c) => c.code === currentStreamingCountry) || STREAMING_COUNTRIES[0];
-  const currentCountryName = t("country_" + currentCountryObj.code.toLowerCase()) || currentCountryObj.name;
-  const spotlightTotal = streamingTotalResults || sorted.length;
+function toggleMyServicesPanel(force) {
+  const panel = document.getElementById("streaming-mine-panel");
+  streamingMinePanelOpen = typeof force === "boolean" ? force : !streamingMinePanelOpen;
+  if (panel) panel.hidden = !streamingMinePanelOpen;
+  updateMyServicesBar();
+  if (streamingMinePanelOpen) {
+    panel?.scrollIntoView?.({ behavior: streamingReducedMotion() ? "auto" : "smooth", block: "nearest" });
+  }
+}
 
-  app.innerHTML = `
-    <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
-      <div class="streaming-ambient-glow" aria-hidden="true"></div>
+function toggleMyService(provider) {
+  const id = normalizeStreamingProvider(provider);
+  if (!id || id === "mine") return;
+  const next = myServices.includes(id) ? myServices.filter((p) => p !== id) : [...myServices, id];
+  setMyServices(next);
+  updateMyServicesBar();
+  if (currentStreamingProvider === "mine") {
+    mfMarkProviderActive("mine");
+    clearTimeout(streamingMineRefetchTimer);
+    streamingMineRefetchTimer = setTimeout(() => {
+      fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
+    }, 500);
+  }
+}
 
-      <!-- Provider Selector -->
-      <div class="streaming-providers" role="tablist" aria-label="Streaming Providers">
+function finishMyServices() {
+  toggleMyServicesPanel(false);
+  if (myServices.length > 0 && currentStreamingProvider !== "mine") {
+    changeStreamingProvider("mine");
+  }
+}
+
+/* ===== Themed rows: newest and highest-rated on the current service ===== */
+function streamingRowsEligible() {
+  return (
+    !streamingLoading &&
+    !streamingError &&
+    !streamingNeedsServices() &&
+    !hasStreamingFilters() &&
+    streamingItems.length > 0
+  );
+}
+
+function streamingRowsKey() {
+  const services = currentStreamingProvider === "mine" ? myServices.join(",") : "";
+  return `${currentStreamingProvider}|${services}|${currentStreamingCountry}|${savedLang}`;
+}
+
+function renderStreamingRowsHtml(rows) {
+  const name = streamingProviderName(currentStreamingProvider);
+  const shelves = [
+    { key: "newest", title: t("row_newest").replace(/\{provider\}/g, name), items: rows.newest },
+    { key: "top", title: t("row_top").replace(/\{provider\}/g, name), items: rows.top }
+  ].filter((row) => Array.isArray(row.items) && row.items.length >= 4);
+  if (shelves.length === 0) return "";
+  return (
+    shelves
+      .map(
+        (row) => `<section class="shelf streaming-row-shelf" data-streaming-row="${row.key}">
+          <div class="shelf-heading"><h2>${esc(row.title)}</h2></div>
+          <div class="movie-row streaming-row">${row.items.slice(0, 14).map((item) => streamingCard(item)).join("")}</div>
+        </section>`
+      )
+      .join("") + `<h2 class="streaming-grid-title">${t("row_all_titles")}</h2>`
+  );
+}
+
+async function refreshStreamingRows() {
+  const slot = document.getElementById("streaming-rows");
+  if (!slot) return;
+  if (!streamingRowsEligible()) {
+    slot.innerHTML = "";
+    slot.classList.remove("is-fading");
+    return;
+  }
+  const key = streamingRowsKey();
+  const cached = streamingRowsCache.get(key);
+  if (cached) {
+    slot.innerHTML = renderStreamingRowsHtml(cached);
+    slot.classList.remove("is-fading");
+    return;
+  }
+  slot.innerHTML = streamingSkeletonRows();
+  slot.classList.remove("is-fading");
+  const reset = { genre: null, decade: null, q: null };
+  const [newest, top] = await Promise.all([
+    fetchStreamingPage(1, { ...reset, type: "all", sort: "date" }).catch(() => null),
+    fetchStreamingPage(1, { ...reset, type: "top", sort: "rating" }).catch(() => null)
+  ]);
+  const rows = {
+    newest: Array.isArray(newest?.results) ? newest.results : [],
+    top: Array.isArray(top?.results) ? top.results : []
+  };
+  streamingRowsCache.set(key, rows);
+  const liveSlot = document.getElementById("streaming-rows");
+  if (!liveSlot || streamingRowsKey() !== key || !streamingRowsEligible()) return;
+  liveSlot.innerHTML = renderStreamingRowsHtml(rows);
+  if (!streamingReducedMotion()) {
+    liveSlot.classList.remove("mf-rows-in");
+    void liveSlot.offsetWidth;
+    liveSlot.classList.add("mf-rows-in");
+  }
+}
+
+/* ===== Filters row: search inside the service, genre and decade ===== */
+function renderStreamingFilters() {
+  const name = streamingProviderName(currentStreamingProvider);
+  const placeholder = t("stream_search_placeholder").replace(/\{provider\}/g, name);
+  return `
+    <div class="streaming-filters">
+      <form class="streaming-search" data-streaming-search-form role="search">
+        <svg class="streaming-search-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        <input type="search" data-streaming-search value="${esc(currentStreamingQuery)}" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}" maxlength="80" autocomplete="off" enterkeyhint="search">
+      </form>
+      <label class="list-sort streaming-filter-select">
+        <span>${t("genre_label")}:</span>
+        <select data-streaming-genre aria-label="${t("genre_label")}">
+          <option value="">${t("genre_any")}</option>
+          ${STREAMING_GENRE_KEYS.map((g) => `<option value="${g}" ${currentStreamingGenre === g ? "selected" : ""}>${t(`genre_${g}`)}</option>`).join("")}
+        </select>
+      </label>
+      <label class="list-sort streaming-filter-select">
+        <span>${t("decade_label")}:</span>
+        <select data-streaming-decade aria-label="${t("decade_label")}">
+          <option value="">${t("decade_any")}</option>
+          ${STREAMING_DECADE_KEYS.map((d) => `<option value="${d}" ${currentStreamingDecade === d ? "selected" : ""}>${t(`decade_${d}`)}</option>`).join("")}
+        </select>
+      </label>
+      <button type="button" class="streaming-clear-filters" data-streaming-clear-filters ${hasStreamingFilters() ? "" : "hidden"}>${t("clear_filters")}</button>
+    </div>
+  `;
+}
+
+function renderStreamingProviderButtons(currentCountryName, spotlightTotal) {
+  return `
+      <div class="streaming-providers ${currentStreamingProvider === "mine" ? "is-mine-mode" : ""}" role="tablist" aria-label="Streaming Providers">
         <!-- Netflix -->
-        <button type="button" class="streaming-provider streaming-provider--netflix ${currentStreamingProvider === "netflix" ? "is-active" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
+        <button type="button" class="streaming-provider streaming-provider--netflix ${currentStreamingProvider === "netflix" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("netflix") ? "is-mine" : ""}" data-provider="netflix" role="tab" aria-selected="${currentStreamingProvider === "netflix"}">
           <span class="provider-icon provider-icon--netflix" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
               <path fill="#b81d24" d="M4.5 0h4.8v24H4.5z"/>
               <path fill="#b81d24" d="M14.7 0h4.8v24h-4.8z"/>
-              <path fill="#e50914" d="M4.5 0h4.8l10.2 24h-4.8z" style="filter:drop-shadow(-2px 0 2px rgba(0,0,0,0.5));"/>
+              <path fill="#e50914" d="M4.5 0h4.8l10.2 24h-4.8z"/>
             </svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_netflix")}</strong>
-              ${currentStreamingProvider === "netflix" ? `<span class="provider-status-badge provider-status-badge--netflix">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("netflix")}
             </div>
             ${renderProviderSpotlightDetails("provider_netflix_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1494,7 +1982,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Apple TV -->
-        <button type="button" class="streaming-provider streaming-provider--apple ${currentStreamingProvider === "apple" ? "is-active" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
+        <button type="button" class="streaming-provider streaming-provider--apple ${currentStreamingProvider === "apple" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("apple") ? "is-mine" : ""}" data-provider="apple" role="tab" aria-selected="${currentStreamingProvider === "apple"}">
           <span class="provider-icon provider-icon--apple" aria-hidden="true">
             <svg viewBox="0 0 35 17" width="30" height="15" fill="currentColor" aria-hidden="true">
               <!-- Apple silhouette -->
@@ -1508,7 +1996,7 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_apple")}</strong>
-              ${currentStreamingProvider === "apple" ? `<span class="provider-status-badge provider-status-badge--apple">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("apple")}
             </div>
             ${renderProviderSpotlightDetails("provider_apple_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1516,7 +2004,7 @@ function renderStreamingView() {
         </button>
 
         <!-- HBO Max -->
-        <button type="button" class="streaming-provider streaming-provider--max ${currentStreamingProvider === "max" ? "is-active" : ""}" data-provider="max" role="tab" aria-selected="${currentStreamingProvider === "max"}">
+        <button type="button" class="streaming-provider streaming-provider--max ${currentStreamingProvider === "max" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("max") ? "is-mine" : ""}" data-provider="max" role="tab" aria-selected="${currentStreamingProvider === "max"}">
           <span class="provider-icon provider-icon--max" aria-hidden="true">
             <svg viewBox="0 0 50 30" width="28" height="17" aria-hidden="true">
               <path fill="#ffffff" d="M1 1h4.6v6.6h5.2V1h4.6v16h-4.6v-6.1H5.6V17H1V1z"/>
@@ -1529,7 +2017,7 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_max")}</strong>
-              ${currentStreamingProvider === "max" ? `<span class="provider-status-badge provider-status-badge--max">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("max")}
             </div>
             ${renderProviderSpotlightDetails("provider_max_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1537,7 +2025,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Prime Video -->
-        <button type="button" class="streaming-provider streaming-provider--prime ${currentStreamingProvider === "prime" ? "is-active" : ""}" data-provider="prime" role="tab" aria-selected="${currentStreamingProvider === "prime"}">
+        <button type="button" class="streaming-provider streaming-provider--prime ${currentStreamingProvider === "prime" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("prime") ? "is-mine" : ""}" data-provider="prime" role="tab" aria-selected="${currentStreamingProvider === "prime"}">
           <span class="provider-icon provider-icon--prime" aria-hidden="true">
             <svg viewBox="0 0 54 22" width="34" height="15" aria-hidden="true">
               <path fill="#ffffff" d="M3 4.2h2.5v1.8c.6-1.3 1.9-2 3.3-2 2.5 0 4.1 1.8 4.1 4.6 0 2.8-1.7 4.6-4.1 4.6-1.4 0-2.7-.7-3.3-2v5.4H3V4.2zm2.5 4.4c0 1.6 1 2.6 2.3 2.6 1.3 0 2.4-1 2.4-2.6s-1-2.6-2.4-2.6c-1.3 0-2.3 1-2.3 2.6zM14.2 4.2h2.5v1.9c.5-1.3 1.7-2.1 3-2.1h.8v2.7h-1.1c-1.6 0-2.7 1-2.7 2.8v3.7h-2.5V4.2zM22 4.2h2.5v9h-2.5v-9zm0-4h2.5v2.5H22V.2zM26 4.2h2.5v1.6c.5-1.1 1.6-1.8 2.8-1.8 1.3 0 2.2.6 2.6 1.8.6-1.1 1.8-1.8 3-1.8 1.9 0 3.3 1.4 3.3 3.6v5.6h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5h-2.5V7.7c0-1.2-.6-1.9-1.6-1.9s-1.8.7-1.8 1.9v5.5H26V4.2zM41.8 9h6.2c-.2-2.8-1.7-5-4.4-5-2.8 0-4.6 2-4.6 4.6 0 2.7 1.8 4.7 4.7 4.7 1.8 0 3.3-.8 4-2.1l-1.8-1.1c-.5.7-1.3 1.1-2.2 1.1-1.3 0-2.2-.7-2.3-2.3zm-.1-1.8c.2-1.1 1-1.8 2.1-1.8 1 0 1.8.7 2 1.8h-4.1z"/>
@@ -1547,7 +2035,7 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_prime")}</strong>
-              ${currentStreamingProvider === "prime" ? `<span class="provider-status-badge provider-status-badge--prime">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("prime")}
             </div>
             ${renderProviderSpotlightDetails("provider_prime_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1555,7 +2043,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Hulu -->
-        <button type="button" class="streaming-provider streaming-provider--hulu ${currentStreamingProvider === "hulu" ? "is-active" : ""}" data-provider="hulu" role="tab" aria-selected="${currentStreamingProvider === "hulu"}">
+        <button type="button" class="streaming-provider streaming-provider--hulu ${currentStreamingProvider === "hulu" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("hulu") ? "is-mine" : ""}" data-provider="hulu" role="tab" aria-selected="${currentStreamingProvider === "hulu"}">
           <span class="provider-icon provider-icon--hulu" aria-hidden="true">
             <svg viewBox="0 0 57 20" width="28" height="10" aria-hidden="true">
               <g fill="#1ce783">
@@ -1569,7 +2057,7 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_hulu")}</strong>
-              ${currentStreamingProvider === "hulu" ? `<span class="provider-status-badge provider-status-badge--hulu">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("hulu")}
             </div>
             ${renderProviderSpotlightDetails("provider_hulu_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1577,7 +2065,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Disney+ -->
-        <button type="button" class="streaming-provider streaming-provider--disney ${currentStreamingProvider === "disney" ? "is-active" : ""}" data-provider="disney" role="tab" aria-selected="${currentStreamingProvider === "disney"}">
+        <button type="button" class="streaming-provider streaming-provider--disney ${currentStreamingProvider === "disney" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("disney") ? "is-mine" : ""}" data-provider="disney" role="tab" aria-selected="${currentStreamingProvider === "disney"}">
           <span class="provider-icon provider-icon--disney" aria-hidden="true">
             <svg viewBox="0 0 1041 565" width="32" height="18" aria-hidden="true">
               <defs>
@@ -1596,7 +2084,7 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_disney")}</strong>
-              ${currentStreamingProvider === "disney" ? `<span class="provider-status-badge provider-status-badge--disney">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("disney")}
             </div>
             ${renderProviderSpotlightDetails("provider_disney_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1604,14 +2092,14 @@ function renderStreamingView() {
         </button>
 
         <!-- Paramount+ -->
-        <button type="button" class="streaming-provider streaming-provider--paramount ${currentStreamingProvider === "paramount" ? "is-active" : ""}" data-provider="paramount" role="tab" aria-selected="${currentStreamingProvider === "paramount"}">
+        <button type="button" class="streaming-provider streaming-provider--paramount ${currentStreamingProvider === "paramount" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("paramount") ? "is-mine" : ""}" data-provider="paramount" role="tab" aria-selected="${currentStreamingProvider === "paramount"}">
           <span class="provider-icon provider-icon--paramount" aria-hidden="true">
             <svg viewBox="-10 -10 1020 755" width="24" height="18" aria-hidden="true"><path fill="#ffffff" d="m 24.874,562.117 13.808,-20.846 23.943,6.55 -15.622,-19.031 13.409,-20.579 -23.19,9.071 -16.11,-18.986 1.372,24.651 L 0,531.445 23.458,537.596 Z M 21.598,470.28 39.08,452.269 61.43,463.244 49.702,441.69 66.741,423.987 42.31,428.501 30.14,406.727 26.909,431.202 3.011,435.317 24.874,445.85 Z m 14.428,-90.948 20.536,-14.163 19.916,14.871 -7.524,-23.456 20.314,-14.03 -24.962,-0.31 -7.744,-23.634 -7.967,23.545 -24.21,-0.575 19.475,14.384 z m 103.032,-170.17 12.835,21.288 1.771,-24.341 24.031,-5.71 -22.881,-9.515 1.638,-24.74 -16.064,18.765 -22.307,-9.647 12.613,20.712 -16.021,18.633 z m 296.615,-145.609 18.41,-16.286 21.111,12.701 -9.958,-22.925 18.412,-16.641 -24.564,2.257 -9.293,-22.306 -5.444,23.59 -24.43,2.434 21.332,12.834 z m -352.069,671.964 4.956,-24.518 24.651,-2.966 -21.553,-11.772 4.647,-24.032 -18.103,16.993 -21.995,-11.506 10.622,22.309 -17.748,16.417 23.988,-3.099 z m 117.105,-589.688 8.586,23.368 6.462,-23.723 24.607,-0.841 -20.713,-13.72 6.417,-24.121 -19.34,15.27 -20.094,-13.499 8.321,22.749 -19.164,15.181 z m 72.76,-50.719 3.851,24.563 11.021,-22.04 24.297,3.895 -17.792,-17.482 10.888,-22.395 -22.085,11.331 -16.995,-17.083 3.983,23.811 -21.818,11.418 z m 80.15,-11.065 14.871,-19.562 23.234,8.409 -14.118,-20.536 14.915,-19.827 -23.766,6.771 -13.41,-19.96 -0.709,24.209 -23.634,6.859 23.457,8.719 z m -313.831,544.016 6.02,23.809 9.56,-23.233 24.917,1.815 -19.03,-15.626 9.205,-22.747 -20.978,13.276 -19.43,-15.578 6.107,23.987 -20.579,12.659 z m 27.794,-334.81 22.882,-10.135 16.596,18.544 -2.832,-24.43 22.438,-9.958 -24.297,-4.958 -3.098,-24.739 -12.349,21.465 -23.589,-5.134 16.287,17.969 z m 712.813,-150.52 6.374,23.721 8.894,-23.19 24.784,0.665 -19.25,-15.446 8.762,-22.527 -20.312,13.322 -19.12,-15.402 6.282,24.164 -20.935,13.588 z m 38.812,54.171 23.945,5.621 1.637,24.563 13.013,-21.199 24.298,5.532 -15.978,-18.854 12.879,-20.447 -22.395,9.161 -15.979,-18.676 1.638,24.917 z m -111.66,-101.35 10.755,21.997 4.162,-24.386 24.56,-3.939 -21.819,-11.552 4.206,-23.766 -17.305,16.994 -21.819,-11.418 10.755,22.527 -17.749,17.305 z m 185.795,177.827 -2.966,24.297 16.906,-18.278 22.703,10.046 -12.17,-21.553 16.596,-17.57 -23.766,4.824 -12.125,-21.598 -3.1,24.784 -24.343,4.736 z M 603.718,71.431 l 23.278,-8.275 14.741,19.783 -0.664,-25.004 23.456,-8.454 -23.679,-7.17 -0.441,-24.208 -13.764,19.959 -23.503,-7.125 14.914,20.137 z m 373.802,447.002 1.724,-24.606 -16.328,19.164 -23.059,-9.427 13.231,20.623 -15.8,18.942 24.076,-6.196 13.587,20.846 1.593,-24.651 23.457,-5.796 z m -16.509,105.155 24.209,-1.151 -20.314,-13.143 6.151,-23.721 -19.562,15.62 -20.846,-13.63 9.118,22.97 -19.253,15.403 24.918,-1.462 9.382,23.014 z m -47.888,83.339 4.692,24.518 10.799,-22.261 23.943,3.452 -17.571,-16.687 10.755,-22.128 -22.217,11.551 -18.013,-17.347 4.559,24.032 -21.599,11.594 z M 304.848,552.202 c -1.903,-1.549 -25.271,22.219 -40.541,38.812 -5.398,5.755 -8.896,11.2 -10.975,13.766 0,0 -6.728,11.108 -10.313,15.801 -3.629,4.692 -12.613,17.924 -16.596,23.679 -1.373,1.901 -4.913,10.266 -11.861,18.941 -3.452,4.336 -6.948,10.002 -13.72,18.678 -9.028,11.594 -15.845,21.109 -14.295,22.394 0.885,0.617 14.162,-15.447 28.412,-32.707 5.931,-7.214 12.349,-14.605 17.793,-21.644 2.654,-3.405 8.763,-9.115 10.755,-12.037 3.495,-5.179 7.303,-9.117 8.807,-10.357 7.922,-6.46 12.392,-6.946 14.959,-10.619 1.195,-1.814 16.905,-25.449 22.615,-35.053 5.221,-9.073 18.1,-26.822 14.96,-29.654 m 664.438,-149.768 -12.304,21.731 -24.387,-4.78 16.951,17.924 -11.814,21.376 22.395,-10.622 17.257,17.835 -3.052,-24.607 21.952,-10.091 -23.901,-4.427 z m -59.969,-64.306 20.048,14.206 -7.611,23.456 19.918,-14.826 20.579,14.295 -7.879,-23.545 19.606,-14.162 -24.12,0.221 -7.837,-23.369 -7.83,23.679 z M 520.073,59.394 541.316,46.869 559.55,63.2 554.196,38.946 575.392,26.245 550.832,23.678 545.873,0 l -9.735,22.173 -24.429,-2.346 18.497,16.73 z m 3.186,431.465 c 2.302,6.774 10.845,46.693 13.321,54.969 2.565,8.233 5.134,8.676 6.552,11.905 4.954,12.438 12.079,12.924 15.754,13.941 10.269,3.144 11.107,16.906 17.657,29.21 6.109,11.509 11.864,21.863 17.263,34.431 5.398,12.57 33.016,80.64 37.752,90.995 1.591,3.761 14.736,3.761 13.318,0 -3.316,-7.48 -10.886,-26.286 -15.578,-45.053 -2.963,-12.17 8.412,-3.542 1.151,-23.059 -3.364,-8.94 -9.735,-17.835 -13.318,-21.466 -3.675,-3.583 -7.217,-19.03 -10.005,-25.936 -2.963,-6.728 -1.462,-7.08 -7.566,-23.323 -4.562,-11.861 8.231,-7.878 1.062,-26.157 -4.647,-11.903 -28.281,-54.921 -31.025,-59.347 -1.328,-2.436 -5.885,-9.871 -11.508,-18.678 -5.31,-8.364 -9.69,-17.304 -12.215,-21.2 -4.912,-7.876 -13.94,-25.138 -19.03,-32.307 -5.043,-7.215 -11.331,-23.059 -13.941,-20.402 -2.565,2.345 7.611,26.111 11.772,41.247 4.382,15.093 1.195,21.245 -1.415,25.536 -2.436,4.251 -2.436,7.084 -10e-4,14.694 m 160.343,123.213 c 6.952,11.553 8.81,9.251 11.687,9.385 6.549,0.178 21.199,15.934 24.12,20.226 2.788,4.337 26.375,27.838 32.44,33.592 2.655,2.521 21.333,32.704 23.721,30.539 2.524,-2.171 -7.167,-16.818 -8.629,-20.096 -1.326,-3.186 -6.727,-7.922 -9.34,-14.78 -2.433,-6.728 -13.541,-23.679 -17.168,-29.032 -3.589,-5.401 -9.43,-17.352 -15.804,-24.918 -5.885,-6.641 -1.192,-8.454 -7.255,-14.294 -3.675,-3.453 -15.092,-13.591 -17.66,-15.714 -2.433,-2.213 -11.772,-10.488 -17.127,-15.134 -5.313,-4.515 -18.058,-13.368 -17.615,-19.031 0.175,-5.801 -2.613,-16.817 -6.905,-20.492 -3.1,-2.655 -12.215,-17.349 -22.658,-25.847 -5.268,-4.426 -16.51,-16.109 -25.183,-26.244 -8.101,-9.649 -14.207,-18.457 -16.067,-17.217 -2.743,1.771 9.43,18.765 10.666,20.803 1.284,1.945 15.358,26.286 16.685,32.66 1.463,6.463 27.707,50.631 33.327,64.35 3.229,8.011 21.198,18.721 28.765,31.244 m 114.628,42.712 c 0.884,-1.063 -1.638,-4.339 -3.008,-6.816 -1.507,-2.479 -10.446,-12.393 -12.129,-15.181 -1.459,-2.61 -13.054,-19.119 -17.129,-24.518 -7.255,-9.296 -0.617,-12.704 -4.425,-18.455 -1.549,-2.524 -10.842,-13.722 -21.642,-24.785 -5.576,-5.534 -11.772,-10.889 -17.037,-15.625 -8.543,-7.611 -15.003,-13.276 -16.064,-12.346 -1.507,1.504 3.538,7.567 5.707,10.355 2.168,2.654 5.576,7.566 10.091,12.923 7.302,8.721 0.53,15.312 7.521,22.261 1.151,1.151 20.448,22.747 25.186,26.733 7.035,6.283 32.174,36.113 33.944,37.75 2.967,2.789 8.143,8.766 8.985,7.704 M 400.354,515.202 c 1.417,-3.01 5.798,-12.303 5.577,-16.02 0,-0.664 -1.638,-1.815 -3.01,-0.445 -6.462,6.375 -19.605,29.122 -24.606,31.69 -11.242,5.442 -16.155,18.633 -19.519,23.854 -2.39,3.851 -5.487,10.091 -10.843,17.927 -4.691,6.77 -10.046,16.904 -12.038,20.401 -1.947,3.672 -2.656,7.036 0.973,7.036 3.629,0 0.798,5.932 -3.629,12.437 -2.522,3.806 -8.762,22.041 -10.577,26.997 -2.39,6.107 -2.036,13.896 -2.877,16.507 -0.841,2.436 -12.745,27.796 -15.844,33.416 -1.947,3.542 -1.372,4.957 -2.125,6.905 -1.106,2.433 0.267,3.142 2.125,1.371 2.258,-2.258 15.003,-21.6 18.897,-23.898 3.807,-2.391 7.303,-5.93 7.878,-14.252 0.575,-8.32 5.976,-10.577 10.003,-15.445 4.205,-4.825 9.736,-11.286 12.701,-18.058 2.788,-6.991 6.374,-1.682 12.836,-12.081 6.46,-10.488 20.978,-36.335 24.297,-41.336 3.186,-5.004 0.841,-12.217 0.442,-18.191 -0.177,-3.141 0.265,-10.888 2.125,-19.119 1.86,-7.347 5.267,-14.828 7.214,-19.696 m 55.589,-197.476 c 5.354,0 13.188,-9.782 17.436,-18.278 4.383,-9.206 6.596,-14.384 12.083,-26.157 0.221,-0.62 -0.31,-0.62 -0.886,-0.62 -6.239,0 -13.1,6.374 -17.48,11.507 -5.179,6.374 -13.676,18.368 -14.96,26.998 -0.929,4.646 1.106,6.55 3.807,6.55 m 138.26,8.275 c 6.109,3.098 13.677,-10.356 20.271,-22.615 6.549,-12.348 11.772,-27.662 6.24,-29.565 -6.24,-2.522 -14.163,9.516 -20.757,21.819 -6.508,12.304 -11.461,27.618 -5.754,30.361 M 358,317.726 c 5.487,0 13.145,-9.782 17.57,-18.278 4.338,-9.206 6.64,-14.384 11.95,-26.157 0.266,-0.62 -0.266,-0.62 -0.753,-0.62 -6.284,0 -13.145,6.374 -17.481,11.507 -5.179,6.374 -13.764,18.368 -15.048,26.998 -0.928,4.646 1.284,6.55 3.762,6.55 M 297.987,206.505 c 42.487,1.992 67.492,22.837 67.492,45.188 -0.043,39.965 -63.42,46.78 -63.42,46.78 -11.021,55.367 -54.924,76.477 -85.329,76.168 -40.806,-0.31 -40.187,-33.37 -38.813,-37.619 1.725,-4.914 4.247,-9.383 9.382,-9.383 5.09,0 9.339,4.16 9.339,9.383 0,3.143 -1.55,6.107 -4.249,7.656 -5.355,3.32 -4.338,7.48 -4.338,7.48 0,17.57 22.704,18.941 28.68,18.941 60.765,0 53.772,-100.111 107.368,-134.144 2.435,-1.637 4.338,0 2.833,1.682 -16.729,20.978 -23.014,54.791 -23.014,54.791 25.847,0 42.93,-24.607 42.93,-41.735 0,-29.342 -26.422,-41.514 -48.86,-41.514 -62.581,0 -89.755,43.727 -89.755,67.537 0,23.855 15.048,32.485 25.936,32.485 15.181,0 19.916,-10.134 18.057,-15.091 -3.01,-7.789 1.15,-14.295 5.843,-14.295 1.858,0 8.099,-0.31 8.099,10.667 0,10.577 -15.004,21.243 -31.601,21.243 -16.375,0 -40.318,-8.851 -40.318,-35.008 -0.002,-53.021 65.234,-73.159 103.738,-71.212 m 105.377,64.794 c -6.771,15.314 -11.772,26.289 -18.014,40.762 -0.53,1.372 -1.017,3.761 0.268,4.646 1.149,0.531 2.478,0.531 3.229,0 8.011,-3.85 15.048,-13.189 20.581,-23.811 l 9.868,-21.774 h 13.897 l -3.807,8.231 c -0.311,0.443 -0.311,0.708 0,0.443 4.338,-3.275 8.896,-8.188 14.473,-11.242 2.168,-1.018 7.347,-1.018 6.814,2.567 -0.265,3.186 -2.699,5.621 -4.07,8.675 -0.797,1.947 -1.638,4.381 -1.372,5.709 0.575,1.459 2.168,2.256 4.337,0.619 2.169,-1.372 3.851,-2.479 5.843,-4.116 3.451,-3.364 7.833,-6.506 12.745,-9.116 9.87,-4.559 23.28,-7.525 33.105,-1.284 -6.861,15.357 -12.038,26.776 -18.589,41.248 -1.195,2.478 -0.221,3.275 0.575,3.85 0.841,0.531 2.434,0.796 4.647,-0.397 5.398,-2.257 14.959,-12.923 18.765,-21.2 3.63,-7.7 6.905,-15.313 10.755,-23.987 h 14.297 l -3.986,8.409 0.575,0.266 c 3.809,-3.497 13.766,-11.463 21.112,-9.781 4.073,0.841 6.063,5.708 5.755,9.338 4.645,-3.407 9.426,-7.479 16.331,-9.161 9.868,-2.434 13.719,4.425 10.666,11.021 -3.85,9.029 -11.464,26.731 -15.845,35.849 -0.531,0.93 -0.531,2.965 0,3.408 1.106,0.885 3.055,0 3.895,-0.443 4.912,-4.205 7.614,-6.904 11.417,-12.304 1.062,-9.56 6.24,-18.366 13.412,-25.713 7.611,-8.453 19.648,-15.047 31.201,-11.153 4.027,1.328 6.771,5.443 7.878,9.516 0.531,2.168 1.062,3.274 1.062,5.753 6.063,4.427 13.985,-2.788 17.218,-8.187 0.885,-2.214 1.991,-4.648 2.521,-6.33 3.453,0.265 10.222,0 14.25,0 l -17.836,40.762 c -1.147,2.389 -1.415,3.761 -1.415,5.621 0,1.504 1.638,1.77 3.364,1.504 4.912,-0.885 12.921,-10.533 16.948,-18.632 4.515,-10.135 8.987,-18.588 13.413,-28.679 h 14.427 c -5.754,13.631 -12.262,28.148 -16.951,38.77 -1.106,2.168 -2.388,4.381 -1.682,7.39 0.575,1.417 2.479,1.151 3.672,0.62 6.241,-3.629 16.996,-15.578 20.715,-22.97 3.893,-8.763 6.77,-15.313 10.842,-23.811 h 14.827 l -3.541,8.498 c 5.531,-4.382 11.461,-9.073 18.589,-10.224 3.274,-0.442 7.347,-0.266 9.251,3.098 2.213,3.807 0.884,7.833 -0.754,11.507 -4.072,9.294 -8.809,19.385 -12.879,28.37 -0.753,2.212 -0.973,4.293 0.487,5.177 2.257,1.417 12.611,-4.912 17.879,-16.419 4.56,-10.091 7.659,-16.066 11.729,-25.891 h -7.611 l 2.124,-4.426 h 7.655 l 10.931,-23.766 H 798.1 l -10.624,23.766 h 11.11 l -2.082,4.426 h -10.933 c -6.282,13.322 -11.551,24.563 -17.038,37.133 -2.123,4.293 -4.336,11.507 -3.186,15.888 0.843,2.435 3.851,3.054 6.594,2.125 8.409,-2.921 14.163,-10.09 19.075,-17.748 0.267,-0.841 4.734,-0.265 4.381,0.354 -5.799,11.418 -18.321,22.97 -30.316,22.66 -3.583,0 -7.48,-2.213 -9.604,-5.267 -1.015,-1.594 -1.679,-2.921 -2.213,-4.824 -0.753,-3.098 -0.528,-6.595 0,-9.914 -6.505,4.958 -12.745,10.932 -20.977,12.613 -3.586,0.531 -8.187,-0.796 -9.028,-4.646 -0.531,-3.009 -0.267,-6.33 0.842,-9.029 5.177,-11.197 9.779,-21.288 14.691,-33.105 0.4,-0.531 0,-2.478 -0.575,-2.743 -0.798,-0.752 -3.23,-0.752 -5.398,0.885 -10.091,7.612 -15.27,17.481 -19.606,27.571 -3.099,6.772 -6.415,13.632 -9.648,20.271 h -14.516 c 1.682,-4.071 4.116,-9.56 6.018,-13.985 0,-0.265 -0.264,-0.265 -0.264,0 -5.974,5.931 -13.677,12.746 -21.243,14.782 -3.056,0.796 -6.11,-0.221 -7.658,-3.098 -1.727,-2.699 -2.213,-6.727 -0.754,-10.4 0,-0.177 -0.131,-0.177 -0.439,0 -5.401,5.533 -10.666,10.4 -17.927,12.923 -8.275,2.522 -15.709,-3.275 -10.488,-15.313 1.418,-3.232 5.532,-12.304 10.047,-23.191 -3.762,1.548 -8.365,1.548 -10.842,0.796 -0.312,0 -0.312,0 -0.312,0.266 -3.188,15.268 -12.259,29.166 -26.199,35.804 -6.816,3.319 -14.562,4.16 -21.333,-0.487 -3.274,-2.168 -5.223,-7.479 -5.487,-12.083 -7.038,7.126 -15.05,16.109 -25.936,14.561 -1.638,-0.354 -3.008,-1.815 -3.85,-3.319 -2.479,-4.115 -1.021,-8.542 0.53,-12.083 5.224,-10.887 9.516,-21.067 14.739,-33.326 0.839,-1.727 -1.507,-2.966 -3.188,-2.168 -5.177,2.479 -8.365,4.957 -11.239,9.382 -1.551,2.39 -3.1,5.134 -4.339,7.744 -4.826,10.49 -9.869,21.377 -14.252,31.954 h -14.825 c 6.639,-14.914 12.879,-29.431 19.428,-44.168 0.62,-1.372 0.268,-3.319 -0.53,-3.762 -1.284,-0.708 -3.628,0.443 -5.135,1.329 -3.541,2.434 -6.683,5.665 -9.028,9.87 -2.478,4.071 -4.734,8.142 -6.461,12.569 l -11.063,24.164 h -14.474 c 1.417,-3.186 4.116,-9.559 5.753,-12.746 0,-0.265 -0.265,-0.486 -0.265,-0.265 -7.922,6.55 -18.057,15.047 -25.448,13.631 -2.479,-0.266 -4.603,-2.434 -5.178,-4.646 -0.53,-2.788 -0.31,-5.267 0.266,-7.613 0,-0.31 -0.266,-0.31 -0.575,0 -6.33,6.02 -11.994,10.976 -19.961,12.879 -4.559,1.018 -8.851,-1.903 -10.312,-5.266 -2.036,-3.763 -2.522,-9.825 0.752,-16.686 1.947,-4.381 4.072,-8.984 6.771,-12.79 -1.593,0.841 -4.824,1.106 -7.037,0.841 -1.858,-0.265 -3.85,-1.726 -4.824,-3.142 -1.15,-1.239 -1.416,-3.718 -1.416,-5.355 0.266,-0.31 -0.575,-0.31 -1.151,0 -4.336,3.497 -6.283,7.657 -8.452,12.26 l -12.57,28.457 h -14.781 l 5.444,-12.083 c 0.266,-0.221 0,-0.486 -0.266,-0.221 -7.701,6.816 -16.906,14.561 -24.342,13.1 -2.125,-0.354 -4.382,-2.478 -4.913,-4.602 -0.53,-2.567 -0.31,-5.311 0,-7.702 h -0.53 c -6.021,6.02 -11.773,10.887 -19.606,12.569 -4.47,1.416 -8.498,-1.283 -10.225,-5.09 -2.168,-5.577 -1.371,-11.24 0.576,-16.508 5.665,-14.826 16.154,-25.403 30.316,-33.413 8.983,-5.136 22.968,-6.686 32.793,-1.596 M 85.595,500.286 c 0,62.537 16.597,132.995 46.205,190.795 53.507,-49.922 193.893,-208.363 210.003,-226.774 24.475,-28.015 35.052,-10.18 48.196,-25.847 7.037,-8.586 11.152,-11.861 14.25,-13.587 5.046,-3.009 10.8,-10.178 13.676,-12.304 2.877,-2.168 9.383,-10.798 14.429,-15.136 5.09,-4.292 15.047,-10.798 25.183,-19.385 10.091,-8.674 27.263,-28.767 45.983,-28.767 22.261,0 31.557,15.092 33.547,16.907 1.593,1.727 15.314,13.852 17.526,16.154 2.433,2.744 17.127,14.339 25.094,14.339 7.878,0 13.722,8.63 17.969,12.924 9.427,8.585 48.372,49.523 61.164,58.198 5.71,3.938 11.108,3.231 15.356,6.551 4.384,3.229 6.552,5.312 9.028,6.063 2.391,0.664 10.755,-1.462 20.493,10.711 4.515,3.097 5.71,3.63 5.71,3.63 0,0 13.231,11.992 17.969,20.445 4.292,7.303 102.941,138.35 138.259,185.22 32.75,-59.394 51.472,-127.639 51.472,-200.222 C 917.107,270.459 730.871,84.444 501.263,84.444 271.653,84.576 85.595,270.679 85.595,500.286"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_paramount")}</strong>
-              ${currentStreamingProvider === "paramount" ? `<span class="provider-status-badge provider-status-badge--paramount">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("paramount")}
             </div>
             ${renderProviderSpotlightDetails("provider_paramount_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1619,14 +2107,14 @@ function renderStreamingView() {
         </button>
 
         <!-- Google TV -->
-        <button type="button" class="streaming-provider streaming-provider--googletv ${currentStreamingProvider === "googletv" ? "is-active" : ""}" data-provider="googletv" role="tab" aria-selected="${currentStreamingProvider === "googletv"}">
+        <button type="button" class="streaming-provider streaming-provider--googletv ${currentStreamingProvider === "googletv" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("googletv") ? "is-mine" : ""}" data-provider="googletv" role="tab" aria-selected="${currentStreamingProvider === "googletv"}">
           <span class="provider-icon provider-icon--googletv" aria-hidden="true">
             <svg viewBox="0 0 548.3 400" width="23" height="17" aria-hidden="true"><path fill="#4285F4" d="M477.4,0H153.2c-28.2,0-51.1,22.9-51.1,51.1v51.1h395.1c28.2,0,51.1,22.9,51.1,51.1V70.9 C548.3,31.7,516.6,0,477.4,0L477.4,0z"/><path fill="#34A853" d="M70.9,0C31.7,0,0,31.7,0,70.9v175.9c0,28.2,22.9,51.1,51.1,51.1h51.1V51.1c0,0,0,0,0,0 C102.2,22.9,125,0,153.2,0H70.9L70.9,0z"/><path fill="#FBBC04" d="M70.9,400h324.2c28.2,0,51.1-22.9,51.1-51.1v-51.1H51.1C22.9,297.8,0,275,0,246.8v82.3 C0,368.3,31.7,400,70.9,400L70.9,400z"/><path fill="#EA4335" d="M477.4,400c39.2,0,70.9-31.7,70.9-70.9V153.2c0-28.2-22.9-51.1-51.1-51.1h-51.1v246.8c0,0,0,0,0,0 c0,28.2-22.9,51.1-51.1,51.1H477.4L477.4,400z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_googletv")}</strong>
-              ${currentStreamingProvider === "googletv" ? `<span class="provider-status-badge provider-status-badge--googletv">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("googletv")}
             </div>
             ${renderProviderSpotlightDetails("provider_googletv_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1634,14 +2122,14 @@ function renderStreamingView() {
         </button>
 
         <!-- MUBI -->
-        <button type="button" class="streaming-provider streaming-provider--mubi ${currentStreamingProvider === "mubi" ? "is-active" : ""}" data-provider="mubi" role="tab" aria-selected="${currentStreamingProvider === "mubi"}">
+        <button type="button" class="streaming-provider streaming-provider--mubi ${currentStreamingProvider === "mubi" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("mubi") ? "is-mine" : ""}" data-provider="mubi" role="tab" aria-selected="${currentStreamingProvider === "mubi"}">
           <span class="provider-icon provider-icon--mubi" aria-hidden="true">
             <svg viewBox="76.5 272.5 67 66.5" width="21" height="21" aria-hidden="true"><g fill="#ffffff"><circle cx="132.523" cy="305.6" r="8.766"/><circle cx="87.383" cy="305.6" r="8.766"/><circle cx="109.954" cy="305.6" r="8.766"/><circle cx="87.383" cy="283.116" r="8.766"/><circle cx="109.954" cy="283.116" r="8.766"/><circle cx="87.383" cy="328.087" r="8.766"/><circle cx="109.954" cy="328.087" r="8.766"/></g></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_mubi")}</strong>
-              ${currentStreamingProvider === "mubi" ? `<span class="provider-status-badge provider-status-badge--mubi">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("mubi")}
             </div>
             ${renderProviderSpotlightDetails("provider_mubi_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1649,14 +2137,14 @@ function renderStreamingView() {
         </button>
 
         <!-- Peacock -->
-        <button type="button" class="streaming-provider streaming-provider--peacock ${currentStreamingProvider === "peacock" ? "is-active" : ""}" data-provider="peacock" role="tab" aria-selected="${currentStreamingProvider === "peacock"}">
+        <button type="button" class="streaming-provider streaming-provider--peacock ${currentStreamingProvider === "peacock" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("peacock") ? "is-mine" : ""}" data-provider="peacock" role="tab" aria-selected="${currentStreamingProvider === "peacock"}">
           <span class="provider-icon provider-icon--peacock" aria-hidden="true">
             <svg viewBox="-2 -2 73.5 72.2" width="20" height="20" aria-hidden="true"><defs><linearGradient id="peacockIconG" x1="63.89" x2="63.89" y1="-0.13" y2="68.21" gradientUnits="userSpaceOnUse"><stop stop-color="#ffdc23"/><stop offset=".16" stop-color="#ff8700"/><stop offset=".21" stop-color="#ff5401"/><stop offset=".37" stop-color="#d9005a"/><stop offset=".42" stop-color="#c814c8"/><stop offset=".58" stop-color="#8250ff"/><stop offset=".63" stop-color="#6e64ff"/><stop offset=".79" stop-color="#00c8ff"/><stop offset=".84" stop-color="#00cc99"/><stop offset=".99" stop-color="#00a637"/></linearGradient></defs><path fill="#ffffff" d="m 48.344254,23.376251 c 0,14.582148 -11.296608,26.178142 -36.607947,29.086577 v 15.47688 H 0 V 24.601791 C 0,9.1049395 10.947966,0 24.698431,0 38.448896,0 48.344254,10.24389 48.344254,23.376251 m -11.736307,0.437376 c 0,-7.180057 -5.429566,-12.60618 -12.349215,-12.60618 -6.919641,0 -12.524649,4.902158 -12.524649,13.394344 v 16.71352 C 21.134238,41.04889 36.605731,35.784844 36.605731,23.813627 Z"/><path fill="url(#peacockIconG)" d="m 69.499016,5.333684 c 0,2.9417574 -2.512018,5.326184 -5.611192,5.326184 -3.099174,0 -5.611193,-2.3844266 -5.611193,-5.326184 0,-2.9417581 2.512019,-5.32618468 5.611193,-5.32618468 3.099174,0 5.611192,2.38442658 5.611192,5.32618468 m -5.611192,9.055365 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326185 0,2.941758 2.512019,5.326185 5.611193,5.326185 3.099174,0 5.611192,-2.384427 5.611192,-5.326185 0,-2.941758 -2.512018,-5.326185 -5.611192,-5.326185 m 0,14.379846 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326185 0,2.941758 2.512019,5.326184 5.611193,5.326184 3.099174,0 5.611192,-2.384426 5.611192,-5.326184 0,-2.941758 -2.512018,-5.326185 -5.611192,-5.326185 m 0,14.379845 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326186 0,2.941758 2.512019,5.326184 5.611193,5.326184 3.099174,0 5.611192,-2.384426 5.611192,-5.326184 0,-2.941759 -2.512018,-5.326186 -5.611192,-5.326186 m 0,14.381551 c -3.099174,0 -5.611193,2.384427 -5.611193,5.326184 0,2.941758 2.512019,5.326185 5.611193,5.326185 3.099174,0 5.611192,-2.384427 5.611192,-5.326185 0,-2.941757 -2.512018,-5.326184 -5.611192,-5.326184"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_peacock")}</strong>
-              ${currentStreamingProvider === "peacock" ? `<span class="provider-status-badge provider-status-badge--peacock">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("peacock")}
             </div>
             ${renderProviderSpotlightDetails("provider_peacock_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1664,14 +2152,14 @@ function renderStreamingView() {
         </button>
 
         <!-- Crunchyroll -->
-        <button type="button" class="streaming-provider streaming-provider--crunchyroll ${currentStreamingProvider === "crunchyroll" ? "is-active" : ""}" data-provider="crunchyroll" role="tab" aria-selected="${currentStreamingProvider === "crunchyroll"}">
+        <button type="button" class="streaming-provider streaming-provider--crunchyroll ${currentStreamingProvider === "crunchyroll" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("crunchyroll") ? "is-mine" : ""}" data-provider="crunchyroll" role="tab" aria-selected="${currentStreamingProvider === "crunchyroll"}">
           <span class="provider-icon provider-icon--crunchyroll" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#ff640a" d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_crunchyroll")}</strong>
-              ${currentStreamingProvider === "crunchyroll" ? `<span class="provider-status-badge provider-status-badge--crunchyroll">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("crunchyroll")}
             </div>
             ${renderProviderSpotlightDetails("provider_crunchyroll_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1679,14 +2167,14 @@ function renderStreamingView() {
         </button>
 
         <!-- Okko -->
-        <button type="button" class="streaming-provider streaming-provider--okko ${currentStreamingProvider === "okko" ? "is-active" : ""}" data-provider="okko" role="tab" aria-selected="${currentStreamingProvider === "okko"}">
+        <button type="button" class="streaming-provider streaming-provider--okko ${currentStreamingProvider === "okko" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("okko") ? "is-mine" : ""}" data-provider="okko" role="tab" aria-selected="${currentStreamingProvider === "okko"}">
           <span class="provider-icon provider-icon--okko" aria-hidden="true">
             <svg viewBox="0 0 2922 1036" width="32" height="12" aria-hidden="true"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg>
           </span>
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_okko")}</strong>
-              ${currentStreamingProvider === "okko" ? `<span class="provider-status-badge provider-status-badge--okko">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("okko")}
             </div>
             ${renderProviderSpotlightDetails("provider_okko_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
@@ -1694,7 +2182,7 @@ function renderStreamingView() {
         </button>
 
         <!-- Kinopoisk -->
-        <button type="button" class="streaming-provider streaming-provider--kp ${currentStreamingProvider === "kinopoisk" ? "is-active" : ""}" data-provider="kinopoisk" role="tab" aria-selected="${currentStreamingProvider === "kinopoisk"}">
+        <button type="button" class="streaming-provider streaming-provider--kp ${currentStreamingProvider === "kinopoisk" ? "is-active" : ""} ${currentStreamingProvider === "mine" && myServices.includes("kinopoisk") ? "is-mine" : ""}" data-provider="kinopoisk" role="tab" aria-selected="${currentStreamingProvider === "kinopoisk"}">
           <span class="provider-icon provider-icon--kp" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
               <path fill="#ffffff" d="M3 2h5.5l-.8 6.5H3z"/>
@@ -1709,21 +2197,34 @@ function renderStreamingView() {
           <div class="provider-meta">
             <div class="provider-name-row">
               <strong>${t("provider_kinopoisk")}</strong>
-              ${currentStreamingProvider === "kinopoisk" ? `<span class="provider-status-badge provider-status-badge--kp">${t("provider_active")}</span>` : `<span class="provider-status-badge provider-status-badge--ready">READY</span>`}
+              ${providerStatusBadge("kinopoisk")}
             </div>
             ${renderProviderSpotlightDetails("provider_kinopoisk_sub", currentCountryName, currentStreamingCountry, spotlightTotal)}
           </div>
           <span class="provider-accent-rail" aria-hidden="true"></span>
         </button>
-      </div>
+      </div>`;
+}
 
-      <!-- Filter Tabs & Region / Sort Toolbar -->
+function renderStreamingView() {
+  const currentCountryObj = STREAMING_COUNTRIES.find((c) => c.code === currentStreamingCountry) || STREAMING_COUNTRIES[0];
+  const currentCountryName = t("country_" + currentCountryObj.code.toLowerCase()) || currentCountryObj.name;
+  const spotlightTotal = streamingLoading ? 0 : streamingTotalResults || streamingItems.length;
+
+  app.innerHTML = `
+    <div class="page-heading streaming-heading" data-active-provider="${currentStreamingProvider}">
+      <div class="streaming-ambient-glow" aria-hidden="true"></div>
+
+      ${renderMyServicesBar()}
+
+      ${renderStreamingProviderButtons(currentCountryName, spotlightTotal)}
+
       <div class="streaming-toolbar">
-        <div class="streaming-tabs" role="tablist">
-          <button type="button" class="streaming-tab ${currentStreamingFilter === "all" ? "is-active" : ""}" data-stream-tab="all">${t("tab_stream_all")}</button>
-          <button type="button" class="streaming-tab ${currentStreamingFilter === "movie" ? "is-active" : ""}" data-stream-tab="movie">${t("tab_stream_movies")}</button>
-          <button type="button" class="streaming-tab ${currentStreamingFilter === "tv" ? "is-active" : ""}" data-stream-tab="tv">${t("tab_stream_tv")}</button>
-          <button type="button" class="streaming-tab ${currentStreamingFilter === "top" ? "is-active" : ""}" data-stream-tab="top">${t("tab_stream_top")}</button>
+        <div class="streaming-tabs" role="tablist" aria-label="${t("tab_stream_all")}">
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "all" ? "is-active" : ""}" data-stream-tab="all" role="tab" aria-selected="${currentStreamingFilter === "all"}">${t("tab_stream_all")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "movie" ? "is-active" : ""}" data-stream-tab="movie" role="tab" aria-selected="${currentStreamingFilter === "movie"}">${t("tab_stream_movies")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "tv" ? "is-active" : ""}" data-stream-tab="tv" role="tab" aria-selected="${currentStreamingFilter === "tv"}">${t("tab_stream_tv")}</button>
+          <button type="button" class="streaming-tab ${currentStreamingFilter === "top" ? "is-active" : ""}" data-stream-tab="top" role="tab" aria-selected="${currentStreamingFilter === "top"}">${t("tab_stream_top")}</button>
         </div>
 
         <div class="streaming-right-tools">
@@ -1764,26 +2265,32 @@ function renderStreamingView() {
             <select data-streaming-sort aria-label="${t("sort_label")}">
               <option value="default" ${currentStreamingSort === "default" ? "selected" : ""}>${t("sort_default")}</option>
               <option value="rating_desc" ${currentStreamingSort === "rating_desc" ? "selected" : ""}>${t("sort_rating_desc")}</option>
-              <option value="date_desc" ${currentStreamingSort === "date_desc" ? "selected" : ""}>${t("sort_date_desc")}</option>
+              <option value="year_desc" ${currentStreamingSort === "year_desc" ? "selected" : ""}>${t("sort_year_desc")}</option>
               <option value="title_asc" ${currentStreamingSort === "title_asc" ? "selected" : ""}>${t("sort_title_asc")}</option>
             </select>
           </label>
 
-          <span class="streaming-count-label" id="streaming-count-display">${renderStreamingCountText(sorted.length, streamingTotalResults, currentStreamingCountry, currentStreamingProvider)}</span>
+          <span class="streaming-count-label" id="streaming-count-display" aria-live="polite">${streamingCountLabel()}</span>
         </div>
       </div>
+
+      ${renderStreamingFilters()}
     </div>
+
+    <!-- Themed rows: newest / highest rated (hidden while filters are on) -->
+    <div class="streaming-rows" id="streaming-rows"></div>
 
     <!-- Movie & TV Grid -->
-    <div class="movie-grid" id="streaming-movie-grid">
-      ${sorted.map((item) => streamingCard(item)).join("")}
+    <div class="movie-grid streaming-grid" id="streaming-movie-grid" aria-busy="${streamingLoading}">
+      ${streamingGridInner()}
     </div>
 
-    <!-- Pagination / Load More -->
+    <!-- Pagination / Load More (also loads automatically while scrolling) -->
     <div class="streaming-load-more-wrap" id="streaming-load-more-container">
       ${renderStreamingLoadMoreButton()}
     </div>
   `;
+  afterStreamingRender();
 }
 
 function streamingCard(item) {
@@ -1794,7 +2301,10 @@ function streamingCard(item) {
     : '<div class="no-poster">No poster</div>';
   const isWatched = watched.has(item.id);
   const mediaLabel = item.media_type === "tv" ? t("media_tv") : t("media_movie");
-  const activeProvider = normalizeStreamingProvider(item.provider) || currentStreamingProvider;
+  // The service chip is only useful in "My services" mode, where titles come from several services.
+  const itemProvider = normalizeStreamingProvider(item.provider);
+  const showProviderChip = currentStreamingProvider === "mine" && Boolean(itemProvider) && itemProvider !== "mine";
+  const activeProvider = itemProvider || currentStreamingProvider;
   let providerChip = `<span class="netflix-chip" aria-label="Netflix"><svg viewBox="0 0 72 21" width="46" height="13" aria-hidden="true"><g fill="#ffffff"><path d="M2 2h3l4.2 10.6V2h2.8v17c-1 .1-2 .2-3 .3L4.8 8.1v11.3c-.9.1-1.9.2-2.8.3V2z"/><path d="M14.5 2h7.6v2.7h-4.7v3.9h4.1v2.7h-4.1v4.4c1.6-.1 3.2-.2 4.8-.2v2.7c-2.6.1-5.1.2-7.7.4V2z"/><path d="M24 2h8.4v2.7h-2.8v13.2c-.9 0-1.9 0-2.8.1V4.7H24V2z"/><path d="M34.4 2h7.4v2.7h-4.5v4h3.9v2.7h-3.9v6.3c-1 0-1.9 0-2.9.1V2z"/><path d="M43.8 2h2.9v13.3c1.5 0 3 .1 4.5.2v2.7c-2.5-.1-5-.1-7.4-.1V2z"/><path d="M53.2 2h2.9v16.5c-1 0-1.9-.1-2.9-.1V2z"/><path d="M58.4 2h3.1l2.3 5.3L66.1 2h3.1l-3.7 7.8 4 9.7c-1.1-.1-2.2-.2-3.2-.3l-2.5-6-2.4 5.7c-1-.1-2-.1-3-.2l3.8-8.3L58.4 2z"/></g></svg></span>`;
   let providerCode = "netflix";
   if (activeProvider === "kinopoisk") {
@@ -1813,7 +2323,7 @@ function streamingCard(item) {
     providerChip = `<span class="peacock-chip" aria-label="Peacock"><svg viewBox="0 0 1607 400" width="56" height="14" aria-hidden="true"><defs><linearGradient id="peacockChip${movieId}" x1="1575.74" x2="1575.74" y1="-.83" y2="400.19" gradientUnits="userSpaceOnUse"><stop stop-color="#ffdc23"/><stop offset=".16" stop-color="#ff8700"/><stop offset=".21" stop-color="#ff5401"/><stop offset=".37" stop-color="#d9005a"/><stop offset=".42" stop-color="#c814c8"/><stop offset=".58" stop-color="#8250ff"/><stop offset=".63" stop-color="#6e64ff"/><stop offset=".79" stop-color="#00c8ff"/><stop offset=".84" stop-color="#00cc99"/><stop offset=".99" stop-color="#00a637"/></linearGradient></defs><path fill="url(#peacockChip${movieId})" d="M1606.99 31.25c0 17.26-13.99 31.25-31.25 31.25s-31.25-13.99-31.25-31.25S1558.48 0 1575.74 0s31.25 13.99 31.25 31.25m-31.25 53.13c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.37c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.37c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25m0 84.38c-17.26 0-31.25 13.99-31.25 31.25s13.99 31.25 31.25 31.25 31.25-13.99 31.25-31.25-13.99-31.25-31.25-31.25"/><path fill="#ffffff" d="M1213.52 89.3501c15.38 0 29.97 3.16 43.38 9.86V155.6c-11.04-9.86-27.61-17.35-44.57-17.35-33.52 0-59.15 27.21-59.15 62.31s25.63 61.91 59.95 61.12c16.96 0 33.12-5.92 43.78-16.56v55.6c-14.2 6.31-28.79 10.65-44.57 10.65-61.92 0-112-49.69-112-110.81s51.27-111.1999 113.19-111.1999zM217.7 194.64c0 65.68-50.87 117.91-164.85 131.01v69.71H0v-195.2c0-69.8 49.3-110.8099 111.22-110.8099S217.7 135.49 217.7 194.64m-52.85 1.97c0-32.34-24.45-56.78-55.61-56.78s-56.4 22.08-56.4 60.33v75.28c42.33-1.2 112-24.91 112-78.83zm536.36 3.94c0 61.12 49.69 110.81 112 110.81 15.38 0 30.37-4.34 44.18-10.65v-55.6c-10.25 10.25-26.82 16.56-43.38 16.56-34.31.79-59.95-26.42-59.95-61.12s25.63-62.31 59.15-62.31c16.96 0 33.13 7.49 44.18 17.35V99.2001c-13.41-6.7-28-9.86-42.6-9.86-62.71 0-113.58 49.6899-113.58 111.1999zm780.88 104.5-91.82-108.36 81.57-101.0399h-64.68l-77.3 102.5399V5.36011h-53.24V305.06h53.24V201.17l87.95 103.89h64.28zm-795.07-94.64v94.64h-52.85v-22.7c-16.27 18.33-39.33 29.01-65.86 29.01-56.4 0-102.54-49.69-102.54-110.02S513.09 89.3501 577.38 89.3501c71.78 0 109.64 52.8399 109.64 121.0599m-53.24-9.86c0-35.1-24.45-62.31-57.58-62.31s-58.77 27.21-58.77 62.31 25.64 61.91 58.77 61.91 57.58-26.82 57.58-61.91m453.93 0c0 61.12-50.48 110.81-112.4 110.81s-112-49.69-112-110.81 50.87-111.1999 112-111.1999 112.4 50.0799 112.4 111.1999m-52.85 0c0-35.49-26.03-62.31-59.55-62.31s-59.15 27.21-59.15 62.31 25.63 61.91 59.15 61.91 59.55-27.21 59.55-61.91m-583.68-2.36c0 5.13-.4 13.8-1.18 22.87H285.4c7.99 25.74 31.55 41.8 64.83 41.8 25.24 0 49.3-9.07 69.8-26.42v54.81c-17.75 12.62-42.59 20.11-71.38 20.11-68.62 0-117.53-45.35-117.53-109.23s50.09-112.7799 112-112.7799S451.58 137.85 451.18 198.19M285.8 178.87h110.56c-6.82-24.48-26.88-41.01-53.63-41.01s-48.96 16.56-56.92 41.01z"/></svg></span>`;
     providerCode = "peacock";
   } else if (activeProvider === "crunchyroll") {
-    providerChip = `<span class="crunchyroll-chip" aria-label="Crunchyroll"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true" style="margin-right:4px;flex:none;"><path d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg>Crunchyroll</span>`;
+    providerChip = `<span class="crunchyroll-chip" aria-label="Crunchyroll"><svg class="chip-glyph chip-glyph--cr" viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M2.909 13.436C2.914 7.61 7.642 2.893 13.468 2.898c5.576.005 10.137 4.339 10.51 9.819q.021-.351.022-.706C24.007 5.385 18.64.006 12.012 0S.007 5.36 0 11.988 5.36 23.994 11.988 24q.412 0 .815-.027c-5.526-.338-9.9-4.928-9.894-10.538Zm16.284.155a4.1 4.1 0 0 1-4.095-4.103 4.1 4.1 0 0 1 2.712-3.855 8.95 8.95 0 0 0-4.187-1.037 9.007 9.007 0 1 0 8.997 9.016q-.001-.847-.15-1.651a4.1 4.1 0 0 1-3.278 1.63Z"/></svg>Crunchyroll</span>`;
     providerCode = "crunchyroll";
   } else if (activeProvider === "okko") {
     providerChip = `<span class="okko-chip" aria-label="Okko"><svg viewBox="0 0 2922 1036" width="44" height="16" aria-hidden="true"><g fill="#ffffff"><path d="M401,237C180,237,0,415,0,637c0,221,180,399,401,399c222,0,402-178,402-399C803,415,623,237,401,237z M401,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C626,760,525,869,401,869z"/><path d="M171,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C82,137,122,177,171,177z"/><path d="M631,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C542,137,582,177,631,177z"/><path d="M401,177c48,0,88-40,88-89c0-48-40-88-88-88c-49,0-89,40-89,88C312,137,352,177,401,177z"/><polygon points="2173,251 1978,251 1747,572 1747,13 1570,13 1570,1022 1747,1022 1747,701 1996,1022 2205,1022 1898,632"/><polygon points="1487,251 1292,251 1061,572 1061,13 884,13 884,1022 1061,1022 1061,701 1310,1022 1519,1022 1212,632"/><path d="M2520,237c-221,0-401,178-401,400c0,221,180,399,401,399c222,0,402-178,402-399C2922,415,2742,237,2520,237z M2519,869c-123,0-224-109-224-232c0-124,101-233,224-233c124,0,225,109,225,233C2744,760,2643,869,2519,869z"/></g></svg></span>`;
@@ -1831,14 +2341,17 @@ function streamingCard(item) {
     providerChip = `<span class="max-chip" aria-label="HBO Max"><svg viewBox="0 0 92 18" width="54" height="11" aria-hidden="true"><path fill="#ffffff" d="M1 1h4.6v6.6h5.2V1h4.6v16h-4.6v-6.1H5.6V17H1V1z"/><path fill="#ffffff" fill-rule="evenodd" d="M17.4 1h7.6c3.2 0 5.3 1.5 5.3 4.1 0 1.7-.9 2.9-2.4 3.5 1.9.6 2.9 1.9 2.9 3.9 0 2.9-2.2 4.5-5.6 4.5h-7.8V1zm4.4 3.3v3h2.6c1 0 1.6-.6 1.6-1.5s-.6-1.5-1.6-1.5h-2.6zm0 6.1v3.3h2.9c1.2 0 1.8-.6 1.8-1.6 0-1.1-.7-1.7-1.9-1.7h-2.8z"/><path fill="#ffffff" fill-rule="evenodd" d="M40.3.7c4.9 0 8.5 3.6 8.5 8.3s-3.6 8.3-8.5 8.3-8.5-3.6-8.5-8.3S35.4.7 40.3.7zm0 4.1c-2.3 0-4 1.8-4 4.2s1.7 4.2 4 4.2 4-1.8 4-4.2-1.7-4.2-4-4.2z"/><circle cx="40.3" cy="9" r="2.2" fill="#ffffff"/><path fill="#ffffff" fill-rule="evenodd" d="M51.5 5.2h2.7v1.2c.6-.9 1.5-1.4 2.7-1.4 1.3 0 2.2.5 2.7 1.5.7-1 1.7-1.5 3-1.5 2 0 3.3 1.3 3.3 3.5V16h-2.8v-6.9c0-1.1-.6-1.8-1.5-1.8-.9 0-1.6.7-1.6 1.8V16h-2.7V9.1c0-1.1-.6-1.8-1.5-1.8-.9 0-1.6.7-1.6 1.8V16h-2.7V5.2zM67.2 10.6c0-3.2 2.2-5.6 5.1-5.6 1.4 0 2.5.6 3.2 1.6V5.2h2.7V16h-2.7v-1.4c-.7 1-1.8 1.6-3.2 1.6-2.9 0-5.1-2.4-5.1-5.6zm2.7 0c0 1.8 1.1 3.1 2.7 3.1 1.5 0 2.7-1.2 2.7-3.1 0-1.8-1.2-3.1-2.7-3.1-1.6 0-2.7 1.3-2.7 3.1zM80 5.2h3.1l2.4 3.4 2.4-3.4H91l-3.7 5.2L91.2 16h-3.1l-2.6-3.7-2.6 3.7h-3.1l3.9-5.6L80 5.2z"/></svg></span>`;
     providerCode = "max";
   } else if (activeProvider === "apple") {
-    providerChip = `<span class="apple-chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV</span>`;
+    providerChip = `<span class="apple-chip"><svg class="chip-glyph chip-glyph--apple" viewBox="0 0 24 24" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.12.67-2.78 1.45-.58.67-1.1 1.77-.96 2.83 1.12.09 2.15-.56 2.78-1.33z"/></svg>Apple TV</span>`;
     providerCode = "apple";
   }
 
-  return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}" data-provider="${providerCode}">
+  if (!showProviderChip) providerChip = "";
+  const newChip = isNewRelease(item) ? `<span class="new-chip">${t("badge_new")}</span>` : "";
+  return `<div class="movie-tile streaming-tile" data-media-type="${esc(item.media_type || "movie")}" data-tile-provider="${showProviderChip ? providerCode : esc(currentStreamingProvider)}">
     <a class="movie-card" href="#movie/${movieId}">
       ${poster}
       <div class="streaming-card-badges">
+        ${newChip}
         ${providerChip}
         <span class="media-type-chip">${mediaLabel}</span>
       </div>
@@ -2857,6 +3370,9 @@ async function route() {
   const routeProv = normalizeStreamingProvider(kind);
   if (kind === "streaming" || routeProv) {
     const prov = routeProv || normalizeStreamingProvider(rawId);
+    if (prov && prov !== currentStreamingProvider && document.getElementById("streaming-movie-grid")) {
+      return changeStreamingProvider(prov);
+    }
     return streamingPage("all", prov);
   }
   if (kind === "trending") return trendingPage();
@@ -2919,6 +3435,11 @@ window.addEventListener?.("keydown", (event) => {
 
   // Press "Escape" to dismiss dropdowns, trailer, modal or search
   if (event.key === "Escape") {
+    const minePanel = document.querySelector?.("#streaming-mine-panel");
+    if (minePanel && !minePanel.hidden) {
+      toggleMyServicesPanel(false);
+      return;
+    }
     const regionMenu = document.querySelector?.("#streaming-region-menu");
     if (regionMenu && !regionMenu.hidden) {
       regionMenu.hidden = true;

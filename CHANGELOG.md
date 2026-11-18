@@ -2,6 +2,22 @@
 
 All notable changes to Movie Fountain are recorded here.
 
+## [Unreleased]
+
+- Streaming tab upgrade:
+  - **My services**: pick the services you pay for and browse them as one combined list (`#streaming/mine`, saved on the device). Cards show which service carries each title only in this mode.
+  - **Filters**: genre and decade menus plus a search box that searches inside the chosen service (TMDB search, then checked against the service's watch providers for the region). "Clear filters" resets everything.
+  - **Themed rows**: "Newest on …" and "Highest rated on …" shelves above the grid when no filters are on.
+  - **Automatic loading** while scrolling (the Load More button stays as a fallback) and **shimmering placeholders** instead of a "Loading…" line.
+  - **Phones**: services become one swipeable two-row strip with the active service first; "Mark watched" no longer wraps.
+  - **Computers**: posters lift on hover and Save / Mark watched appear on hover or keyboard focus.
+  - **Badges**: green "New" badge for titles released in the last 45 days; removed the "READY" label and the repeated service chip on every card.
+  - **Shareable links**: the address bar follows the chosen service (`#streaming/apple`), and typing a service link while on the page animates the switch instead of reloading.
+  - API: `/api/streaming` accepts `genre`, `decade`, `q`, `sort` (`popular|rating|date|title`) and `provider=mine&providers=a,b`. "Newest" never lists unreleased titles; "Highest rated" requires enough votes.
+- Fix: **Save** on Streaming cards switched service instead of saving the title.
+- Fix: the "Newest" sort option showed a raw `sort_date_desc` label and did not sort.
+- Fix: inline `style` attributes in streaming markup that the site's Content-Security-Policy blocked.
+
 ## [0.9.6] - 2026-11-13
 
 - Add full **Disney+** streaming integration (`#streaming/disney`, `#disney`, `#disneyplus`): explore Disney, Pixar, Marvel, and Star Wars movies & originals (*The Mandalorian*, *WandaVision*, *Loki*, *The Avengers*, *Avatar*, *Hawkeye*), powered by TMDB watch provider ID `337`, network ID `2739`, and curated catalog fallback (`functions/_lib/disney_catalog.js`).

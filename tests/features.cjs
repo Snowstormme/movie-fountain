@@ -1443,3 +1443,149 @@ test("streaming hub endpoint and catalog serve Netflix movies and series with ty
   assert.equal(run("t('provider_crunchyroll')"), "Crunchyroll");
   assert.equal(run("t('provider_crunchyroll_sub')"), "Симулькасты аниме, культовые сериалы и полнометражные хиты");
 });
+
+test("streaming filters: genre, decade, search, sort and My services (curated catalog)", async () => {
+  const { onRequestGet } = await import("../functions/api/streaming.js");
+  const get = async (qs) => {
+    const res = await onRequestGet({ request: new Request(`https://movie-fountain.pages.dev/api/streaming?${qs}`), env: {} });
+    return { status: res.status, data: await res.json() };
+  };
+
+  const drama = await get("provider=netflix&genre=drama");
+  assert.equal(drama.data.genre, "drama");
+  assert.ok(drama.data.results.length > 0);
+  assert.ok(drama.data.results.every((m) => m.genres.includes("Drama")));
+
+  const decade = await get("provider=netflix&decade=2010s");
+  assert.ok(decade.data.results.length > 0);
+  assert.ok(decade.data.results.every((m) => m.release_date >= "2010-01-01" && m.release_date <= "2019-12-31"));
+
+  const search = await get("provider=netflix&q=stranger");
+  assert.deepEqual(search.data.results.map((m) => m.title), ["Stranger Things"]);
+
+  // One-letter searches are ignored instead of matching everything oddly
+  const tiny = await get("provider=netflix&q=s");
+  assert.equal(tiny.data.q, "");
+
+  const newest = await get("provider=netflix&sort=date");
+  const today = new Date().toISOString().slice(0, 10);
+  const dates = newest.data.results.map((m) => m.release_date);
+  assert.ok(dates.every((d) => d <= today), "Newest never lists unreleased titles");
+  assert.deepEqual(dates, [...dates].sort().reverse());
+
+  const mine = await get("provider=mine&providers=netflix,appletv,bogus");
+  assert.equal(mine.status, 200);
+  assert.equal(mine.data.provider, "mine");
+  assert.deepEqual(mine.data.providers, ["netflix", "apple"]);
+  const sources = new Set(mine.data.results.map((m) => m.provider));
+  assert.ok(sources.has("netflix") && sources.has("apple"));
+
+  const mineEmpty = await get("provider=mine");
+  assert.equal(mineEmpty.status, 400);
+
+  const badType = await get("provider=netflix&type=<script>");
+  assert.equal(badType.status, 200);
+});
+
+test("streaming TMDB requests: My services joins providers, genre/decade map to TMDB, search checks the service", async () => {
+  const { onRequestGet } = await import("../functions/api/streaming.js");
+  const realFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (input) => {
+    const url = new URL(String(input));
+    calls.push(url);
+    const json = (body) => new Response(JSON.stringify(body), { status: 200 });
+    if (url.pathname.endsWith("/search/multi")) {
+      return json({
+        results: [
+          { id: 1, media_type: "movie", title: "Dune", poster_path: "/a.jpg", release_date: "2021-09-15", vote_average: 7.8 },
+          { id: 2, media_type: "movie", title: "Dune Drifter", poster_path: "/b.jpg", release_date: "2020-01-01", vote_average: 5 },
+          { id: 3, media_type: "person", name: "Someone" }
+        ]
+      });
+    }
+    if (url.pathname.endsWith("/movie/1/watch/providers")) {
+      return json({ results: { US: { flatrate: [{ provider_id: 1899 }] } } });
+    }
+    if (url.pathname.endsWith("/movie/2/watch/providers")) {
+      return json({ results: { US: { flatrate: [{ provider_id: 8 }] } } });
+    }
+    return json({
+      results: [{ id: 10, title: "Live Title", poster_path: "/c.jpg", release_date: "2015-05-05", vote_average: 7 }],
+      total_results: 1,
+      total_pages: 1
+    });
+  };
+  const env = { TMDB_API_KEY: "test-key" };
+  try {
+    // Horror + 2010s on Netflix and HBO Max together
+    await onRequestGet({
+      request: new Request("https://x.dev/api/streaming?provider=mine&providers=netflix,max&genre=horror&decade=2010s"),
+      env
+    });
+    const discoverMovie = calls.find((u) => u.pathname.endsWith("/discover/movie"));
+    assert.equal(discoverMovie.searchParams.get("with_watch_providers"), "8|1899|384");
+    assert.equal(discoverMovie.searchParams.get("with_genres"), "27");
+    assert.equal(discoverMovie.searchParams.get("primary_release_date.gte"), "2010-01-01");
+    assert.equal(discoverMovie.searchParams.get("primary_release_date.lte"), "2019-12-31");
+    assert.ok(!calls.some((u) => u.pathname.endsWith("/discover/tv")), "Horror has no TV genre, so no TV request");
+
+    // "Newest" stops at today
+    calls.length = 0;
+    await onRequestGet({ request: new Request("https://x.dev/api/streaming?provider=netflix&sort=date"), env });
+    const today = new Date().toISOString().slice(0, 10);
+    const movieReq = calls.find((u) => u.pathname.endsWith("/discover/movie"));
+    const tvReq = calls.find((u) => u.pathname.endsWith("/discover/tv"));
+    assert.equal(movieReq.searchParams.get("sort_by"), "primary_release_date.desc");
+    assert.equal(movieReq.searchParams.get("primary_release_date.lte"), today);
+    assert.equal(tvReq.searchParams.get("first_air_date.lte"), today);
+
+    // Search inside HBO Max keeps only titles streaming on HBO Max
+    calls.length = 0;
+    const res = await onRequestGet({ request: new Request("https://x.dev/api/streaming?provider=max&q=dune"), env });
+    const data = await res.json();
+    assert.deepEqual(data.results.map((m) => m.title), ["Dune"]);
+    assert.equal(data.total_pages, 1);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("streaming page helpers: My services storage, New badge, request params, cards without inline styles", () => {
+  const { run, data } = setup();
+  assert.equal(
+    run(`JSON.stringify(setMyServices(["max", "netflix", "mine", "bogus", "netflix", "hbo"]))`),
+    JSON.stringify(["netflix", "max"])
+  );
+  assert.equal(data["movie-fountain.my_services.v1"], JSON.stringify(["netflix", "max"]));
+
+  const now = Date.parse("2026-11-15T00:00:00Z");
+  assert.equal(run(`isNewRelease({ release_date: "2026-11-01" }, ${now})`), true);
+  assert.equal(run(`isNewRelease({ release_date: "2026-09-01" }, ${now})`), false);
+  assert.equal(run(`isNewRelease({ release_date: "2026-12-25" }, ${now})`), false);
+
+  run(`currentStreamingProvider = "mine"; currentStreamingSort = "year_desc"; currentStreamingGenre = "drama";`);
+  const params = run(`buildStreamingParams(2).toString()`);
+  assert.match(params, /provider=mine/);
+  assert.match(params, /providers=netflix%2Cmax/);
+  assert.match(params, /sort=date/);
+  assert.match(params, /genre=drama/);
+  assert.match(params, /page=2/);
+
+  const item = `{ id: 77, title: "Show", media_type: "tv", poster_path: "/p.jpg", release_date: "2001-01-01", vote_average: 8, provider: "max" }`;
+  const mineCard = run(`streamingCard(${item})`);
+  assert.match(mineCard, /max-chip/, "My services cards show which service has the title");
+  assert.doesNotMatch(mineCard, /data-provider=/, "cards must not look like service buttons");
+
+  run(`currentStreamingProvider = "max";`);
+  const singleCard = run(`streamingCard(${item})`);
+  assert.doesNotMatch(singleCard, /max-chip/, "no repeated service chip when browsing one service");
+  assert.doesNotMatch(singleCard, /style="/, "inline styles are blocked by the site's security policy");
+
+  for (const lang of ["en", "ru"]) {
+    run(`setLang('${lang}')`);
+    for (const key of ["my_services", "clear_filters", "genre_scifi", "decade_older", "row_newest", "badge_new", "stream_search_placeholder"]) {
+      assert.notEqual(run(`t('${key}')`), key, `${lang} translation missing for ${key}`);
+    }
+  }
+});
