@@ -1573,6 +1573,7 @@ function enhanceFountain(movies, letterboxdMovies = [], imdbMovies = []) {
       : current;
     grid.innerHTML = fountainColumns(visible);
     syncFountainFlow(stream, true);
+    if (typeof mfAnimateGridIn === "function") mfAnimateGridIn(grid);
   };
 
   const update = async () => {
@@ -1603,6 +1604,9 @@ function enhanceFountain(movies, letterboxdMovies = [], imdbMovies = []) {
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    update();
+  });
+  form.addEventListener("change", () => {
     update();
   });
 

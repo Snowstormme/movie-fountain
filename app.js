@@ -179,6 +179,7 @@ function account() {
   });
   const sortControl = app.querySelector?.("[data-account-sort]");
   if (sortControl) sortControl.value = accountSort;
+  mfAnimatePageGrids();
 }
 
 function watchlist() {
@@ -220,6 +221,7 @@ function refreshAccountMovies() {
   const grid = document.querySelector?.("#account-movie-grid");
   if (!grid) return;
   grid.innerHTML = accountMovieMarkup();
+  mfAnimateGridIn(grid);
   document.querySelectorAll?.("[data-account-filter]").forEach((button) => {
     button.classList.toggle(
       "is-active",
@@ -796,11 +798,13 @@ function bindFountainControls(movies, letterboxdMovies = [], imdbMovies = []) {
           filteredMovies(movies, filter, letterboxdMovies, imdbMovies),
         );
         syncFountainFlow(stream, true);
+        mfAnimateGridIn(grid);
       }
     }),
   );
 
   syncFountainFlow(stream, true);
+  mfAnimatePageGrids();
 }
 
 async function api(path) {
@@ -892,6 +896,7 @@ async function home() {
   try {
     const data = await api("/api/home?v=fountain-lb500");
     app.innerHTML = homeShelves(data);
+    mfAnimatePageGrids();
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -927,6 +932,7 @@ function renderMovieListPage({ eyebrow, title, subText, movies }) {
     </div>
   </div>
   <div class="movie-grid" id="list-movie-grid">${sorted.map((m) => card(m)).join("")}</div>`;
+  mfAnimatePageGrids();
 }
 
 function refreshListMovies() {
@@ -934,6 +940,7 @@ function refreshListMovies() {
   if (!grid) return;
   const sorted = sortMovieList(currentListMovies, currentListSort);
   grid.innerHTML = sorted.map((m) => card(m)).join("");
+  mfAnimateGridIn(grid);
 }
 
 async function trendingPage() {
@@ -1379,12 +1386,49 @@ async function streamingPage(subFilter = "all", providerOverride = null) {
   renderStreamingView();
   syncStreamingHash();
   if (streamingNeedsServices()) return;
-  await fetchAndRenderStreaming();
+  await fetchAndRenderStreaming({ animateIn: true });
 }
 
 /* ===== Movie Fountain: animated streaming service switch ===== */
 function mfWait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function mfTriggerGlowBloom() {
+  if (streamingReducedMotion()) return;
+  const heading = document.querySelector?.(".streaming-heading");
+  if (!heading) return;
+  heading.classList?.remove?.("mf-glow-bloom");
+  void heading.offsetWidth;
+  heading.classList?.add?.("mf-glow-bloom");
+}
+
+function mfAnimateGridIn(grid = document.getElementById("streaming-movie-grid")) {
+  if (!grid || streamingReducedMotion()) return;
+  const children = grid.children ? [...grid.children] : [];
+  children.forEach((tile, i) => tile.style?.setProperty?.("--mf-i", Math.min(i, 17)));
+  grid.classList?.remove?.("mf-grid-out", "mf-grid-in");
+  void grid.offsetWidth;
+  grid.classList?.add?.("mf-grid-in");
+  setTimeout(() => grid.classList?.remove?.("mf-grid-in"), 1400);
+}
+
+function mfAnimateStreamingContent() {
+  if (streamingReducedMotion()) return;
+  const rowsSlot = document.getElementById("streaming-rows");
+  if (rowsSlot && rowsSlot.children?.length) {
+    rowsSlot.classList?.remove?.("is-fading", "mf-rows-in");
+    void rowsSlot.offsetWidth;
+    rowsSlot.classList?.add?.("mf-rows-in");
+    rowsSlot.querySelectorAll?.(".streaming-row")?.forEach((row) => mfAnimateGridIn(row));
+  }
+  mfAnimateGridIn(document.getElementById("streaming-movie-grid"));
+}
+
+function mfAnimatePageGrids(container = app) {
+  if (!container || streamingReducedMotion()) return;
+  const grids = container.querySelectorAll?.(".movie-grid, .movie-row, .cast-grid, #fountain-grid") || [];
+  grids.forEach((g) => mfAnimateGridIn(g));
 }
 
 function providerStatusBadge(provider) {
@@ -1417,15 +1461,6 @@ function mfMarkProviderActive(provider) {
     btn.classList.toggle("is-active", provider === "mine");
     btn.setAttribute("aria-pressed", String(provider === "mine"));
   });
-}
-
-function mfAnimateGridIn(grid = document.getElementById("streaming-movie-grid")) {
-  if (!grid || streamingReducedMotion()) return;
-  [...grid.children].forEach((tile, i) => tile.style.setProperty("--mf-i", Math.min(i, 17)));
-  grid.classList.remove("mf-grid-in");
-  void grid.offsetWidth;
-  grid.classList.add("mf-grid-in");
-  setTimeout(() => grid.classList.remove("mf-grid-in"), 1400);
 }
 
 function mfScrollProvidersToStart() {
@@ -1513,17 +1548,21 @@ async function changeStreamingProvider(provider) {
   streamingLoading = false;
   renderStreamingView();
   // 4. New titles rise in one after another.
-  mfAnimateGridIn();
+  mfAnimateStreamingContent();
 }
 
 async function changeStreamingFilter(tab) {
-  if (currentStreamingFilter === tab) return;
-  currentStreamingFilter = tab;
   document.querySelectorAll("[data-stream-tab]").forEach((btn) => {
     const on = btn.dataset.streamTab === tab;
     btn.classList.toggle("is-active", on);
     btn.setAttribute("aria-selected", String(on));
   });
+  if (currentStreamingFilter === tab) {
+    mfTriggerGlowBloom();
+    mfAnimateStreamingContent();
+    return;
+  }
+  currentStreamingFilter = tab;
   await fetchAndRenderStreaming({ resultsOnly: true, animateIn: true });
 }
 
@@ -1587,21 +1626,40 @@ async function fetchAndRenderStreaming({ resultsOnly = false, animateIn = false 
   }
 
   streamingLoading = true;
+  const reduceMotion = streamingReducedMotion();
   const grid = document.getElementById("streaming-movie-grid");
-  if (grid) {
-    grid.classList.remove("mf-grid-out", "mf-grid-in");
-    grid.setAttribute("aria-busy", "true");
-    grid.innerHTML = streamingSkeletonTiles(12);
-  }
+  const rows = document.getElementById("streaming-rows");
   const loadMoreSlot = document.getElementById("streaming-load-more-container");
   if (loadMoreSlot) loadMoreSlot.innerHTML = "";
   updateStreamingFilterControls();
 
+  const hasRenderedTiles = Boolean(grid && grid.querySelector?.(".streaming-tile"));
+  let skeletonTimer = null;
+  if (grid && animateIn && hasRenderedTiles && !reduceMotion) {
+    mfTriggerGlowBloom();
+    grid.classList.remove("mf-grid-in");
+    grid.classList.add("mf-grid-out");
+    grid.setAttribute("aria-busy", "true");
+    rows?.classList.add("is-fading");
+    skeletonTimer = setTimeout(() => {
+      if (token !== streamingRequestToken || !grid?.isConnected) return;
+      grid.classList.remove("mf-grid-out");
+      grid.innerHTML = streamingSkeletonTiles(12);
+    }, 340);
+  } else if (grid) {
+    grid.classList.remove("mf-grid-out", "mf-grid-in");
+    grid.setAttribute("aria-busy", "true");
+    grid.innerHTML = streamingSkeletonTiles(12);
+  }
+
+  const waitTransition = animateIn && hasRenderedTiles && !reduceMotion ? mfWait(180) : Promise.resolve();
   try {
-    const data = await fetchStreamingPage(1);
+    const [data] = await Promise.all([fetchStreamingPage(1), waitTransition]);
+    if (skeletonTimer) clearTimeout(skeletonTimer);
     if (token !== streamingRequestToken || !isStreamingHash()) return;
     applyStreamingData(data);
   } catch (error) {
+    if (skeletonTimer) clearTimeout(skeletonTimer);
     if (token !== streamingRequestToken) return;
     streamingItems = [];
     streamingError = error.message;
@@ -1609,7 +1667,7 @@ async function fetchAndRenderStreaming({ resultsOnly = false, animateIn = false 
   streamingLoading = false;
   if (resultsOnly) renderStreamingResults();
   else renderStreamingView();
-  if (animateIn) mfAnimateGridIn();
+  if (animateIn) mfAnimateStreamingContent();
 }
 
 /** Re-renders only the titles, count and rows, so the search box keeps focus. */
@@ -1906,6 +1964,12 @@ async function refreshStreamingRows() {
   if (cached) {
     slot.innerHTML = renderStreamingRowsHtml(cached);
     slot.classList.remove("is-fading");
+    if (!streamingReducedMotion()) {
+      slot.classList.remove("mf-rows-in");
+      void slot.offsetWidth;
+      slot.classList.add("mf-rows-in");
+      slot.querySelectorAll?.(".streaming-row")?.forEach((row) => mfAnimateGridIn(row));
+    }
     return;
   }
   slot.innerHTML = streamingSkeletonRows();
@@ -1927,6 +1991,7 @@ async function refreshStreamingRows() {
     liveSlot.classList.remove("mf-rows-in");
     void liveSlot.offsetWidth;
     liveSlot.classList.add("mf-rows-in");
+    liveSlot.querySelectorAll?.(".streaming-row")?.forEach((row) => mfAnimateGridIn(row));
   }
 }
 
@@ -2461,6 +2526,7 @@ async function search(query) {
     ${peopleSection}
     ${moviesSection}
     ${emptyMessage}`;
+    mfAnimatePageGrids();
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -3116,6 +3182,7 @@ function bindWatchProviderEvents(providers) {
       if (section) {
         section.outerHTML = renderWatchProviders(providers, code);
         bindWatchProviderEvents(providers);
+        document.querySelectorAll?.("#movie-watch-providers .watch-provider-list")?.forEach((list) => mfAnimateGridIn(list));
       }
     });
   });
@@ -3204,6 +3271,7 @@ async function movie(rawId) {
     ${shelf(data.director ? `${t("more_from_prefix")} ${esc(data.director.name)}` : t("more_from_generic"), t("other_films_director"), data.director_movies)}`;
 
     bindWatchProviderEvents(watchProviders);
+    mfAnimatePageGrids();
 
     const imdbParam = m.imdb_id
       ? `?imdb_id=${encodeURIComponent(m.imdb_id)}`
@@ -3267,6 +3335,7 @@ async function cast(rawId) {
       <h1>${esc(data.movie?.title || "")}</h1>
     </div>
     <div class="cast-grid">${castMarkup}</div>`;
+    mfAnimatePageGrids();
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
@@ -3355,9 +3424,24 @@ async function person(rawId) {
       </div>
     </article>
     ${isDirector ? directedMarkup + actingMarkup : actingMarkup + directedMarkup}`;
+    mfAnimatePageGrids();
   } catch (error) {
     app.innerHTML = `<div class="message error">${esc(error.message)}</div>`;
   }
+}
+
+function syncTopbarActiveNav(kind, routeProv) {
+  const activeNav =
+    kind === "streaming" || routeProv
+      ? "#streaming"
+      : kind === "fountain"
+        ? "#fountain"
+        : kind === "account" || kind === "watchlist"
+          ? "#account"
+          : "";
+  document.querySelectorAll?.(".topbar .fountain-nav")?.forEach((link) => {
+    link.classList?.toggle?.("is-active", link.getAttribute?.("href") === activeNav);
+  });
 }
 
 async function route() {
@@ -3365,9 +3449,10 @@ async function route() {
   const rawHash = location.hash.slice(1);
   const [kind, ...rest] = rawHash.split("/");
   const rawId = rest.join("/");
+  const routeProv = normalizeStreamingProvider(kind);
+  syncTopbarActiveNav(kind, routeProv);
   if (!kind) return home();
   if (kind === "account" || kind === "watchlist") return account();
-  const routeProv = normalizeStreamingProvider(kind);
   if (kind === "streaming" || routeProv) {
     const prov = routeProv || normalizeStreamingProvider(rawId);
     if (prov && prov !== currentStreamingProvider && document.getElementById("streaming-movie-grid")) {
@@ -3409,6 +3494,24 @@ window.addEventListener("hashchange", route);
 
 if (typeof document !== "undefined" && document !== app && typeof document.addEventListener === "function") {
   document.addEventListener("click", (event) => {
+    const navLink = event.target?.closest?.(".topbar a[href^=\"#\"]");
+    if (navLink) {
+      const targetHref = navLink.getAttribute?.("href") || "";
+      const currentHash = location.hash || "#";
+      const isSameTab =
+        targetHref === currentHash ||
+        (targetHref === "#" && (currentHash === "" || currentHash === "#")) ||
+        (targetHref === "#streaming" && isStreamingHash());
+      if (isSameTab) {
+        if (targetHref === "#streaming") {
+          event.preventDefault?.();
+          mfTriggerGlowBloom();
+          mfAnimateStreamingContent();
+        } else {
+          mfAnimatePageGrids();
+        }
+      }
+    }
     const menu = document.querySelector?.("#streaming-region-menu");
     const trigger = document.querySelector?.("#streaming-region-trigger");
     if (menu && !menu.hidden && !menu.contains?.(event.target) && !trigger?.contains?.(event.target)) {
