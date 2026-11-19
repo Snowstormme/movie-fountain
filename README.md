@@ -325,7 +325,7 @@ The test suite runs with Node's native test runner without third-party dependenc
 ```bash
 # Clone the repository
 git clone https://github.com/Snowstormme/movie-fountain.git
-cd movie-fountain
+cd movie-fountain-me
 
 # Execute all automated tests
 npm test
